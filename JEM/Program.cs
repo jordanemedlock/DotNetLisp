@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace JEM
 {
@@ -6,7 +8,9 @@ namespace JEM
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var sexpr = SExpr.Parse("a b (c d (e) () )");
+            Console.WriteLine(sexpr.ToString());
         }
+
     }
 }
