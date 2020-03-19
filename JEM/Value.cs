@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JEM
 {
-    interface Value
+    public interface Value
     {
       string ToString(bool top = false);
     }

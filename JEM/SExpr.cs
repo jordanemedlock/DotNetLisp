@@ -6,7 +6,7 @@ using System.Text;
 
 namespace JEM
 {
-    class SExpr : Value
+    public class SExpr : Value
     {
         public List<Value> Values { get; set; }
         
@@ -19,7 +19,7 @@ namespace JEM
         public string ToString(bool top = true) {
             var inners = String.Join(" ", Values.Select(v => v.ToString(false)));
             if (top) {
-                return inners;
+                return "<" + inners + ">";
             } else {
                 return "(" + inners + ")";
             }

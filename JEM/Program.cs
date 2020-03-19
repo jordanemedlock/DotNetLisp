@@ -8,8 +8,9 @@ namespace JEM
     {
         static void Main(string[] args)
         {
-            var sexpr = SExpr.Parse("a b (c d (e) () )");
+            var sexpr = SExprParser.ParseSExpr("a b c (d)");
             Console.WriteLine(sexpr.ToString());
+            Console.ReadLine();
         }
 
     }
