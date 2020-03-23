@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using JEM.Model;
+using JEM.Parse;
+using Superpower;
 
 namespace JEM
 {
@@ -8,9 +11,10 @@ namespace JEM
     {
         static void Main(string[] args)
         {
-            var sexpr = SExprParser.ParseSExpr("a b c (d)");
-            Console.WriteLine(sexpr.ToString());
-            Console.ReadLine();
+            var str = "abc123 () (something (a)) esle";
+            var tokenList = new SExprTokenizer().TryTokenize(str);
+            var x = SExprParser.Values.Parse(tokenList.Value);
+            Console.WriteLine(new SExpr(x).ToString());
         }
 
     }

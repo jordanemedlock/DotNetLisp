@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace JEM
+namespace JEM.Model
 {
     struct StringValue : Value
     {

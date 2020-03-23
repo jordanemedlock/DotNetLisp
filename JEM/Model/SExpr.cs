@@ -4,7 +4,7 @@ using System.Linq;
 
 using System.Text;
 
-namespace JEM
+namespace JEM.Model
 {
     public class SExpr : Value
     {
