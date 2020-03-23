@@ -4,17 +4,17 @@ using System.Text;
 
 namespace JEM.Model
 {
-    struct StringValue : Value
+    struct StringConstant : Expr
     {
         public string Value { get; set; }
 
-        public StringValue(string value)
+        public StringConstant(string value)
         {
             Value = value;
         }
 
         public string ToString(bool top = false) {
-          return Value;
+          return "s\""+Value+"\"";
         }
 
     }

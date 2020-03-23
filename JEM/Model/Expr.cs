@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JEM.Model
 {
-    public interface Value
+    public interface Expr
     {
       string ToString(bool top = false);
     }

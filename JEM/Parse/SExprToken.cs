@@ -8,7 +8,12 @@ namespace JEM.Parse
     public enum SExprToken
     {
         None,
+
         Symbol,
+        Integer,
+        String,
+        Float,
+
 
         [Token(Example = "(")]
         Open,

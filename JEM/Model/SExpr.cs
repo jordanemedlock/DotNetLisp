@@ -6,11 +6,11 @@ using System.Text;
 
 namespace JEM.Model
 {
-    public class SExpr : Value
+    public class SExpr : Expr
     {
-        public List<Value> Values { get; set; }
+        public List<Expr> Values { get; set; }
         
-        public SExpr(List<Value> values)
+        public SExpr(List<Expr> values)
         {
             Values = values;
         }
@@ -32,7 +32,7 @@ namespace JEM.Model
         private static Tuple<SExpr, List<string>> Parse(List<string> tokens, bool top)
         {
 
-            var values = new List<Value>();
+            var values = new List<Expr>();
             var right = tokens;
 
             while (right.Count > 0) 
@@ -53,7 +53,7 @@ namespace JEM.Model
                         throw new Exception("unmatched parentheses");
                     }
                 default:
-                    values.Add(new StringValue(token));
+                    values.Add(new StringConstant(token));
                     break;
                 }
             }

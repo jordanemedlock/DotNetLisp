@@ -5,51 +5,37 @@ using Superpower.Display;
 using Superpower.Model;
 using Superpower;
 using Superpower.Parsers;
+using Superpower.Tokenizers;
 
 namespace JEM.Parse
 {
 
     
-    public class SExprTokenizer : Tokenizer<SExprToken>
+    public class SExprTokenizer
     {
-        protected TextParser<TextSpan> Symbol = Identifier.CStyle;
+        protected static TextParser<TextSpan> SymbolToken = Identifier.CStyle;
+        static TextParser<Unit> StringToken { get; } =
+            from open in Character.EqualTo('"')
+            from content in Span.EqualTo("\\\"").Value(Unit.Value).Try()
+                .Or(Character.Except('"').Value(Unit.Value))
+                .IgnoreMany()
+            from close in Character.EqualTo('"')
+            select Unit.Value;
+
+        static TextParser<TextSpan> IntToken = Numerics.Integer;
+        static TextParser<TextSpan> FloatToken = Numerics.Decimal;
+
+        public static Tokenizer<SExprToken> Instance { get; } =
+            new TokenizerBuilder<SExprToken>()
+                .Ignore(Span.WhiteSpace)
+                .Match(Character.EqualTo('('), SExprToken.Open)
+                .Match(Character.EqualTo(')'), SExprToken.Close)
+                .Match(SymbolToken, SExprToken.Symbol, requireDelimiters: true)
+                .Match(StringToken, SExprToken.String, requireDelimiters: true)
+                .Match(IntToken, SExprToken.Integer, requireDelimiters: true)
+                .Match(FloatToken, SExprToken.Float, requireDelimiters: true)
+                .Build();
         
-
-        readonly Dictionary<char, SExprToken> operators = new Dictionary<char, SExprToken>()
-        {
-            ['('] = SExprToken.Open,
-            [')'] = SExprToken.Close
-        };
-
-        protected override IEnumerable<Result<SExprToken>> Tokenize(TextSpan span)
-        {
-            var next = SkipWhiteSpace(span);
-            if (!next.HasValue)
-            {
-                yield break;
-            }
-
-            do
-            {
-                SExprToken token;
-
-                var c = next.Value;
-                if (operators.TryGetValue(c, out token))
-                {
-                    yield return Result.Value(token, next.Location, next.Remainder);
-                    next = next.Remainder.ConsumeChar();
-                }
-                else
-                {
-                    var symbol = Symbol(next.Location);
-                    next = symbol.Remainder.ConsumeChar();
-                    yield return Result.Value(SExprToken.Symbol, symbol.Location, symbol.Remainder);
-                }
-
-                next = SkipWhiteSpace(next.Location);
-            }
-            while (next.HasValue);
-        }
         
     }
 

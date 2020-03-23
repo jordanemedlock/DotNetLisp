@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JEM.Model
 {
-    public class Symbol : Value
+    public class Symbol : Expr
     {
         public string Value { get; set; }
 
