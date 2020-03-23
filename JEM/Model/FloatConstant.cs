@@ -15,7 +15,7 @@ namespace JEM.Model
 
         public string ToString(bool top)
         {
-            return $"f{Value}";
+            return $"{Value}";
         }
     }
 }

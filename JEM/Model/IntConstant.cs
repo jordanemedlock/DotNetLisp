@@ -14,7 +14,7 @@ namespace JEM.Model
         }
         public string ToString(bool top = false)
         {
-            return $"i{Value}";
+            return $"{Value}";
         }
     }
 }

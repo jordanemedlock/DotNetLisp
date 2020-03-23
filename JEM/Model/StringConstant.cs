@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JEM.Model
 {
-    struct StringConstant : Expr
+    class StringConstant : Expr
     {
         public string Value { get; set; }
 
@@ -14,7 +14,7 @@ namespace JEM.Model
         }
 
         public string ToString(bool top = false) {
-          return "s\""+Value+"\"";
+          return "\""+Value+"\"";
         }
 
     }

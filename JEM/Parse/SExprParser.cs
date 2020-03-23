@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using JEM.Model;
@@ -10,9 +11,13 @@ namespace JEM.Parse
 {
     public static class SExprParser
     {
-        public static TextParser<Expr> SymbolParser = Character.AnyChar.Many().Select(x =>
+        public static TextParser<string> Identifier = from open in Character.Letter.Or(Character.In('.', '_', '<', '>', '[', ']', '{', '}'))
+                                                      from content in Character.Except(x => " ()".Contains(x), "symbol characters").Many()
+                                                      select open + new string(content);
+
+        public static TextParser<Expr> SymbolParser = Identifier.Select(x =>
         {
-            switch (new string(x))
+            switch (x)
             {
                 case "null":
                     return (Expr)new NullConstant();
@@ -21,7 +26,7 @@ namespace JEM.Parse
                 case "false":
                     return (Expr)new BoolConstant(false);
                 default:
-                    return (Expr)new Symbol(new string(x));
+                    return (Expr)new Symbol(x);
             }
         });
         public static TokenListParser<SExprToken, Expr> SymbolTokenParser = Token
@@ -88,6 +93,12 @@ namespace JEM.Parse
             var tokens = tokenizer.Tokenize(input);
             var values = Exprs.Parse(tokens);
             return new SExpr(values);
+        }
+
+        public static SExpr ParseFile(string filePath)
+        {
+            string fileContents = File.ReadAllText(filePath);
+            return Parse(fileContents);
         }
     }
 }

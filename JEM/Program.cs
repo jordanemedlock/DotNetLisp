@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using JEM.Compile.CIL;
 using JEM.Model;
 using JEM.Parse;
 using Superpower;
@@ -11,8 +12,12 @@ namespace JEM
     {
         static void Main(string[] args)
         {
-            var str = "abc123 () (\"something\" (11.234)) 567";
-            var x = SExprParser.Parse(str).ToString();
+            var str = @"
+                (.assembly extern mscorlib (something))
+            ";
+            var x = SExprParser.Parse(str);
+            var file = new ILFile().Compile(x);
+            Console.WriteLine(file);
         }
 
     }
