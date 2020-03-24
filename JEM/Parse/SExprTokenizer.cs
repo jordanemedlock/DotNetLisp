@@ -17,6 +17,7 @@ namespace JEM.Parse
             from open in Character.Letter.Or(Character.In('.','_','<','>','[',']','{','}'))
             from content in Character.Except(x => " ()".Contains(x), "symbol characters").Many()
             select open + new string(content));
+
         static TextParser<Unit> StringToken { get; } =
             from open in Character.EqualTo('"')
             from content in Span.EqualTo("\\\"").Value(Unit.Value).Try()
@@ -26,6 +27,7 @@ namespace JEM.Parse
             select Unit.Value;
 
         static TextParser<TextSpan> IntToken = Numerics.Integer;
+
         static TextParser<TextSpan> FloatToken = Numerics.Decimal;
 
         public static Tokenizer<SExprToken> Instance { get; } =

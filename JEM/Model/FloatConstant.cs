@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JEM.Model
 {
-    class FloatConstant : Expr
+    public class FloatConstant : Expr
     {
         public double Value { get; set; }
 
@@ -13,9 +13,27 @@ namespace JEM.Model
             Value = value;
         }
 
-        public string ToString(bool top)
+        public override string ToString(bool top)
         {
             return $"{Value}";
+        }
+
+        public override bool Equals(object obj)
+        {
+            switch(obj)
+            {
+                case double d:
+                    return d == Value;
+                case FloatConstant f:
+                    return f.Value == Value;
+                default:
+                    return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Value);
         }
     }
 }

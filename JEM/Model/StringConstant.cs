@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JEM.Model
 {
-    class StringConstant : Expr
+    public class StringConstant : Expr
     {
         public string Value { get; set; }
 
@@ -13,9 +13,29 @@ namespace JEM.Model
             Value = value;
         }
 
-        public string ToString(bool top = false) {
+        public override string ToString(bool top = false) {
           return "\""+Value+"\"";
         }
 
+        public override bool Equals(object other)
+        {
+            if (other is String str)
+            {
+                return Value.Equals(str);
+            } 
+            else if (other is StringConstant strC)
+            {
+                return Value.Equals(strC.Value);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Value);
+        }
     }
 }

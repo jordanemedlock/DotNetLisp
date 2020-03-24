@@ -12,9 +12,29 @@ namespace JEM.Model
         {
             Value = value;
         }
-        public string ToString(bool top = false)
+        public override string ToString(bool top = false)
         {
             return $"{Value}";
+        }
+        public override bool Equals(object other)
+        {
+            if (other is long i)
+            {
+                return i == Value;
+            }
+            else if (other is IntConstant intC)
+            {
+                return intC.Value == Value;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Value);
         }
     }
 }

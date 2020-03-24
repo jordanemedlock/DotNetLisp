@@ -16,6 +16,11 @@ namespace JEM.Model
             Values = values;
         }
 
+        public SExpr(params Expr[] values)
+        {
+            Values = values.ToList();
+        }
+
 
         public override string ToString(bool top = true) {
             var inners = String.Join(" ", Values.Select(v => v.ToString(false)));
@@ -44,6 +49,23 @@ namespace JEM.Model
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable<Expr>)Values).GetEnumerator();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SExpr expr)
+            {
+                return Values.Equals(expr.Values);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Values);
         }
 
         public Expr this[int index]
