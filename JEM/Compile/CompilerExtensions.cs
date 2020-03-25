@@ -13,13 +13,11 @@ namespace JEM.Compile
             return input =>
             {
                 var results = compiler(input);
-                var ret = new List<CompilerResult<T, V>>();
-                foreach (var result in results)
+                return results.SelectMany(res =>
                 {
-                    var newResults = func(result.Value)(result.Remainder);
-                    ret.AddRange(newResults);
-                }
-                return ret;
+                    var innerCompiler = func(res.Value);
+                    return innerCompiler(res.Remainder);
+                }).ToList();
             };
         }
 
@@ -69,11 +67,7 @@ namespace JEM.Compile
 
         public static Compiler<T, V> Apply<T, U, V>(this Compiler<T, U> compiler, Compiler<T, V> other)
         {
-            return input =>
-            {
-                var results = compiler(input);
-                return results.SelectMany(res => other(input)).ToList();
-            };
+            return compiler.Bind(x => other);
         }
 
         public static U Compile<T, U>(this Compiler<T, U> compiler, T input)
