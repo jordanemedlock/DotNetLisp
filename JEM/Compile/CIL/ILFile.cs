@@ -2,44 +2,25 @@
 using System.Collections.Generic;
 using System.Text;
 using JEM.Model;
+using JEM.Compile;
+
 
 namespace JEM.Compile.CIL
 {
-    class ILFile : Compiler<Expr, string>, ITransformer<Expr, string>
+    public static class ILFile
     {
-        public bool MatchesPattern(Expr input)
-        {
-            return input.Is<SExpr>(); // top of the line, we dont need to match it.
-        }
+        //public static Compiler<Expr, string> Compiler = Decl.Many();
 
-        public string Transform(Expr input)
-        {
-            return Compile(input);
-        }
+        //public static Compiler<Expr, string> Decl = Assembly; // TODO: Or() a bunc of other shit
 
-        public override string Compile(Expr input)
-        {
-            var sexpr = input.As<SExpr>();
-            var values = new List<string>();
-            foreach (var expr in sexpr)
-            {
-                foreach (var t in Transformers)
-                {
-                    if (t.MatchesPattern(expr))
-                    {
-                        values.Add(t.Transform(expr));
-                        break;
-                    }
-                }
-            }
-            return String.Join('\n', values);
-        }
+        //public static Compiler<Expr, string> Assembly = Compile.Id<Expr>().Select(x => x.ToString()); // TODO: fix this
+        
+        public static Compiler<Expr, string> DottedName = Util.Symbol;
 
-        public override List<ITransformer<Expr, string>> Transformers { get => new List<ITransformer<Expr, string>>()
-                {
-                    new Assembly()
-                };
-            set => base.Transformers = value; }
-
+        public static Compiler<Expr, string> HashAlg =
+            Util.Next(Util.SymbolIs(".hash")).Bind(_1 => 
+            Util.Next(Util.SymbolIs("algorithm")).Bind(_2 => 
+            Util.Next(Util.IntConstant).Bind(i =>
+            Compile.Return<Expr, string>($".hash algorithm {i}"))));
     }
 }

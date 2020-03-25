@@ -3,7 +3,7 @@ using JEM.Model;
 
 namespace JEM.Compile.CIL
 {
-    internal class AsmDecl : ITransformer<Expr, string>
+    public class AsmDecl : ITransformer<Expr, string>
     {
         
         public AsmDecl()

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JEM.Model
 {
-    class BoolConstant : Expr
+    public class BoolConstant : Expr
     {
         public bool Value { get; set; }
 

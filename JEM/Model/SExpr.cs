@@ -63,6 +63,11 @@ namespace JEM.Model
             }
         }
 
+        public SExpr Tail()
+        {
+            return new SExpr(Values.TakeLast(Values.Count - 1).ToList());
+        }
+
         public override int GetHashCode()
         {
             return HashCode.Combine(base.GetHashCode(), Values);
