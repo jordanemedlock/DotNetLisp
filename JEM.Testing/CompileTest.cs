@@ -83,6 +83,21 @@ namespace JEM.Testing
             Assert.Equal(stringConstant.Value, res[0].Value);
         }
 
+
+
+        [Theory]
+        [InlineData("A.B.C")]
+        [InlineData("A")]
+        [InlineData("A.123")]
+        [InlineData(".A.B.C", Skip = "Should fail in the future")]
+        public void TestDottedName(string input)
+        {
+            var parsed = new Symbol(input);
+            var results = ILFile.DottedName(parsed);
+            Assert.Single(results);
+            Assert.Equal(input, results[0].Value);
+        }
+
         [Theory]
         [InlineData(".hash algorithm 1", true)]
         [InlineData(".hash algorithm -123", true)]
@@ -139,16 +154,76 @@ namespace JEM.Testing
         }
 
         [Theory]
-        [InlineData(".assembly extern (.culture \"en-us\")", ".assembly extern {\n\t.culture \"en-us\"\n}")]
-        [InlineData(".assembly extern (.ver 1 0 0 0)", ".assembly extern {\n\t.ver 1 : 0 : 0 : 0\n}")]
-        [InlineData(".assembly extern (.hash algorithm 1)", ".assembly extern {\n\t.hash algorithm 1\n}")]
+        [InlineData(".assembly extern A.B.C ((.culture \"en-us\"))", ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}")]
+        [InlineData(".assembly extern A ((.ver 1 0 0 0))", ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}")]
+        [InlineData(".assembly extern F ((.hash algorithm 1))", ".assembly extern F {\n\t.hash algorithm 1\n}")]
+        [InlineData(".assembly extern .something ((.hash algorithm 1) (.ver 1 0 0 0))", ".assembly extern .something {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n}", Skip = "Should fail in the future")] // this is going to fail in the future
+        [InlineData(".assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\"))", ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}")]
         public void TestExternAssembly(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
             var results = ILFile.ExternAssembly(parsed);
             Assert.Single(results);
             Assert.Equal(output, results[0].Value);
+        }
 
+        [Theory]
+        [InlineData(".assembly A.B.C ((.culture \"en-us\"))", ".assembly A.B.C {\n\t.culture \"en-us\"\n}")]
+        [InlineData(".assembly A ((.ver 1 0 0 0))", ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}")]
+        [InlineData(".assembly F ((.hash algorithm 1))", ".assembly F {\n\t.hash algorithm 1\n}")]
+        [InlineData(".assembly .something ((.hash algorithm 1) (.ver 1 0 0 0))", ".assembly .something {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n}", Skip = "Should fail in the future")] // this is going to fail in the future
+        [InlineData(".assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\"))", ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}")]
+        public void TestNonExternAssembly(string input, string output)
+        {
+            var parsed = SExprParser.Parse(input);
+            var results = ILFile.NonExternAssembly(parsed);
+            Assert.Single(results);
+            Assert.Equal(output, results[0].Value);
+        }
+
+
+        [Theory]
+        [InlineData(".assembly extern A.B.C ((.culture \"en-us\"))", ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}")]
+        [InlineData(".assembly extern A ((.ver 1 0 0 0))", ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}")]
+        [InlineData(".assembly extern F ((.hash algorithm 1))", ".assembly extern F {\n\t.hash algorithm 1\n}")]
+        [InlineData(".assembly extern .something ((.hash algorithm 1) (.ver 1 0 0 0))", ".assembly extern .something {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n}", Skip = "Should fail in the future")] // this is going to fail in the future
+        [InlineData(".assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\"))", ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}")]
+        [InlineData(".assembly A.B.C ((.culture \"en-us\"))", ".assembly A.B.C {\n\t.culture \"en-us\"\n}")]
+        [InlineData(".assembly A ((.ver 1 0 0 0))", ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}")]
+        [InlineData(".assembly F ((.hash algorithm 1))", ".assembly F {\n\t.hash algorithm 1\n}")]
+        [InlineData(".assembly .something ((.hash algorithm 1) (.ver 1 0 0 0))", ".assembly .something {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n}", Skip = "Should fail in the future")] // this is going to fail in the future
+        [InlineData(".assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\"))", ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}")]
+
+        public void TestAssembly(string input, string output)
+        {
+            var parsed = SExprParser.Parse(input);
+            var results = ILFile.Assembly(parsed);
+            Assert.Single(results);
+            Assert.Equal(output, results[0].Value);
+        }
+
+        [Theory]
+        [InlineData(".file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint", ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint")]
+        [InlineData(".file \"some_filename.txt\" .hash (1 2 3 4) .entrypoint", ".file  \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint")]
+        [InlineData(".file \"some_filename.txt\" .hash (1 2 3 4)", ".file  \"some_filename.txt\" .hash = (1 2 3 4) ")]
+
+        public void TestFileDirective(string input, string output)
+        {
+            var parsed = SExprParser.Parse(input);
+            var results = ILFile.FileDirective(parsed);
+            Assert.Single(results);
+            Assert.Equal(output, results[0].Value);
+        }
+
+        [Theory]
+        [InlineData(".field", ".field")]
+
+        public void TestFieldDirective(string input, string output)
+        {
+            var parsed = SExprParser.Parse(input);
+            var results = ILFile.Field(parsed);
+            Assert.Single(results);
+            Assert.Equal(output, results[0].Value);
         }
 
         //[Theory]

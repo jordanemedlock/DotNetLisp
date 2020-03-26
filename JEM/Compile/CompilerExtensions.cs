@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using JEM.Model;
@@ -8,6 +9,7 @@ namespace JEM.Compile
 {
     public static class CompilerExtensions
     {
+        [DebuggerStepThrough]
         public static Compiler<T, V> Bind<T, U, V>(this Compiler<T, U> compiler, Func<U, Compiler<T, V>> func)
         {
             return input =>
@@ -73,6 +75,11 @@ namespace JEM.Compile
         public static U Compile<T, U>(this Compiler<T, U> compiler, T input)
         {
             return compiler(input).First().Value;
+        }
+
+        public static Compiler<T, V> Return<T, U, V>(this Compiler<T, U> compiler, V value)
+        {
+            return compiler.Apply(JEM.Compile.Compile.Return<T,V>(value));
         }
     }
 }
