@@ -9,17 +9,16 @@ namespace JEM.Compile
 {
     public static class CompilerExtensions
     {
-        [DebuggerStepThrough]
         public static Compiler<T, V> Bind<T, U, V>(this Compiler<T, U> compiler, Func<U, Compiler<T, V>> func)
         {
             return input =>
             {
-                var results = compiler(input);
-                return results.SelectMany(res =>
+                var res = compiler(input);
+                return res.Bind(val =>
                 {
-                    var innerCompiler = func(res.Value);
+                    var innerCompiler = func(val);
                     return innerCompiler(res.Remainder);
-                }).ToList();
+                });
             };
         }
 
@@ -33,23 +32,16 @@ namespace JEM.Compile
             return input =>
             {
                 var results = compiler(input);
-                return results.Select(res =>
-                {
-                    return new CompilerResult<T, V>()
-                    {
-                        Value = func(res.Value),
-                        Remainder = res.Remainder
-                    };
-                }).ToList();
+                return results.Select(func);
             };
         }
 
 
-        public static Compiler<T, U> Where<T, U>(this Compiler<T, U> compiler, Predicate<U> predicate)
+        public static Compiler<T, U> Where<T, U>(this Compiler<T, U> compiler, Predicate<U> predicate, string errorMessage)
         {
             return input =>
             {
-                return compiler(input).Where(res => predicate(res.Value)).ToList();
+                return compiler(input).Where(res => predicate(res.Value), errorMessage);
             };
         }
 
@@ -57,14 +49,35 @@ namespace JEM.Compile
         public static Compiler<T, V> Is<T, U, V>(this Compiler<T, U> compiler)
             where V : class
         {
-            return compiler.Where(x => x is V).Select(x => x as V);
+            return compiler.Where(x => x is V, $"value is not {typeof(V)}").Select(x => x as V);
         }
 
 
 
-        public static Compiler<T, U> Or<T, U>(this Compiler<T, U> compiler, Compiler<T, U> other)
+        public static Compiler<T, U> Or<T, U>(this Compiler<T, U> compiler, Compiler<T, U> other, string identifier = null)
         {
-            return input => compiler(input).Concat(other(input)).ToList();
+            Console.WriteLine(identifier);
+            Console.WriteLine(other);
+            return input =>
+            {
+                var results1 = compiler(input);
+                if (!results1.HasValue)
+                {
+                    try
+                    {
+                        return other(input);
+                    }
+                    catch (NullReferenceException e)
+                    {
+                        Console.WriteLine(identifier);
+                        throw e;
+                    }
+                }
+                else
+                {
+                    return results1;
+                }
+            };
         }
 
         public static Compiler<T, V> Apply<T, U, V>(this Compiler<T, U> compiler, Compiler<T, V> other)
@@ -74,12 +87,13 @@ namespace JEM.Compile
 
         public static U Compile<T, U>(this Compiler<T, U> compiler, T input)
         {
-            return compiler(input).First().Value;
+            return compiler(input).Value;
         }
 
         public static Compiler<T, V> Return<T, U, V>(this Compiler<T, U> compiler, V value)
         {
             return compiler.Apply(JEM.Compile.Compile.Return<T,V>(value));
         }
+
     }
 }

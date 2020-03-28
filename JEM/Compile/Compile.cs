@@ -14,14 +14,7 @@ namespace JEM.Compile
         {
             return input =>
             {
-                return new List<CompilerResult<T, U>>()
-                {
-                    new CompilerResult<T, U>()
-                    {
-                        Value = output,
-                        Remainder = input
-                    }
-                };
+                return new CompilerResult<T, U>(output, input);
             };
         }
 

@@ -25,7 +25,7 @@ namespace JEM.Model
         public override string ToString(bool top = true) {
             var inners = String.Join(" ", Values.Select(v => v.ToString(false)));
             if (top) {
-                return inners;
+                return "<" + inners + ">";
             } else {
                 return "(" + inners + ")";
             }

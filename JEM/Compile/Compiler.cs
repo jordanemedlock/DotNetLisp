@@ -5,5 +5,5 @@ using JEM.Model;
 
 namespace JEM.Compile
 {
-    public delegate List<CompilerResult<TInput, TOutput>> Compiler<TInput, TOutput>(TInput input);
+    public delegate CompilerResult<TInput, TOutput> Compiler<TInput, TOutput>(TInput input);
 }

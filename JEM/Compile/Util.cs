@@ -11,19 +11,12 @@ namespace JEM.Compile
 
         public static Compiler<Expr, Expr> Expr = input =>
         {
-            return new List<CompilerResult<Expr, Expr>>()
-            {
-                new CompilerResult<Expr, Expr>()
-                {
-                    Value = input,
-                    Remainder = null
-                }
-            };
+            return new CompilerResult<Expr, Expr>(input, null);
         };
 
-        public static Compiler<Expr, string> SymbolIs(string value) => Symbol.Where(x => x == value);
-        public static Compiler<Expr, string> SymbolIn(params string[] values) => Symbol.Where(x => values.Contains(x));
-        public static Compiler<Expr, string> SymbolIn(List<string> values) => Symbol.Where(x => values.Contains(x));
+        public static Compiler<Expr, string> SymbolIs(string value) => Symbol.Where(x => x == value, "Value is not Symbol("+value+")");
+        public static Compiler<Expr, string> SymbolIn(params string[] values) => Symbol.Where(x => values.Contains(x), "Value is not in [" + String.Join(", ", values) + "]");
+        public static Compiler<Expr, string> SymbolIn(List<string> values) => Symbol.Where(x => values.Contains(x), "Value is not in [" + String.Join(", ", values) + "]");
 
         public static Compiler<Expr, string> Symbol = Expr.Is<Expr, Expr, Symbol>().Value();
         public static Compiler<Expr, string> StringConstant = Expr.Is<Expr, Expr, StringConstant>().Value();
@@ -67,18 +60,18 @@ namespace JEM.Compile
                 if (input is SExpr e && e.Count > 0)
                 {
                     var results = match(e.Head());
-                    return results.Select(res =>
+                    return results.Bind(val =>
                     {
                         return new CompilerResult<Expr, T>()
                         {
-                            Value = res.Value,
+                            Value = val,
                             Remainder = e.Tail()
                         };
-                    }).ToList();
+                    });
                 }
                 else
                 {
-                    return new List<CompilerResult<Expr, T>>();
+                    return new CompilerResult<Expr, T>($"{input.ToString()} is not SExpr or emtpy in Next");
                 }
             };
         }
@@ -92,32 +85,32 @@ namespace JEM.Compile
             {
                 if (input is SExpr e)
                 {
-                    var results = new List<CompilerResult<Expr, List<T>>>()
+                    var results = new CompilerResult<Expr, List<T>>()
                     {
-                        new CompilerResult<Expr, List<T>>()
-                        {
-                            Value = new List<T>(),
-                            Remainder = null
-                        }
+                        Value = new List<T>(),
+                        Remainder = null
                     };
+                    int i = 0;
                     foreach (var value in e.Values)
                     {
                         var innerResults = inner(value);
-                        if (innerResults.Count > 0)
+                        if (innerResults.HasValue)
                         {
 
-                            results[0].Value.Add(innerResults[0].Value);
+                            results.Value.Add(innerResults.Value);
                         }
                         else
                         {
-                            // we need to pass on the error
-                            return new List<CompilerResult<Expr, List<T>>>();
+                            results.Remainder = new SExpr(e.Values.GetRange(i, (int)e.Count - i));
                         }
+                        i++;
                     }
                     return results;
                 }
-
-                return new List<CompilerResult<Expr, List<T>>>();
+                else
+                {
+                    return new CompilerResult<Expr, List<T>>($"{input} is not SExpr in Many");
+                }
             };
         }
 
@@ -129,43 +122,37 @@ namespace JEM.Compile
                 if (input is SExpr e && e.Count > 0)
                 {
                     var results = match(e.Head());
-                    if (results.Count > 0)
+                    if (results.HasValue)
                     {
-                        return results.Select(res =>
+                        return results.Bind(val =>
                         {
                             return new CompilerResult<Expr, T>()
                             {
-                                Value = res.Value,
+                                Value = val,
                                 Remainder = e.Tail()
                             };
-                        }).ToList();
+                        });
                     }
                     else
                     {
-                        return new List<CompilerResult<Expr, T>>()
+                        return new CompilerResult<Expr, T>()
                         {
-                            new CompilerResult<Expr, T>()
-                            {
-                                Value = default(T),
-                                Remainder = e
-                            }
+                            Value = default(T),
+                            Remainder = e
                         };
                     }
                 }
                 else if (input is SExpr)
                 {
-                    return new List<CompilerResult<Expr, T>>()
+                    return new CompilerResult<Expr, T>()
                     {
-                        new CompilerResult<Expr, T>()
-                        {
-                            Value = default(T),
-                            Remainder = input
-                        }
+                        Value = default(T),
+                        Remainder = input
                     };
                 }
                 else
                 {
-                    return new List<CompilerResult<Expr, T>>();
+                    return new CompilerResult<Expr, T>($"{input} is not SExpr in NextOptional");
                 }
             };
         }

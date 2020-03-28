@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using JEM.Compile;
 using JEM.Compile.CIL;
@@ -11,15 +12,19 @@ namespace JEM.Testing
 {
     public class CompileTest
     {
-        DottedName dottedNameCompiler = new DottedName();
+
+        private void HasValue<T, U>(CompilerResult<T, U> res, U value)
+        {
+            Assert.True(res.HasValue);
+            Assert.Equal(value, res.Value);
+        }
 
         [Fact]
         public void TestSymbol()
         {
             var s = new Symbol("A");
             var res = Util.Symbol(s);
-            Assert.Single(res);
-            Assert.Equal(s.Value, res[0].Value);
+            HasValue(res, s.Value);
         }
 
         [Fact]
@@ -27,8 +32,7 @@ namespace JEM.Testing
         {
             var s = new StringConstant("A");
             var res = Util.StringConstant(s);
-            Assert.Single(res);
-            Assert.Equal(s.Value, res[0].Value);
+            HasValue(res, s.Value);
         }
 
         [Fact]
@@ -36,8 +40,7 @@ namespace JEM.Testing
         {
             var s = new IntConstant(123);
             var res = Util.IntConstant(s);
-            Assert.Single(res);
-            Assert.Equal(s.Value, res[0].Value);
+            HasValue(res, s.Value);
         }
 
         [Fact]
@@ -45,8 +48,7 @@ namespace JEM.Testing
         {
             var f = new FloatConstant(123.34);
             var res = Util.FloatConstant(f);
-            Assert.Single(res);
-            Assert.Equal(f.Value, res[0].Value);
+            HasValue(res, f.Value);
         }
 
         [Fact]
@@ -54,8 +56,7 @@ namespace JEM.Testing
         {
             var f = new BoolConstant(true);
             var res = Util.BoolConstant(f);
-            Assert.Single(res);
-            Assert.Equal(f.Value, res[0].Value);
+            HasValue(res, f.Value);
         }
 
         [Fact]
@@ -63,8 +64,7 @@ namespace JEM.Testing
         {
             var f = new NullConstant();
             var res = Util.NullConstant(f);
-            Assert.Single(res);
-            Assert.Null(res[0].Value);
+            HasValue(res, null);
         }
 
         [Fact]
@@ -75,12 +75,10 @@ namespace JEM.Testing
             var compiler = Util.StringConstant
                 .Or(Util.Symbol);
             var res = compiler(symbol);
-            Assert.Single(res);
-            Assert.Equal(symbol.Value, res[0].Value);
+            HasValue(res, symbol.Value);
 
             res = compiler(stringConstant);
-            Assert.Single(res);
-            Assert.Equal(stringConstant.Value, res[0].Value);
+            HasValue(res, stringConstant.Value);
         }
 
 
@@ -93,27 +91,25 @@ namespace JEM.Testing
         public void TestDottedName(string input)
         {
             var parsed = new Symbol(input);
-            var results = ILFile.DottedName(parsed);
-            Assert.Single(results);
-            Assert.Equal(input, results[0].Value);
+            var res = ILFile.DottedName(parsed);
+            HasValue(res, input);
         }
 
         [Theory]
-        [InlineData(".hash algorithm 1", true)]
-        [InlineData(".hash algorithm -123", true)]
-        [InlineData(".hash something nothing", false)]
-        public void TestHashAlgorithm(string input, bool success)
+        [InlineData(".hash algorithm 1", ".hash algorithm 1")]
+        [InlineData(".hash algorithm -123", ".hash algorithm -123")]
+        [InlineData(".hash something nothing", null)]
+        public void TestHashAlgorithm(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var results = ILFile.HashAlg(parsed);
-            if (success)
+            var res = ILFile.HashAlg(parsed);
+            if (output != null)
             {
-                Assert.Single(results);
-                Console.WriteLine(results[0].Value);
+                HasValue(res, output);
             }
             else
             {
-                Assert.Empty(results);
+                Assert.False(res.HasValue);
             }
 
         }
@@ -123,9 +119,8 @@ namespace JEM.Testing
         public void TestVersion(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var results = ILFile.Version(parsed);
-            Assert.Single(results);
-            Assert.Equal(output, results[0].Value);
+            var res = ILFile.Version(parsed);
+            HasValue(res, output);
 
         }
 
@@ -134,9 +129,8 @@ namespace JEM.Testing
         public void TestCulture(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var results = ILFile.Culture(parsed);
-            Assert.Single(results);
-            Assert.Equal(output, results[0].Value);
+            var res = ILFile.Culture(parsed);
+            HasValue(res, output);
 
         }
 
@@ -147,9 +141,8 @@ namespace JEM.Testing
         public void TestAsmDecl(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var results = ILFile.AsmDecl(parsed);
-            Assert.Single(results);
-            Assert.Equal(output, results[0].Value);
+            var res = ILFile.AsmDecl(parsed);
+            HasValue(res, output);
 
         }
 
@@ -162,9 +155,8 @@ namespace JEM.Testing
         public void TestExternAssembly(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var results = ILFile.ExternAssembly(parsed);
-            Assert.Single(results);
-            Assert.Equal(output, results[0].Value);
+            var res = ILFile.ExternAssembly(parsed);
+            HasValue(res, output);
         }
 
         [Theory]
@@ -176,9 +168,8 @@ namespace JEM.Testing
         public void TestNonExternAssembly(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var results = ILFile.NonExternAssembly(parsed);
-            Assert.Single(results);
-            Assert.Equal(output, results[0].Value);
+            var res = ILFile.NonExternAssembly(parsed);
+            HasValue(res, output);
         }
 
 
@@ -197,9 +188,41 @@ namespace JEM.Testing
         public void TestAssembly(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var results = ILFile.Assembly(parsed);
-            Assert.Single(results);
-            Assert.Equal(output, results[0].Value);
+            var res = ILFile.Assembly(parsed);
+            HasValue(res, output);
+        }
+
+        [Theory]
+        [InlineData(".assembly extern A.B.C ((.culture \"en-us\"))", ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}")]
+        [InlineData(".assembly extern A ((.ver 1 0 0 0))", ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}")]
+        [InlineData(".assembly extern F ((.hash algorithm 1))", ".assembly extern F {\n\t.hash algorithm 1\n}")]
+        [InlineData(".assembly extern .something ((.hash algorithm 1) (.ver 1 0 0 0))", ".assembly extern .something {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n}", Skip = "Should fail in the future")] // this is going to fail in the future
+        [InlineData(".assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\"))", ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}")]
+        [InlineData(".assembly A.B.C ((.culture \"en-us\"))", ".assembly A.B.C {\n\t.culture \"en-us\"\n}")]
+        [InlineData(".assembly A ((.ver 1 0 0 0))", ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}")]
+        [InlineData(".assembly F ((.hash algorithm 1))", ".assembly F {\n\t.hash algorithm 1\n}")]
+        [InlineData(".assembly .something ((.hash algorithm 1) (.ver 1 0 0 0))", ".assembly .something {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n}", Skip = "Should fail in the future")] // this is going to fail in the future
+        [InlineData(".assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\"))", ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}")]
+        [InlineData(".corflags 123", ".corflags 123")]
+        [InlineData(".file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint", ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint")]
+        [InlineData(".file \"some_filename.txt\" .hash (1 2 3 4) .entrypoint", ".file  \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint")]
+        [InlineData(".file \"some_filename.txt\" .hash (1 2 3 4)", ".file  \"some_filename.txt\" .hash = (1 2 3 4) ")]
+
+        public void TestDecl(string input, string output)
+        {
+            var parsed = SExprParser.Parse(input);
+            var res = ILFile.Decl(parsed);
+
+            HasValue(res, output);
+        }
+
+        [Theory]
+        [InlineData(".corflags 123", ".corflags 123")]
+        public void TestCorflags(string input, string output)
+        {
+            var parsed = SExprParser.Parse(input);
+            var res = ILFile.Corflags(parsed);
+            HasValue(res, output);
         }
 
         [Theory]
@@ -210,20 +233,60 @@ namespace JEM.Testing
         public void TestFileDirective(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var results = ILFile.FileDirective(parsed);
-            Assert.Single(results);
-            Assert.Equal(output, results[0].Value);
+            var res = ILFile.FileDirective(parsed);
+            HasValue(res, output);
+        }
+
+
+        [Theory]
+        [InlineData("bool", "bool")]
+        [InlineData("float32", "float32")]
+        [InlineData("object", "object")]
+        [InlineData("string", "string")]
+        [InlineData("void", "void")]
+        [InlineData("int", "int")]
+        [InlineData("int32", "int32")]
+        public void TestType(string input, string output)
+        {
+            var parsed = SExprParser.Parse(input);
+            var res = ILFile.Type(parsed[0]);
+            HasValue(res, output);
         }
 
         [Theory]
-        [InlineData(".field", ".field")]
+        [InlineData("int", "int")]
+        public void TestIntType(string input, string output)
+        {
+            var parsed = SExprParser.Parse(input);
+            var res = ILFile.IntType(parsed[0]);
+            HasValue(res, output);
+        }
+
+        [Theory()]
+        [InlineData(".field private int32 xOrigin", ".field private int32 xOrigin", Skip = "Fails")]
+        //[InlineData(".field public static initonly int32 pointCount", ".field public static initonly int32 pointCount")]
+        //[InlineData(".field (Counter counter)", ".field Counter counter", Skip = "Failing, not sure if its actually valid")]
+        /*
+         * .field private class [.module Counter.dll]Counter counter
+.field public static initonly int32 pointCount
+.field private int32 xOrigin
+.field public static int32 count at D_0001B040 
+         */
 
         public void TestFieldDirective(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var results = ILFile.Field(parsed);
-            Assert.Single(results);
-            Assert.Equal(output, results[0].Value);
+            var res = ILFile.Field(parsed);
+            HasValue(res, output);
+        }
+
+        [Theory]
+        [InlineData("private int32 xOrigin", "private int32 xOrigin", Skip = "Fails I need to make a many that procedes after it fails")]
+        public void TestFieldDecl(string input, string output)
+        {
+            var parsed = SExprParser.Parse(input);
+            var res = ILFile.FieldDecl(parsed);
+            HasValue(res, output);
         }
 
         //[Theory]

@@ -9,14 +9,8 @@ namespace JEM.Compile.CIL
 {
     public static class ILFile
     {
-        //public static Compiler<Expr, string> Compiler = Decl.Many();
-
-        //public static Compiler<Expr, string> Decl = Assembly; // TODO: Or() a bunc of other shit
-
-        //public static Compiler<Expr, string> Assembly = Compile.Id<Expr>().Select(x => x.ToString()); // TODO: fix this
-        
         public static Compiler<Expr, string> DottedName = 
-            Util.Symbol.Where(x => !x.StartsWith('.') || !x.EndsWith('.'));
+            Util.Symbol.Where(x => !x.StartsWith('.') || !x.EndsWith('.'), "Value is not DottedName");
 
         // 138
         public static Compiler<Expr, string> HashAlg =
@@ -58,8 +52,8 @@ namespace JEM.Compile.CIL
         // 138
         public static Compiler<Expr, string> AsmDecl =
             HashAlg
-            .Or(Version)
-            .Or(Culture);
+            .Or(Version, "Version")
+            .Or(Culture, "Culture");
 
         // 137
         public static Compiler<Expr, string> ExternAssembly =
@@ -83,17 +77,18 @@ namespace JEM.Compile.CIL
             )));
 
         public static Compiler<Expr, string> Assembly =
-            ExternAssembly.Or(NonExternAssembly);
+            ExternAssembly.Or(NonExternAssembly, "NonExternAssembly");
 
-        public static Compiler<Expr, string> Decl =
+        [Name("Some bullshit")]
+        public static Compiler<Expr, string> Decl = 
             Assembly
-            .Or(Corflags)
-            .Or(FileDirective);
+            .Or(input => Corflags(input), "Corflags") // I don't get why I need these lambdas here???
+            .Or(input => FileDirective(input), "FileDirective");
 
-        public static Compiler<Expr, string> Corflags =
+        public static Compiler<Expr, string> Corflags { get; } =
             Util.Next(Util.SymbolIs(".corflags")).Apply(
             Util.Next(Util.IntConstant).Select(i =>
-            
+
             $".corflags {i}"
 
             ));
@@ -119,9 +114,10 @@ namespace JEM.Compile.CIL
 
             );
 
+        // 210
         public static Compiler<Expr, string> Field =
             Util.Next(Util.SymbolIs(".field")).Apply(
-            FieldDecl.Select(fieldDecl => 
+            CompilerExtensions.Select<Expr, string, string>((input => FieldDecl(input)), fieldDecl => 
 
             $".field {fieldDecl}"
 
@@ -130,7 +126,7 @@ namespace JEM.Compile.CIL
         // 210
         public static Compiler<Expr, string> FieldDecl =
             Util.NextOptional(Util.IntConstant.Select(i => "[" + i + "]")).Bind(i =>
-            Util.NextOptional(FieldAttr.Many()).Bind(fas =>
+            FieldAttr.Many().Bind(fas =>
             Util.Next(Type).Bind(typ => 
             Util.Next(Id).Select(id =>
 
@@ -145,15 +141,15 @@ namespace JEM.Compile.CIL
                 "bool", "char",
                 "float32", "float64",
                 "object", "string", "typedref", "void"
-            }))
-            .Or(IntType)
+            }), "Type Symbols")
+            .Or(input => IntType(input), "IntType")
             .Or(
             Util.Next(Util.SymbolIs("class")).Apply(
             Util.Next(TypeReference).Select(typeRef =>
 
             $"class {typeRef}"
 
-            )))
+            )), "class ref")
             .Or(
             Util.Next(Util.SymbolIs("method")).Apply(
             Util.NextOptional(CallConv).Bind(callConv =>
@@ -162,15 +158,15 @@ namespace JEM.Compile.CIL
             
             $"method {callConv} {typ} * ({pars})"
 
-            ))))) // TODO: continue here
-            .Or(TypeModifier)
+            )))), "method type") // TODO: continue here
+            .Or(input => TypeModifier(input), "TypeModifier")
             .Or(
             Util.Next(Util.SymbolIs("valuetype")).Apply(
             Util.Next(TypeReference).Select(typeRef => 
 
             $"valuetype {typeRef}"
 
-            )));
+            )), "valuetype");
 
         // 185
         // TODO: this isn't the whole def. but it doesn't seem super important to implement the rest. idk
@@ -189,26 +185,26 @@ namespace JEM.Compile.CIL
 
                  $"{typ}<{genArgs}>"
 
-                 ))
-                 .Or( // TODO: continue here  
+                 ), "GenArgs")
+                 .Or( 
                  Util.Next(Bound.Many()).Select(bnds =>
 
                  $"{typ}[{String.Join(", ", bnds)}]"
 
-                 ))
+                 ), "array")
                  .Or(
                  Util.Next(Util.SymbolIn("modopt", "modreq")).Bind(mod =>
                  Util.Next(TypeReference).Select(typeRef =>
 
                  $"{typ} {mod} ({typeRef})"
 
-                 )))
+                 )), "mod")
                  .Or(
                  Util.Next(Util.SymbolIs("pinned")).Return(
 
                  $"{typ} pinned"
 
-                 )));
+                 ), "pinned"));
 
 
         public static Compiler<Expr, string> GenArgs = 
@@ -235,7 +231,7 @@ namespace JEM.Compile.CIL
 
             $"unmanaged {x}"
 
-            )));
+            )), "unmanaged");
 
         public static Compiler<Expr, string> Parameters = Param.Many().Select(xs => String.Join(", ",xs));
 
@@ -268,25 +264,25 @@ namespace JEM.Compile.CIL
             $"[.module {EscapeString(x)}]"
 
             ))
-            .Or(DottedName.Select(x => $"[{x}]"));
+            .Or(DottedName.Select(x => $"[{x}]"), "resolution scope");
 
         public static Compiler<Expr, string> Id = Util.Symbol;
 
         // 211
         public static Compiler<Expr, string> FieldAttr =
             Util.SymbolIs("assembly")
-            .Or(Util.SymbolIs("famandassem"))
-            .Or(Util.SymbolIs("family"))
-            .Or(Util.SymbolIs("famorassem"))
-            .Or(Util.SymbolIs("initonly"))
-            .Or(Marshal)
-            .Or(Util.SymbolIs("notserialized"))
-            .Or(Util.SymbolIs("private"))
-            .Or(Util.SymbolIs("compilercontrolled"))
-            .Or(Util.SymbolIs("public"))
-            .Or(Util.SymbolIs("rtspecialname"))
-            .Or(Util.SymbolIs("specialname"))
-            .Or(Util.SymbolIs("static"));
+            .Or(Util.SymbolIs("famandassem"), "famandassem")
+            .Or(Util.SymbolIs("family"), "family")
+            .Or(Util.SymbolIs("famorassem"), "famorassem")
+            .Or(Util.SymbolIs("initonly"), "initonly")
+            .Or(input => Marshal(input), "marshal")
+            .Or(Util.SymbolIs("notserialized"), "notserialized")
+            .Or(Util.SymbolIs("private"), "private")
+            .Or(Util.SymbolIs("compilercontrolled"), "compilercontrolled")
+            .Or(Util.SymbolIs("public"), "public")
+            .Or(Util.SymbolIs("rtspecialname"), "rtspecialname")
+            .Or(Util.SymbolIs("specialname"), "specialname")
+            .Or(Util.SymbolIs("static"), "static");
 
 
         public static Compiler<Expr, string> Marshal =
@@ -306,7 +302,7 @@ namespace JEM.Compile.CIL
                 "lpstr", "lpwstr",
                 "method",
             })
-            .Or(IntType);
+            .Or(input => IntType(input), "IntType");
 
         // 148
         public static Compiler<Expr, string> NativeTypeArray =
@@ -323,15 +319,19 @@ namespace JEM.Compile.CIL
             
             $"{nType}[{i}]"
 
-            ))))); // TODO: Theres other versions that I'm not worrying about
+            )))), "Native Array"); // TODO: Theres other versions that I'm not worrying about
 
         public static Compiler<Expr, string> IntType =
             Util.NextOptional(Util.SymbolIs("unsigned")).Bind(unsigned =>
-            Util.Next(Util.SymbolIn("int", "int8", "int16", "int32", "int64")).Select(intType => 
+            Util.Next(SimpleIntType).Select(intType => 
 
             $"{unsigned} {intType}"
 
-            ));
+            ))
+            .Or(input => SimpleIntType(input), "SimpleIntType");
+
+        public static Compiler<Expr, string> SimpleIntType =
+            Util.SymbolIn("int", "int8", "int16", "int32", "int64");
 
         public static string EscapeString(string input)
         {
