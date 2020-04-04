@@ -16,4 +16,10 @@
     <ProjectReference Include="..\JEM\JEM.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="compiler_data.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

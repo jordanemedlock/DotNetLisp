@@ -143,30 +143,34 @@ namespace JEM.Compile.CIL
                 "object", "string", "typedref", "void"
             }), "Type Symbols")
             .Or(input => IntType(input), "IntType")
-            .Or(
-            Util.Next(Util.SymbolIs("class")).Apply(
-            Util.Next(TypeReference).Select(typeRef =>
-
-            $"class {typeRef}"
-
-            )), "class ref")
+            .Or(input => ClassRef(input), "class ref")
             .Or(
             Util.Next(Util.SymbolIs("method")).Apply(
-            Util.NextOptional(CallConv).Bind(callConv =>
-            Util.Next(Type).Bind(typ => 
-            Util.Next(Parameters).Select(pars => 
+            Util.NextOptional(input => CallConv(input)).Bind(callConv =>
+            Util.Next(input => Type(input)).Bind(typ => 
+            Util.Next(input => Parameters(input)).Select(pars => 
             
             $"method {callConv} {typ} * ({pars})"
 
             )))), "method type") // TODO: continue here
             .Or(input => TypeModifier(input), "TypeModifier")
-            .Or(
+            .Or(input => ValueType(input), "valuetype");
+
+        public static Compiler<Expr, string> ValueType =
             Util.Next(Util.SymbolIs("valuetype")).Apply(
-            Util.Next(TypeReference).Select(typeRef => 
+            Util.Next(input => TypeReference(input)).Select(typeRef =>
 
             $"valuetype {typeRef}"
 
-            )), "valuetype");
+            ));
+
+        public static Compiler<Expr, string> ClassRef =
+            Util.Next(Util.SymbolIs("class")).Apply(
+            Util.Next(input => TypeReference(input)).Select(typeRef =>
+
+            $"class {typeRef}"
+
+            ));
 
         // 185
         // TODO: this isn't the whole def. but it doesn't seem super important to implement the rest. idk
@@ -194,7 +198,7 @@ namespace JEM.Compile.CIL
                  ), "array")
                  .Or(
                  Util.Next(Util.SymbolIn("modopt", "modreq")).Bind(mod =>
-                 Util.Next(TypeReference).Select(typeRef =>
+                 Util.Next(input => TypeReference(input)).Select(typeRef =>
 
                  $"{typ} {mod} ({typeRef})"
 
@@ -250,7 +254,7 @@ namespace JEM.Compile.CIL
 
         // 146
         public static Compiler<Expr, string> TypeReference =
-            Util.NextOptional(ResolutionScope).Bind(resScope =>
+            Util.NextOptional(input => ResolutionScope(input)).Bind(resScope =>
             DottedName.Many().Select(dottedNames =>
 
             $"{resScope} {String.Join('/', dottedNames)}"
@@ -261,10 +265,10 @@ namespace JEM.Compile.CIL
             Util.Next(Util.SymbolIs(".module")).Apply(
             Util.Next(Filename).Select(x =>
 
-            $"[.module {EscapeString(x)}]"
+            $"[.module {x}]"
 
             ))
-            .Or(DottedName.Select(x => $"[{x}]"), "resolution scope");
+            .Or(Util.Next(DottedName.Select(x => $"[{x}]")), "resolution scope");
 
         public static Compiler<Expr, string> Id = Util.Symbol;
 
@@ -287,7 +291,7 @@ namespace JEM.Compile.CIL
 
         public static Compiler<Expr, string> Marshal =
             Util.Next(Util.SymbolIs("marshal")).Apply(
-            Util.Next(NativeType).Select(typ => 
+            Util.Next(input => NativeType(input)).Select(typ => 
 
             $"marshal ({typ})"
 
@@ -302,7 +306,7 @@ namespace JEM.Compile.CIL
                 "lpstr", "lpwstr",
                 "method",
             })
-            .Or(input => IntType(input), "IntType");
+            .Or(input => SimpleIntType(input), "IntType");
 
         // 148
         public static Compiler<Expr, string> NativeTypeArray =

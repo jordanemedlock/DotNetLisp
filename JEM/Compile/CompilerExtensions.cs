@@ -56,22 +56,14 @@ namespace JEM.Compile
 
         public static Compiler<T, U> Or<T, U>(this Compiler<T, U> compiler, Compiler<T, U> other, string identifier = null)
         {
-            Console.WriteLine(identifier);
-            Console.WriteLine(other);
             return input =>
             {
                 var results1 = compiler(input);
                 if (!results1.HasValue)
                 {
-                    try
-                    {
-                        return other(input);
-                    }
-                    catch (NullReferenceException e)
-                    {
-                        Console.WriteLine(identifier);
-                        throw e;
-                    }
+                    var val = other(input);
+                    val.HappyPath.Add(identifier);
+                    return val;
                 }
                 else
                 {

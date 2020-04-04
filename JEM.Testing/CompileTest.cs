@@ -15,7 +15,7 @@ namespace JEM.Testing
 
         private void HasValue<T, U>(CompilerResult<T, U> res, U value)
         {
-            Assert.True(res.HasValue);
+            Assert.True(res.HasValue, $"Result has no value with error: {res.Error}");
             Assert.Equal(value, res.Value);
         }
 
@@ -81,7 +81,7 @@ namespace JEM.Testing
             HasValue(res, stringConstant.Value);
         }
 
-
+        /*
 
         [Theory]
         [InlineData("A.B.C")]
@@ -246,6 +246,8 @@ namespace JEM.Testing
         [InlineData("void", "void")]
         [InlineData("int", "int")]
         [InlineData("int32", "int32")]
+        [InlineData("(class Something)", "class Something")]
+        //[InlineData("(method ")]
         public void TestType(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
@@ -253,26 +255,21 @@ namespace JEM.Testing
             HasValue(res, output);
         }
 
+
         [Theory]
-        [InlineData("int", "int")]
-        public void TestIntType(string input, string output)
+        [InlineData("class Something", "class Something")]
+        //[InlineData("(method ")]
+        public void TestClassRef(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
-            var res = ILFile.IntType(parsed[0]);
+            var res = ILFile.ClassRef(parsed);
             HasValue(res, output);
         }
-
+        
         [Theory()]
         [InlineData(".field private int32 xOrigin", ".field private int32 xOrigin", Skip = "Fails")]
         //[InlineData(".field public static initonly int32 pointCount", ".field public static initonly int32 pointCount")]
         //[InlineData(".field (Counter counter)", ".field Counter counter", Skip = "Failing, not sure if its actually valid")]
-        /*
-         * .field private class [.module Counter.dll]Counter counter
-.field public static initonly int32 pointCount
-.field private int32 xOrigin
-.field public static int32 count at D_0001B040 
-         */
-
         public void TestFieldDirective(string input, string output)
         {
             var parsed = SExprParser.Parse(input);
@@ -288,31 +285,24 @@ namespace JEM.Testing
             var res = ILFile.FieldDecl(parsed);
             HasValue(res, output);
         }
+        
+        */
+        
 
-        //[Theory]
-        //[InlineData("a")]
-        //[InlineData("a.b.c")]
-        //[InlineData("a.asdfjlksadf")]
-        //[InlineData("a_ASDFN.sdlkf")]
-        //// TODO: Add negative cases
-        //public void TestDottedNameCompiler(string input)
-        //{
-        //    var expr = new Symbol(input);
-        //    Assert.True(dottedNameCompiler.MatchesPattern(expr));
-        //    var str = dottedNameCompiler.Transform(expr);
-        //    Assert.Equal(str, input);
-        //}
+        [Theory]
+        [JsonFileData("compiler_data.json")]
+        public void TestCompilerData(string compilerName, Dictionary<string, string> pairs)
+        {
+            var compiler = (Compiler<Expr, string>) typeof(ILFile).GetField(compilerName).GetValue(null);
 
-        //AsmDecl asmDeclCompiler = new AsmDecl();
+            foreach (var kvp in pairs)
+            {
+                var parsed = SExprParser.Parse(kvp.Key);
+                var res = compiler(parsed[0]);
+                Assert.True(res.HasValue, $"Result has no value with error: {res.Error}");
+                Assert.Equal(kvp.Value, res.Value);
+            }
+        }
 
-        //[Theory]
-        //[InlineData(".hash algorithm 123", null)]
-        //public void TestAsmDecl(string input, string output)
-        //{
-        //    var expr = SExprParser.Parse(input);
-        //    Assert.True(asmDeclCompiler.MatchesPattern(expr));
-        //    var str = asmDeclCompiler.Transform(expr);
-        //    Assert.Equal(output ?? input, str);
-        //}
     }
 }

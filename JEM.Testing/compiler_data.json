@@ -1,0 +1,79 @@
+{
+
+    "ParamAttr": {
+        "in": "[in]",
+        "out": "[out]",
+        "opt": "[opt]"
+    },
+    "ValueType": {
+        "(valuetype (Something))": "valuetype  Something",
+        "(valuetype ((.module \"something.txt\") Something))": "valuetype [.module \"something.txt\"] Something"
+
+    },
+    "TypeReference": {
+        "((.module \"something.txt\") Something)": "[.module \"something.txt\"] Something",
+        "((A.B.C) Something SomethingElse)": "[A.B.C] Something/SomethingElse",
+        "(Something SomethingElse)": " Something/SomethingElse"
+    },
+    "ResolutionScope": {
+        "(.module \"something.txt\")": "[.module \"something.txt\"]",
+        "(A.B.C)": "[A.B.C]"
+    },
+    "FieldAttr": {
+        "assembly": "assembly",
+        "(marshal int32)": "marshal (int32)",
+        "private": "private",
+        "static": "static"
+    },
+    "Marshal": {
+        //"marshal []", "marshal ([])" TODO: doesn't work under current parser
+        "(marshal int32)": "marshal (int32)",
+        "(marshal bool)": "marshal (bool)",
+        "(marshal method)": "marshal (method)"
+    },
+    "NativeType": {
+        //"[]":  "[]" TODO: doesn't currently work with parser
+        "bool": "bool",
+        "float32": "float32",
+        "lpstr": "lpstr",
+        "method": "method",
+        "int32": "int32"
+    },
+    "FieldDecl": {
+        // TODO
+    },
+    "Field": {
+        // TODO
+    },
+    "IntType": {
+        "int": "int",
+        "int32": "int32",
+        "int64": "int64",
+        "(unsigned int)": "unsigned int",
+        "(unsigned int64)": "unsigned int64"
+    },
+    "ClassRef": {
+        "(class (Something))": "class  Something"
+    },
+    "TypeModifier": {
+        "(bool pinned)": "bool pinned",
+        "(int modopt (Something))": "int modopt ( Something)",
+        "(int (int float32))":  "int<int, float32>"
+    },
+    "Type": {
+        "bool": "bool",
+        "float32": "float32",
+        "object": "object",
+        "string": "string",
+        "void": "void",
+        "int": "int",
+        "int32": "int32",
+        "(class (Something))": "class  Something",
+        "(valuetype (Something))": "valuetype  Something"
+    },
+    "GenArgs": {
+        "(int)": "int",
+        "(int object)": "int, object",
+        "(int object float32)": "int, object, float32"
+    }
+}

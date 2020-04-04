@@ -14,7 +14,7 @@ namespace JEM.Compile
             return new CompilerResult<Expr, Expr>(input, null);
         };
 
-        public static Compiler<Expr, string> SymbolIs(string value) => Symbol.Where(x => x == value, "Value is not Symbol("+value+")");
+        public static Compiler<Expr, string> SymbolIs(string value) => Symbol.Where(x => x == value, $"{{0}} is not Symbol({value})");
         public static Compiler<Expr, string> SymbolIn(params string[] values) => Symbol.Where(x => values.Contains(x), "Value is not in [" + String.Join(", ", values) + "]");
         public static Compiler<Expr, string> SymbolIn(List<string> values) => Symbol.Where(x => values.Contains(x), "Value is not in [" + String.Join(", ", values) + "]");
 
@@ -152,7 +152,7 @@ namespace JEM.Compile
                 }
                 else
                 {
-                    return new CompilerResult<Expr, T>($"{input} is not SExpr in NextOptional");
+                    return new CompilerResult<Expr, T>($"{input.ToString()} is not SExpr in NextOptional");
                 }
             };
         }

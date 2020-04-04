@@ -13,6 +13,8 @@ namespace JEM.Compile
 
         public string Error { get; set; }
 
+        public List<string> HappyPath { get; set; } = new List<string>();
+
         public bool HasValue { get; set; } = true;
 
         public CompilerResult(TOutput value, TInput remainder)
@@ -68,13 +70,13 @@ namespace JEM.Compile
 
         public CompilerResult<TInput, TOutput> Where(Predicate<CompilerResult<TInput, TOutput>> predicate, string errorMessage)
         {
-            if (predicate(this))
+            if (this.HasValue && predicate(this))
             {
                 return this;
             }
             else
             {
-                return new CompilerResult<TInput, TOutput>(errorMessage);
+                return new CompilerResult<TInput, TOutput>(String.Format(errorMessage, this.Value));
             }
         }
     }
