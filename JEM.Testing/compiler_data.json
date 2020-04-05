@@ -69,11 +69,35 @@
         "int": "int",
         "int32": "int32",
         "(class (Something))": "class  Something",
-        "(valuetype (Something))": "valuetype  Something"
+        "(valuetype (Something))": "valuetype  Something",
+        "(method (default) int ((int x) (float32 something) (string str)))": "method   default int * ( int  x,  float32  something,  string  str)"
+
     },
     "GenArgs": {
         "(int)": "int",
         "(int object)": "int, object",
         "(int object float32)": "int, object, float32"
+    },
+    "CallKind": {
+        "default": "default",
+        "vararg": "vararg",
+        "(unmanaged cdecl)": "unmanaged cdecl",
+        "(unmanaged fastcall)": "unmanaged fastcall"
+    },
+    "CallConv": {
+        "(instance explicit default)": "instance explicit default",
+        "(instance default)": "instance  default",
+        "(default)": "  default",
+        "((unmanaged fastcall))": "  unmanaged fastcall",
+        "(instance (unmanaged fastcall))": "instance  unmanaged fastcall"
+    },
+    "Parameters": {
+        "((int x) (float32 something) (string str))": " int  x,  float32  something,  string  str"
+    },
+    "Param": {
+        "(int something)": " int  something",
+        "(in int something)": "[in] int  something",
+        "(opt int (marshal int32) something)": "[opt] int marshal (int32) something",
+        "(int (marshal int32) something)": " int marshal (int32) something"
     }
 }

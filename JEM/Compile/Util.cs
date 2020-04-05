@@ -102,6 +102,7 @@ namespace JEM.Compile
                         else
                         {
                             results.Remainder = new SExpr(e.Values.GetRange(i, (int)e.Count - i));
+                            break;
                         }
                         i++;
                     }

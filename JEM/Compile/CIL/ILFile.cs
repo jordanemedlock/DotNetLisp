@@ -237,13 +237,18 @@ namespace JEM.Compile.CIL
 
             )), "unmanaged");
 
-        public static Compiler<Expr, string> Parameters = Param.Many().Select(xs => String.Join(", ",xs));
+        public static Compiler<Expr, string> Parameters = 
+            Util.Many(input => Param(input)).Select(xs => 
+
+            String.Join(", ",xs)
+
+            );
 
         public static Compiler<Expr, string> Param =
-            ParamAttr.Many().Bind(attrs =>
-            Util.Next(Type).Bind(typ =>
-            Util.NextOptional(Marshal).Bind(marshal =>
-            Util.NextOptional(Id).Select(id =>
+            Util.Many(input => ParamAttr(input)).Bind(attrs =>
+            Util.Next(input => Type(input)).Bind(typ =>
+            Util.NextOptional(input => Marshal(input)).Bind(marshal =>
+            Util.NextOptional(input => Id(input)).Select(id =>
 
             $"{String.Join(' ', attrs)} {typ} {marshal} {id}"
 

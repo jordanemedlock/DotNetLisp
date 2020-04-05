@@ -81,7 +81,7 @@ namespace JEM.Testing
             HasValue(res, stringConstant.Value);
         }
 
-        /*
+        
 
         [Theory]
         [InlineData("A.B.C")]
@@ -237,34 +237,7 @@ namespace JEM.Testing
             HasValue(res, output);
         }
 
-
-        [Theory]
-        [InlineData("bool", "bool")]
-        [InlineData("float32", "float32")]
-        [InlineData("object", "object")]
-        [InlineData("string", "string")]
-        [InlineData("void", "void")]
-        [InlineData("int", "int")]
-        [InlineData("int32", "int32")]
-        [InlineData("(class Something)", "class Something")]
-        //[InlineData("(method ")]
-        public void TestType(string input, string output)
-        {
-            var parsed = SExprParser.Parse(input);
-            var res = ILFile.Type(parsed[0]);
-            HasValue(res, output);
-        }
-
-
-        [Theory]
-        [InlineData("class Something", "class Something")]
-        //[InlineData("(method ")]
-        public void TestClassRef(string input, string output)
-        {
-            var parsed = SExprParser.Parse(input);
-            var res = ILFile.ClassRef(parsed);
-            HasValue(res, output);
-        }
+            
         
         [Theory()]
         [InlineData(".field private int32 xOrigin", ".field private int32 xOrigin", Skip = "Fails")]
@@ -286,7 +259,7 @@ namespace JEM.Testing
             HasValue(res, output);
         }
         
-        */
+        
         
 
         [Theory]
