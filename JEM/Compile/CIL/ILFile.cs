@@ -373,7 +373,7 @@ namespace JEM.Compile.CIL
 
         // 145 TODO: Didn't finish def. too tired
         public static Compiler<Expr, string> TypeSpec = 
-            CompilerExtensions.Or<Expr, string>(input => TypeReference(input), input => Type(input), "TypeSpec");
+            CompilerExtensions.Or<Expr, string>(input => Type(input), input => TypeReference(input), "TypeSpec");
 
         // 165
         public static Compiler<Expr, string> GenPars = 
