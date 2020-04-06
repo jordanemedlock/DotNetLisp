@@ -76,7 +76,7 @@ namespace JEM.Compile
             };
         }
 
-        
+
 
         // Is ther any way I can make this more complicated lol
         public static Compiler<Expr, List<T>> Many<T>(this Compiler<Expr, T> inner)
@@ -111,6 +111,42 @@ namespace JEM.Compile
                 else
                 {
                     return new CompilerResult<Expr, List<T>>($"{input} is not SExpr in Many");
+                }
+            };
+        }
+
+        public static Compiler<Expr, List<T>> AtLeastOnce<T>(this Compiler<Expr, T> inner)
+        {
+            return input =>
+            {
+                if (input is SExpr e && e.Count >= 1)
+                {
+                    var results = new CompilerResult<Expr, List<T>>()
+                    {
+                        Value = new List<T>(),
+                        Remainder = null
+                    };
+                    int i = 0;
+                    foreach (var value in e.Values)
+                    {
+                        var innerResults = inner(value);
+                        if (innerResults.HasValue)
+                        {
+
+                            results.Value.Add(innerResults.Value);
+                        }
+                        else
+                        {
+                            results.Remainder = new SExpr(e.Values.GetRange(i, (int)e.Count - i));
+                            break;
+                        }
+                        i++;
+                    }
+                    return results;
+                }
+                else
+                {
+                    return new CompilerResult<Expr, List<T>>($"{input} is not SExpr (or Count >=1) in AtLeastOnce");
                 }
             };
         }

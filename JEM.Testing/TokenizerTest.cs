@@ -27,6 +27,31 @@ namespace JEM.Testing
         [InlineData("_a")]
         [InlineData("a_b_c")]
         [InlineData("_")]
+        [InlineData("[")]
+        [InlineData("]")]
+        [InlineData("{")]
+        [InlineData("}")]
+        [InlineData("<")]
+        [InlineData(">")]
+        [InlineData("&")]
+        [InlineData("*")]
+        [InlineData("+")]
+        [InlineData("-")]
+        [InlineData("!")]
+        [InlineData("@")]
+        [InlineData("#")]
+        [InlineData("$")]
+        [InlineData("%")]
+        [InlineData("^")]
+        [InlineData("=")]
+        [InlineData(":")]
+        [InlineData(";")]
+        [InlineData("|")]
+        [InlineData("\\")]
+        [InlineData(".")]
+        [InlineData(",")]
+        [InlineData("`")]
+        [InlineData("~")]
         public void TestSingleSymbol(string input)
         {
             var res = Tokenizer.Tokenize(input).ToList().Select(x => x.Kind);
@@ -67,12 +92,22 @@ namespace JEM.Testing
         [InlineData("123123245.643465745675678960975")]
         [InlineData("-123.0")]
         [InlineData("000000012300.0000")]
+        [InlineData("+000000012300.0000")]
         [InlineData("-00.0123")]
-        [InlineData("1e10", Skip = "not implemented yet")]
-        [InlineData("1e-10", Skip = "not implemented yet")]
-        [InlineData("-1e-10", Skip = "not implemented yet")]
-        [InlineData("-1e10", Skip = "not implemented yet")]
-        [InlineData("-1e0", Skip = "not implemented yet")]
+        [InlineData("1e10")]
+        [InlineData("1e-10")]
+        [InlineData("-1e-10")]
+        [InlineData("-1e10")]
+        [InlineData("-1e0")]
+        [InlineData("1.34e10")]
+        [InlineData("1.123e-10")]
+        [InlineData("-1.098e-10")]
+        [InlineData("-1.345e10")]
+        [InlineData("-1.6747984000e0")]
+        [InlineData("-1E10")]
+        [InlineData("-1E0")]
+        [InlineData("1.34E10")]
+        [InlineData("1.123E-10")]
         public void TestSingleFloat(string input)
         {
             var res = Tokenizer.Tokenize(input).ToList().Select(x => x.Kind);
@@ -106,7 +141,11 @@ namespace JEM.Testing
         [InlineData("(()((", new SExprToken[] { SExprToken.Open, SExprToken.Open, SExprToken.Close, SExprToken.Open, SExprToken.Open })]
         [InlineData("(a \"bc\" 123.01)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Float, SExprToken.Close })]
         [InlineData("(a \"bc\" 123 0.0)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Integer, SExprToken.Float, SExprToken.Close })]
-
+        [InlineData("(a [] somthing + - / *)", 
+            new SExprToken[] { SExprToken.Open,
+                SExprToken.Symbol, SExprToken.Symbol, SExprToken.Symbol, SExprToken.Symbol,
+                SExprToken.Symbol, SExprToken.Symbol, SExprToken.Symbol,
+            SExprToken.Close})]
         public void TestAllTogether(string input, SExprToken[] tokens)
         {
             var res = Tokenizer.Tokenize(input).ToList().Select(x => x.Kind);

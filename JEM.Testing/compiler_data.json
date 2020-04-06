@@ -1,14 +1,160 @@
 {
+    "DottedName": {
+        "A.B.C": "A.B.C",
+        "A": "A",
+        "something": "something"
+    },
+    "HashAlg": {
+        "(.hash algorithm 1)": ".hash algorithm 1",
+        "(.hash algorithm -123)": ".hash algorithm -123"
+    },
+    "Version": {
+        "(.ver 1 0 0 0)": ".ver 1 : 0 : 0 : 0"
+    },
+    "Culture": {
+        "(.culture \"en-us\")": ".culture \"en-us\""
+    },
+    "AsmDecl": {
+        "(.hash algorithm 1)": ".hash algorithm 1",
+        "(.hash algorithm -123)": ".hash algorithm -123",
+        "(.ver 1 0 0 0)": ".ver 1 : 0 : 0 : 0",
+        "(.culture \"en-us\")": ".culture \"en-us\""
+    },
+    "ExternAssembly": {
+        "(.assembly extern A.B.C ((.culture \"en-us\")))": ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}",
+        "(.assembly extern A ((.ver 1 0 0 0)))": ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(.assembly extern F ((.hash algorithm 1)))": ".assembly extern F {\n\t.hash algorithm 1\n}",
+        "(.assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
+    },
+    "NonExternAssembly": {
+        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly A.B.C {\n\t.culture \"en-us\"\n}",
+        "(.assembly A ((.ver 1 0 0 0)))": ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(.assembly F ((.hash algorithm 1)))": ".assembly F {\n\t.hash algorithm 1\n}",
+        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
+    },
+    "Assembly": {
+        "(.assembly extern A.B.C ((.culture \"en-us\")))": ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}",
+        "(.assembly extern A ((.ver 1 0 0 0)))": ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(.assembly extern F ((.hash algorithm 1)))": ".assembly extern F {\n\t.hash algorithm 1\n}",
+        "(.assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
+        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly A.B.C {\n\t.culture \"en-us\"\n}",
+        "(.assembly A ((.ver 1 0 0 0)))": ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(.assembly F ((.hash algorithm 1)))": ".assembly F {\n\t.hash algorithm 1\n}",
+        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
+    },
+    "Decl": {
+        "(.assembly extern A.B.C ((.culture \"en-us\")))": ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}",
+        "(.assembly extern A ((.ver 1 0 0 0)))": ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(.assembly extern F ((.hash algorithm 1)))": ".assembly extern F {\n\t.hash algorithm 1\n}",
+        "(.assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
+        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly A.B.C {\n\t.culture \"en-us\"\n}",
+        "(.assembly A ((.ver 1 0 0 0)))": ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(.assembly F ((.hash algorithm 1)))": ".assembly F {\n\t.hash algorithm 1\n}",
+        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
+        "(.corflags 123)": ".corflags 123",
+        "(.file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
+        "(.file \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file  \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
+        "(.file \"some_filename.txt\" .hash (1 2 3 4))": ".file  \"some_filename.txt\" .hash = (1 2 3 4) "
+    },
+    "Corflags": {
+        "(.corflags 123)": ".corflags 123"
+    },
+    "FileDirective": {
+        "(.file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
+        "(.file \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file  \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
+        "(.file \"some_filename.txt\" .hash (1 2 3 4))": ".file  \"some_filename.txt\" .hash = (1 2 3 4) "
+    },
+    "Filename": {
+        "\"some filename\"": "\"some filename\""
+    },
+    "Field": {
+        "(.field private int32 xOrigin)": ".field  private int32 xOrigin"
+    },
+    "FieldDecl": {
+        "(private int32 xOrigin)": " private int32 xOrigin"
+    },
+    "Type": {
+        "(! 10)": "!10",
+        "(!! 10)":  "!!10",
+        "bool": "bool",
+        "float32": "float32",
+        "object": "object",
+        "string": "string",
+        "void": "void",
+        "int": "int",
+        "int32": "int32",
+        "(class (Something))": "class  Something",
+        "(valuetype (Something))": "valuetype  Something",
+        "(method (default) int ((int x) (float32 something) (string str)))": "method   default int * ( int  x,  float32  something,  string  str)"
 
-    "ParamAttr": {
-        "in": "[in]",
-        "out": "[out]",
-        "opt": "[opt]"
     },
     "ValueType": {
         "(valuetype (Something))": "valuetype  Something",
         "(valuetype ((.module \"something.txt\") Something))": "valuetype [.module \"something.txt\"] Something"
 
+    },
+    "ClassRef": {
+        "(class (Something))": "class  Something"
+    },
+    "Bound": {
+        "...": "..."
+    },
+    "TypeModifier": {
+        "(int [ ... ])": "int[...]",
+        "(bool pinned)": "bool pinned",
+        "(int modopt (Something))": "int modopt ( Something)",
+        "(int < int float32 >)": "int<int, float32>",
+        "(int &)": "int &",
+        "(int *)": "int *"
+
+    },
+    "PinnedType": {
+        "(int pinned)": "int pinned",
+        "(float32 pinned)": "float32 pinned"
+    },
+    "ModType": {
+        "(int modopt (Something))": "int modopt ( Something)",
+        "(int modreq (SomethingElse))": "int modreq ( SomethingElse)"
+    },
+    "ArrayType": {
+        "(int [ ... ... ])": "int[..., ...]",
+        "(float32 [ ])": "float32[]"
+    },
+    "GenericType": {
+        "(int < float32 >)": "int<float32>",
+        "(int < int32 float64 >)":  "int<int32, float64>"
+    },
+    "GenArgs": {
+        "(int)": "int",
+        "(int object)": "int, object",
+        "(int object float32)": "int, object, float32"
+    },
+    "CallConv": {
+        "(instance explicit default)": "instance explicit default",
+        "(instance default)": "instance  default",
+        "(default)": "  default",
+        "((unmanaged fastcall))": "  unmanaged fastcall",
+        "(instance (unmanaged fastcall))": "instance  unmanaged fastcall"
+    },
+    "CallKind": {
+        "default": "default",
+        "vararg": "vararg",
+        "(unmanaged cdecl)": "unmanaged cdecl",
+        "(unmanaged fastcall)": "unmanaged fastcall"
+    },
+    "Parameters": {
+        "((int x) (float32 something) (string str))": " int  x,  float32  something,  string  str"
+    },
+    "Param": {
+        "(int something)": " int  something",
+        "(in int something)": "[in] int  something",
+        "(opt int (marshal int32) something)": "[opt] int marshal (int32) something",
+        "(int (marshal int32) something)": " int marshal (int32) something"
+    },
+    "ParamAttr": {
+        "in": "[in]",
+        "out": "[out]",
+        "opt": "[opt]"
     },
     "TypeReference": {
         "((.module \"something.txt\") Something)": "[.module \"something.txt\"] Something",
@@ -26,24 +172,22 @@
         "static": "static"
     },
     "Marshal": {
-        //"marshal []", "marshal ([])" TODO: doesn't work under current parser
+        "(marshal [])": "marshal ([])",
         "(marshal int32)": "marshal (int32)",
         "(marshal bool)": "marshal (bool)",
         "(marshal method)": "marshal (method)"
     },
     "NativeType": {
-        //"[]":  "[]" TODO: doesn't currently work with parser
+        "[]": "[]",
         "bool": "bool",
         "float32": "float32",
         "lpstr": "lpstr",
         "method": "method",
         "int32": "int32"
     },
-    "FieldDecl": {
-        // TODO
-    },
-    "Field": {
-        // TODO
+    "NativeTypeArray": {
+        "(int [])": "int[]",
+        "(int [ 10 ])": "int[10]"
     },
     "IntType": {
         "int": "int",
@@ -52,52 +196,76 @@
         "(unsigned int)": "unsigned int",
         "(unsigned int64)": "unsigned int64"
     },
-    "ClassRef": {
-        "(class (Something))": "class  Something"
-    },
-    "TypeModifier": {
-        "(bool pinned)": "bool pinned",
-        "(int modopt (Something))": "int modopt ( Something)",
-        "(int (int float32))":  "int<int, float32>"
-    },
-    "Type": {
-        "bool": "bool",
-        "float32": "float32",
-        "object": "object",
-        "string": "string",
-        "void": "void",
+    "SimpleIntType": {
         "int": "int",
+        "int8": "int8",
+        "int16": "int16",
         "int32": "int32",
-        "(class (Something))": "class  Something",
-        "(valuetype (Something))": "valuetype  Something",
-        "(method (default) int ((int x) (float32 something) (string str)))": "method   default int * ( int  x,  float32  something,  string  str)"
+        "int64": "int64"
+    },
+    "ClassDecl": {
 
     },
-    "GenArgs": {
-        "(int)": "int",
-        "(int object)": "int, object",
-        "(int object float32)": "int, object, float32"
+    "ClassHeader": {
+        //"(public SomeName)": "public SomeName",
+        //"((nested public) SomeName (T U))": "nested public SomeName<T, U>",
+        //"(public SomeName (T U) (extends SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass",
+        //"(public SomeName (T U) (implements SomeOtherClass))": "public SomeName<T, U> implements SomeOtherClass",
+        //"(public SomeName (T U) (implements SomeOtherClass AnotherInterface))": "public SomeName<T, U> implements SomeOtherClass, AnotherInterface",
+        //"(public SomeName (T U) (extends SomeOtherClass) (implements SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass implements SomeOtherClass"
     },
-    "CallKind": {
-        "default": "default",
-        "vararg": "vararg",
-        "(unmanaged cdecl)": "unmanaged cdecl",
-        "(unmanaged fastcall)": "unmanaged fastcall"
+    "TypeSpec": {
+        "((.module \"something.txt\") Something)": "[.module \"something.txt\"] Something",
+        "(class (Something))": "class  Something"
+
     },
-    "CallConv": {
-        "(instance explicit default)": "instance explicit default",
-        "(instance default)": "instance  default",
-        "(default)": "  default",
-        "((unmanaged fastcall))": "  unmanaged fastcall",
-        "(instance (unmanaged fastcall))": "instance  unmanaged fastcall"
+    "GenPars": {
+
+        "((+ - class .ctor (int32) Something) (Something) ((int32 float32) Something))": "<+ - class .ctor (int32) Something,   Something,  (int32, float32) Something>",
+        "()": false, // at least one
+        "((Something))": "<  Something>",
+        "(Something)": "<Something>",
+        "(T U)": "<T, U>"
     },
-    "Parameters": {
-        "((int x) (float32 something) (string str))": " int  x,  float32  something,  string  str"
+    "GenPar": {
+        "(+ - class .ctor (int32) Something)": "+ - class .ctor (int32) Something",
+        "(Something)": "  Something",
+        "Something": "Something",
+        "((int32 float32) Something)":  " (int32, float32) Something"
     },
-    "Param": {
-        "(int something)": " int  something",
-        "(in int something)": "[in] int  something",
-        "(opt int (marshal int32) something)": "[opt] int marshal (int32) something",
-        "(int (marshal int32) something)": " int marshal (int32) something"
+    "GenParAttribs": {
+        "+": "+",
+        "-": "-",
+        "class": "class",
+        "valuetype": true,
+        ".ctor": true,
+        "somethingelse": false
+    },
+    "GenConstraints": {
+        "(int32 float32)": "(int32, float32)",
+        "()": false,
+        "(int32 bool object)": "(int32, bool, object)"
+    },
+    "ClassAttr": {
+        "public": true,
+        "abstract": true,
+        "ansi": true,
+        "autochar": true,
+        "beforefieldinit": true,
+        "explicit": true,
+        "interface": true,
+        "(nested assembly)": "nested assembly",
+        "(nested famandassem)": "nested famandassem",
+        "(nested family)": "nested family",
+        "(nested famorassem)": "nested famorassem",
+        "(nested private)": "nested private",
+        "(nested public)": "nested public",
+        "private": true,
+        "rtspecialname": true,
+        "sealed": true,
+        "sequential": true,
+        "serializable": true,
+        "specialname": true,
+        "unicode": true
     }
 }

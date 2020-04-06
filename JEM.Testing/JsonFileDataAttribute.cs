@@ -51,7 +51,7 @@ namespace JEM.Testing
 
         private IEnumerable<object[]> GetData(string jsonData)
         {
-            Dictionary<string, Dictionary<string, string>> dict = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(jsonData);
+            Dictionary<string, Dictionary<string, object>> dict = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, object>>>(jsonData);
             var objectList = new List<object[]>();
             if (string.IsNullOrEmpty(_propertyName))
             {

@@ -75,19 +75,33 @@ namespace JEM.Testing
         [InlineData("-123.0", -123.0)]
         [InlineData("000000012300.0000", 12300.0)]
         [InlineData("-00.0123", -0.0123)]
-        [InlineData("1e10", 1e10, Skip = "not implemented yet")]
-        [InlineData("1e-10", 1e-10, Skip = "not implemented yet")]
-        [InlineData("-1e-10", -1e-10, Skip = "not implemented yet")]
-        [InlineData("-1e10", -1e10, Skip = "not implemented yet")]
-        [InlineData("-1e0", -1e0, Skip = "not implemented yet")]
+        [InlineData("1.05e10", 1.05e10)]
+        [InlineData("1e-10", 1e-10)]
+        [InlineData("-1e-10", -1e-10)]
+        [InlineData("-1e10", -1e10)]
+        [InlineData("-1e0", -1e0)]
         public void TestSingleFloat(string input, double output)
         {
             var res = SExprParser.Parse(input);
             Console.WriteLine(res.ToString());
             Assert.IsType<JEM.Model.FloatConstant>(res[0]);
             Assert.Single(res, output);
-            
+
         }
+
+        //[Theory]
+        //[InlineData("-1e-10", -1e-10)]
+        //public void TestSingleItem(string input, double output)
+        //{
+        //    var tok = SExprTokenizer.Instance.Tokenize(input);
+        //    var res = SExprParser.Exprs.Parse(tok);
+        //    Console.WriteLine(res.ToString());
+        //    Assert.IsType<JEM.Model.FloatConstant>(res[0]);
+        //    Assert.Single(res, output);
+
+        //}
+
+
 
         [Theory]
         [InlineData("()")]
@@ -113,6 +127,7 @@ namespace JEM.Testing
                 [""] = new SExpr(),
                 ["a"] = new SExpr(new Symbol("a")),
                 ["(a \"bc\" 123)"] = new SExpr(new SExpr(new Symbol("a"), new StringConstant("bc"), new IntConstant(123))),
+                ["(* & [])"] = new SExpr(new SExpr(new Symbol("*"), new Symbol("&"), new Symbol("[]"))),
                 ["(() () ())"] = new SExpr(new SExpr(new SExpr(), new SExpr(), new SExpr())),
                 ["(( (a) ))"] = new SExpr(new SExpr(new SExpr(new SExpr(new Symbol("a")))))
             };

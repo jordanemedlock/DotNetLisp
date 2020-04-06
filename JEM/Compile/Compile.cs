@@ -18,5 +18,13 @@ namespace JEM.Compile
             };
         }
 
+        public static Compiler<T, U> Error<T, U>(string message)
+        {
+            return input =>
+            {
+                return new CompilerResult<T, U>(message);
+            };
+        }
+
     }
 }

@@ -79,13 +79,13 @@ namespace JEM.Compile.CIL
         public static Compiler<Expr, string> Assembly =
             ExternAssembly.Or(NonExternAssembly, "NonExternAssembly");
 
-        [Name("Some bullshit")]
+        // 135
         public static Compiler<Expr, string> Decl = 
             Assembly
-            .Or(input => Corflags(input), "Corflags") // I don't get why I need these lambdas here???
+            .Or(input => Corflags(input), "Corflags") 
             .Or(input => FileDirective(input), "FileDirective");
 
-        public static Compiler<Expr, string> Corflags { get; } =
+        public static Compiler<Expr, string> Corflags =
             Util.Next(Util.SymbolIs(".corflags")).Apply(
             Util.Next(Util.IntConstant).Select(i =>
 
@@ -130,7 +130,7 @@ namespace JEM.Compile.CIL
             Util.Next(Type).Bind(typ => 
             Util.Next(Id).Select(id =>
 
-            $".field {i} {String.Join(' ', fas ?? new List<string>())} {typ} {id}"
+            $"{i} {String.Join(' ', fas ?? new List<string>())} {typ} {id}"
 
             ))));
 
@@ -152,7 +152,7 @@ namespace JEM.Compile.CIL
             
             $"method {callConv} {typ} * ({pars})"
 
-            )))), "method type") // TODO: continue here
+            )))), "method type") 
             .Or(input => TypeModifier(input), "TypeModifier")
             .Or(input => ValueType(input), "valuetype");
 
@@ -179,37 +179,52 @@ namespace JEM.Compile.CIL
 
         public static Compiler<Expr, string> TypeModifier =
             Util.Next(Type).Bind(typ =>
-                 Util.Next(Util.SymbolIn("&", "*")).Select(sym =>
+            Util.Next(Util.SymbolIn("&", "*")).Select(sym =>
 
-                 $"{typ} {sym}"
+            $"{typ} {sym}"
 
-                 )
-                 .Or(
-                 Util.Next(GenArgs).Select(genArgs =>
+            ))
+            .Or(input => GenericType(input), "GenericType")
+            .Or(input => ArrayType(input), "ArrayType")
+            .Or(input => ModType(input), "ModType")
+            .Or(input => PinnedType(input), "PinnedType");
 
-                 $"{typ}<{genArgs}>"
+        public static Compiler<Expr, string> PinnedType =
+            Util.Next(Type).Bind(typ =>
+            Util.Next(Util.SymbolIs("pinned")).Return(
 
-                 ), "GenArgs")
-                 .Or( 
-                 Util.Next(Bound.Many()).Select(bnds =>
+            $"{typ} pinned"
 
-                 $"{typ}[{String.Join(", ", bnds)}]"
+            ));
 
-                 ), "array")
-                 .Or(
-                 Util.Next(Util.SymbolIn("modopt", "modreq")).Bind(mod =>
-                 Util.Next(input => TypeReference(input)).Select(typeRef =>
+        public static Compiler<Expr, string> ModType =
+            Util.Next(Type).Bind(typ =>
+            Util.Next(Util.SymbolIn("modopt", "modreq")).Bind(mod =>
+            Util.Next(input => TypeReference(input)).Select(typeRef =>
 
-                 $"{typ} {mod} ({typeRef})"
+            $"{typ} {mod} ({typeRef})"
 
-                 )), "mod")
-                 .Or(
-                 Util.Next(Util.SymbolIs("pinned")).Return(
+            )));
 
-                 $"{typ} pinned"
+        public static Compiler<Expr, string> ArrayType =
+            Util.Next(Type).Bind(typ =>
+            Util.Next(Util.SymbolIs("[")).Apply(
+            Bound.Many().Bind(bnds =>
+            Util.Next(Util.SymbolIs("]")).Return(
 
-                 ), "pinned"));
+            $"{typ}[{String.Join(", ", bnds)}]"
 
+            ))));
+
+        public static Compiler<Expr, string> GenericType =
+            Util.Next(Type).Bind(typ =>
+            Util.Next(Util.SymbolIs("<")).Apply(
+            GenArgs.Bind(genArgs =>
+            Util.Next(Util.SymbolIs(">")).Return(
+
+            $"{typ}<{genArgs}>"
+
+            ))));
 
         public static Compiler<Expr, string> GenArgs = 
             Type.Many().Select(xs => String.Join(", ", xs));
@@ -305,7 +320,7 @@ namespace JEM.Compile.CIL
         public static Compiler<Expr, string> NativeType =
             Util.SymbolIn(new List<string>()
             {
-                "[]", // TODO: can't parse this yet.
+                "[]", 
                 "bool",
                 "float32", "float64",
                 "lpstr", "lpwstr",
@@ -341,6 +356,66 @@ namespace JEM.Compile.CIL
 
         public static Compiler<Expr, string> SimpleIntType =
             Util.SymbolIn("int", "int8", "int16", "int32", "int64");
+
+
+        // 161
+        public static Compiler<Expr, string> ClassDecl =
+            Util.Next(Util.SymbolIs(".class")).Apply(
+            CompilerExtensions.Bind<Expr, string, string>(input => ClassHeader(input), header =>
+            Util.Many<string>(input => ClassMember(input)).Select(members =>
+
+            $".class {header} {{\n{String.Join("\n", members)}\n}}"
+
+            )));
+
+        // 161
+        public static Compiler<Expr, string> ClassHeader = Compile.Error<Expr, string>("unimplemented");
+
+        // 145 TODO: Didn't finish def. too tired
+        public static Compiler<Expr, string> TypeSpec = 
+            CompilerExtensions.Or<Expr, string>(input => TypeReference(input), input => Type(input), "TypeSpec");
+
+        // 165
+        public static Compiler<Expr, string> GenPars = 
+            Util.AtLeastOnce(input => GenPar(input)).Select(x => "<" + String.Join(", ", x) + ">");
+
+        // 165
+        public static Compiler<Expr, string> GenPar =
+            Util.Many(input => GenParAttribs(input)).Bind(attribs =>
+            Util.NextOptional(input => GenConstraints(input)).Bind(constraints =>
+            Util.Next(input => Id(input)).Select(id =>
+
+            $"{String.Join(" ", attribs)} {constraints} {id}"
+
+            )))
+            .Or(input => Id(input), "GenPar Id");
+
+        // 165
+        public static Compiler<Expr, string> GenParAttribs = 
+            Util.SymbolIn("+","-","class","valuetype",".ctor");
+
+        // 166
+        public static Compiler<Expr, string> GenConstraints = 
+            Util.AtLeastOnce(input => Type(input))
+            .Select(typs => "("+String.Join(", ", typs)+")");
+
+
+        // 162
+        public static Compiler<Expr, string> ClassAttr =
+            Util.SymbolIn("public", "abstract", "ansi", "autochar", "beforefieldinit", "explicit",
+                "interface", "private", "rtspecialname", "sealed", "sequential", "serializable",
+                "specialname", "unicode")
+            .Or(
+            Util.Next(Util.SymbolIs("nested")).Apply(
+            Util.Next(Util.SymbolIn("assembly","famandassem","family","famorassem","private","public")).Select(inner =>
+
+            $"nested {inner}"
+
+            )), "nested type");
+        
+
+
+        public static Compiler<Expr, string> ClassMember = Compile.Return<Expr, string>("unimplemented");
 
         public static string EscapeString(string input)
         {

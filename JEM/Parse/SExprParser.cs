@@ -10,14 +10,11 @@ using Superpower.Parsers;
 namespace JEM.Parse
 {
     public static class SExprParser
-    {
-        public static TextParser<string> Identifier = from open in Character.Letter.Or(Character.In('.', '_', '<', '>', '[', ']', '{', '}'))
-                                                      from content in Character.Except(x => " ()".Contains(x), "symbol characters").Many()
-                                                      select open + new string(content);
+    { 
 
-        public static TextParser<Expr> SymbolParser = Identifier.Select(x =>
+        public static TextParser<Expr> SymbolParser = SExprTokenizer.SymbolToken.Select(x =>
         {
-            switch (x)
+            switch (x.ToStringValue())
             {
                 case "null":
                     return (Expr)new NullConstant();
@@ -26,7 +23,7 @@ namespace JEM.Parse
                 case "false":
                     return (Expr)new BoolConstant(false);
                 default:
-                    return (Expr)new Symbol(x);
+                    return (Expr)new Symbol(x.ToStringValue());
             }
         });
         public static TokenListParser<SExprToken, Expr> SymbolTokenParser = Token
@@ -62,12 +59,16 @@ namespace JEM.Parse
             .EqualTo(SExprToken.String)
             .Apply(StringParser);
 
-        public static TextParser<Expr> IntParser = Numerics.IntegerInt64.Select(x => (Expr)new IntConstant(x));
+        public static TextParser<Expr> IntParser = 
+            SExprTokenizer.IntToken.Select(x => (Expr)new IntConstant(long.Parse(x.ToStringValue())));
         public static TokenListParser<SExprToken, Expr> IntTokenParser = Token
             .EqualTo(SExprToken.Integer)
             .Apply(IntParser);
 
-        public static TextParser<Expr> FloatParser = Numerics.DecimalDouble.Select(x => (Expr)new FloatConstant(x));
+        public static TextParser<Expr> FloatParser = 
+            SExprTokenizer.FloatToken
+            .Select(x => (Expr)new FloatConstant(double.Parse(x.ToStringValue())));
+
         public static TokenListParser<SExprToken, Expr> FloatTokenParser = Token
             .EqualTo(SExprToken.Float)
             .Apply(FloatParser);
@@ -85,7 +86,8 @@ namespace JEM.Parse
             .Or(FloatTokenParser)
             .Or(SExpr);
 
-        public static TokenListParser<SExprToken, List<Expr>> Exprs = Expr.Many().Select(x => x.ToList());
+        public static TokenListParser<SExprToken, List<Expr>> Exprs = 
+            Expr.Many().Select(x => x.ToList());
         
         public static SExpr Parse(string input)
         {
