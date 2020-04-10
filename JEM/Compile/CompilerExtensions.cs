@@ -17,7 +17,8 @@ namespace JEM.Compile
                 return res.Bind(val =>
                 {
                     var innerCompiler = func(val);
-                    return innerCompiler(res.Remainder);
+                    var ret = innerCompiler(res.Remainder);
+                    return ret;
                 });
             };
         }
@@ -69,6 +70,37 @@ namespace JEM.Compile
                 {
                     return results1;
                 }
+            };
+        }
+
+        public static Compiler<T, U> Or<T, U>(params Compiler<T, U>[] compilers)
+        {
+            return input =>
+            {
+                CompilerResult<T, U> result;
+                int i = 0;
+                do
+                {
+                    result = compilers[i++](input);
+                }
+                while (!result.HasValue && i < compilers.Length);
+                return result;
+            };
+        }
+
+        public static Compiler<T, U> Or<T, U>(string name, params Compiler<T, U>[] compilers)
+        {
+            return input =>
+            {
+                CompilerResult<T, U> result = new CompilerResult<T, U>($"{name} failed on {input}, no compiler returned value");
+                int i = 0;
+                do
+                {
+                    result = compilers[i++](input);
+                }
+                while (!result.HasValue && i < compilers.Length);
+                result.HappyPath.Add($"{name}[{i - 1}]");
+                return result;
             };
         }
 

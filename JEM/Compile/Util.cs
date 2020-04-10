@@ -15,8 +15,8 @@ namespace JEM.Compile
         };
 
         public static Compiler<Expr, string> SymbolIs(string value) => Symbol.Where(x => x == value, $"{{0}} is not Symbol({value})");
-        public static Compiler<Expr, string> SymbolIn(params string[] values) => Symbol.Where(x => values.Contains(x), "Value is not in [" + String.Join(", ", values) + "]");
-        public static Compiler<Expr, string> SymbolIn(List<string> values) => Symbol.Where(x => values.Contains(x), "Value is not in [" + String.Join(", ", values) + "]");
+        public static Compiler<Expr, string> SymbolIn(params string[] values) => Symbol.Where(x => values.Contains(x), "{0} is not in [" + String.Join(", ", values) + "]");
+        public static Compiler<Expr, string> SymbolIn(List<string> values) => Symbol.Where(x => values.Contains(x), "{0} is not in [" + String.Join(", ", values) + "]");
 
         public static Compiler<Expr, string> Symbol = Expr.Is<Expr, Expr, Symbol>().Value();
         public static Compiler<Expr, string> StringConstant = Expr.Is<Expr, Expr, StringConstant>().Value();
@@ -72,6 +72,28 @@ namespace JEM.Compile
                 else
                 {
                     return new CompilerResult<Expr, T>($"{input.ToString()} is not SExpr or emtpy in Next");
+                }
+            };
+        }
+        public static Compiler<Expr, string> Next(string symbol)
+        {
+            return input =>
+            {
+                if (input is SExpr e && e.Count > 0)
+                {
+                    var results = SymbolIs(symbol)(e.Head());
+                    return results.Bind(val =>
+                    {
+                        return new CompilerResult<Expr, string>()
+                        {
+                            Value = val,
+                            Remainder = e.Tail()
+                        };
+                    });
+                }
+                else
+                {
+                    return new CompilerResult<Expr, string>($"{input.ToString()} is not SExpr or emtpy in NextSymbol");
                 }
             };
         }
@@ -151,7 +173,7 @@ namespace JEM.Compile
             };
         }
 
-        internal static Compiler<Expr,T> NextOptional<T>(Compiler<Expr, T> match)
+        internal static Compiler<Expr, T> NextOptional<T>(Compiler<Expr, T> match)
         {
 
             return input =>
@@ -192,6 +214,11 @@ namespace JEM.Compile
                     return new CompilerResult<Expr, T>($"{input.ToString()} is not SExpr in NextOptional");
                 }
             };
+        }
+        internal static Compiler<Expr, string> NextOptional(string symbol)
+        {
+
+            return NextOptional(SymbolIs(symbol));
         }
     }
     

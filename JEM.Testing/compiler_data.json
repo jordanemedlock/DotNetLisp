@@ -204,20 +204,27 @@
         "int64": "int64"
     },
     "ClassDecl": {
+        "(.class public SomeName ())": ".class public SomeName   {\n\n}",
+        "(.class (nested public) SomeName (T U) ())": ".class nested public SomeName<T, U>   {\n\n}",
+        "(.class public SomeName (T U) (extends SomeOtherClass) ())": ".class public SomeName<T, U> extends SomeOtherClass  {\n\n}",
+        "(.class public SomeName (T U) (implements SomeOtherClass) ())": ".class public SomeName<T, U>  implements SomeOtherClass {\n\n}",
+        "(.class public SomeName (T U) (implements SomeOtherClass AnotherInterface) ())": ".class public SomeName<T, U>  implements SomeOtherClass, AnotherInterface {\n\n}",
+        "(.class public SomeName (T U) (extends SomeOtherClass) (implements SomeOtherClass) ())": ".class public SomeName<T, U> extends SomeOtherClass implements SomeOtherClass {\n\n}"
 
     },
     "ClassHeader": {
-        //"(public SomeName)": "public SomeName",
-        //"((nested public) SomeName (T U))": "nested public SomeName<T, U>",
-        //"(public SomeName (T U) (extends SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass",
-        //"(public SomeName (T U) (implements SomeOtherClass))": "public SomeName<T, U> implements SomeOtherClass",
-        //"(public SomeName (T U) (implements SomeOtherClass AnotherInterface))": "public SomeName<T, U> implements SomeOtherClass, AnotherInterface",
-        //"(public SomeName (T U) (extends SomeOtherClass) (implements SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass implements SomeOtherClass"
+        "(public SomeName)": "public SomeName  ",
+        "((nested public) SomeName (T U))": "nested public SomeName<T, U>  ",
+        "(public SomeName (T U) (extends SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass ",
+        "(public SomeName (T U) (implements SomeOtherClass))": "public SomeName<T, U>  implements SomeOtherClass",
+        "(public SomeName (T U) (implements SomeOtherClass AnotherInterface))": "public SomeName<T, U>  implements SomeOtherClass, AnotherInterface",
+        "(public SomeName (T U) (extends SomeOtherClass) (implements SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass implements SomeOtherClass"
     },
     "TypeSpec": {
         "((.module \"something.txt\") Something)": "[.module \"something.txt\"] Something",
-        "(class (Something))": "class  Something"
-
+        "(class (Something))": "class  Something",
+        "([ .module Something ])": "[.module Something]",
+        "([ Something ])":  "[ Something]"
     },
     "GenPars": {
 
@@ -267,5 +274,36 @@
         "serializable": true,
         "specialname": true,
         "unicode": true
+    },
+    "ClassMember": {
+        "(.data Something (int64 0))":  ".data Something = int64 (0) "
+    },
+    "DataDecl": {
+        "(Something (int16 152))": "Something = int16 (152) "
+    },
+    "DataLabel": {
+        "Something":  "Something"
+    },
+    "DdBody": {
+        "((& Something) (bytearray (1 2 3 4)))": "{& (Something), bytearray (1 2 3 4)}",
+        "(char * \"Some string\")": "char * (\"Some string\")",
+        "((float32 1.5) (float64 10) (float32 1.5 10))": "{float32 (1.5) , float64 [10], float32 (1.5) [10]}",
+        "(float64)": "float64 ",
+        "(int32 1)": "int32 (1) ",
+        "(int8 10 10)": "int8 (10) [10]",
+        "(int16)": "int16 "
+
+    },
+    "DdItem": {
+        "(& Something)": "& (Something)",
+        "(bytearray (1 2 3 4))": "bytearray (1 2 3 4)",
+        "(char * \"Some string\")": "char * (\"Some string\")",
+        "(float32 1.3)": "float32 (1.3) ",
+        "(float64 10)": "float64 [10]",
+        "(float32 1.3 10)": "float32 (1.3) [10]",
+        "(float64)": "float64 ",
+        "(int32 1)": "int32 (1) ",
+        "(int8 10 10)": "int8 (10) [10]",
+        "(int16)": "int16 "
     }
 }
