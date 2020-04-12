@@ -79,5 +79,17 @@ namespace JEM.Compile
                 return new CompilerResult<TInput, TOutput>(String.Format(errorMessage, this.Value));
             }
         }
+
+        internal CompilerResult<TInput, V> Return<V>(V value)
+        {
+            if (HasValue)
+            {
+                return new CompilerResult<TInput, V>(value, Remainder);
+            }
+            else
+            {
+                return new CompilerResult<TInput, V>(Error);
+            }
+        }
     }
 }

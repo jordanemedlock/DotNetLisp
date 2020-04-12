@@ -51,7 +51,7 @@ namespace JEM.Compile.CIL
 
         // 138
         public static Compiler<Expr, string> AsmDecl =
-            CompilerExtensions.Or(
+            Compiler<Expr, string>.Or(
                 "AsmDecl",
 
                 HashAlg,
@@ -84,22 +84,22 @@ namespace JEM.Compile.CIL
             ExternAssembly.Or(NonExternAssembly, "NonExternAssembly");
 
         // 135
-        public static Compiler<Expr, string> Decl = 
-            CompilerExtensions.Or<Expr, string>(
+        public static Compiler<Expr, string> Decl = new Compiler<Expr, string>("Decl", () =>
+            Compiler<Expr, string>.Or(
                 "Decl",
 
-                input => Assembly(input),
-                input => Corflags(input), 
-                input => FileDirective(input)
-           );
+                Assembly,
+                Corflags, 
+                FileDirective
+           ));
 
-        public static Compiler<Expr, string> Corflags =
+        public static Compiler<Expr, string> Corflags = new Compiler<Expr, string>("Corflags", () =>
             Util.Next(".corflags").Apply(
             Util.Next(Util.IntConstant).Select(i =>
 
             $".corflags {i}"
 
-            ));
+            )));
 
         public static Compiler<Expr, string> FileDirective =
             Util.Next(".file").Apply(
@@ -124,11 +124,67 @@ namespace JEM.Compile.CIL
             );
 
         // 210
-        public static Compiler<Expr, string> Field =
+        public static Compiler<Expr, string> Field = new Compiler<Expr, string>("Field", () => 
             Util.Next(".field").Apply(
-            CompilerExtensions.Select<Expr, string, string>((input => FieldDecl(input)), fieldDecl => 
+            FieldDecl.Select(fieldDecl => 
 
             $".field {fieldDecl}"
+
+            )));
+        // 212
+        public static Compiler<Expr, string> FieldInit = new Compiler<Expr, string>("FieldInit", () => 
+            Compiler<Expr, string>.Or(
+                "FieldInit",
+
+                Util.Next("bool").Apply(
+                Util.Next(Util.BoolConstant).Select(b => 
+                
+                $"bool ({(b ? "true" : "false")})"
+                
+                )),
+
+                Util.Next("bytearray").Apply(
+                Util.Next(Bytes).Select(b => 
+                
+                $"bytearray ({b})"
+                
+                )),
+
+                Util.Next("char").Apply(
+                Util.Next(Util.IntConstant).Select(c => 
+                
+                $"char ({c})"
+                
+                )),
+
+                Util.Next(Util.SymbolIn("float32","float64")).Bind(fType =>
+                Util.Next(Util.FloatConstant.Select(x => x.ToString()).Or(Util.IntConstant.Select(x => x.ToString()))).Select(f => 
+                
+                $"{fType} ({f})"
+                
+                )),
+
+                Util.NextOptional("unsigned").Bind(unsig =>
+                Util.Next(Util.SymbolIn("int8", "int16", "int32", "int64")).Bind(iType => 
+                Util.Next(Util.IntConstant).Select(iValue => 
+
+                $"{unsig} {iType} ({iValue})"
+
+                ))),
+
+                QString,
+
+                Util.SymbolIs("nullref")
+
+            ));
+
+        // 210
+        public static Compiler<Expr, string> FieldInitOrDataLabel = new Compiler<Expr, string>("FieldInitOrDataLabel", () => 
+            Compiler<Expr, string>.Or(
+                "FieldExprOrDataLabel",
+                Util.Next("=").Apply(Util.Next(FieldInit).Select(f => $"= {f}")),
+                Util.Next("=").Apply(FieldInit.Select(f => $"= {f}")),
+                Util.Next("at").Apply(Util.Next(DataLabel).Select(d => $"at {d}"))
 
             ));
 
@@ -136,16 +192,17 @@ namespace JEM.Compile.CIL
         public static Compiler<Expr, string> FieldDecl =
             Util.NextOptional(Util.IntConstant.Select(i => "[" + i + "]")).Bind(i =>
             FieldAttr.Many().Bind(fas =>
-            Util.Next(Type).Bind(typ => 
-            Util.Next(Id).Select(id =>
+            Util.Next(Type).Bind(typ =>
+            Util.Next(Id).Bind(id =>
+            FieldInitOrDataLabel.Or(Util.NextOptional(FieldInitOrDataLabel)).Select(expr =>
 
-            $"{i} {String.Join(' ', fas ?? new List<string>())} {typ} {id}"
+            $"{i} {String.Join(' ', fas ?? new List<string>())} {typ} {id} {expr}"
 
-            ))));
+            )))));
 
         // 144
-        public static Compiler<Expr, string> Type =
-            CompilerExtensions.Or(
+        public static Compiler<Expr, string> Type = new Compiler<Expr, string>("Type", () =>
+            Compiler<Expr, string>.Or(
                 "Type",
 
                 Util.Next(Util.SymbolIn("!", "!!")).Bind(exp => 
@@ -157,47 +214,47 @@ namespace JEM.Compile.CIL
                     "object", "string", "typedref", "void"
                 }), 
 
-                input => IntType(input), 
+                IntType, 
 
-                input => ClassRef(input), 
+                ClassRef, 
 
                 Util.Next("method").Apply(
-                Util.NextOptional(input => CallConv(input)).Bind(callConv =>
-                Util.Next(input => Type(input)).Bind(typ => 
-                Util.Next(input => Parameters(input)).Select(pars => 
+                Util.NextOptional(CallConv).Bind(callConv =>
+                Util.Next(Type).Bind(typ => 
+                Util.Next(Parameters).Select(pars => 
             
                 $"method {callConv} {typ} * ({pars})"
 
                 )))), 
 
-                input => TypeModifier(input), 
+                TypeModifier, 
 
-                input => ValueType(input)
-            );
+                ValueType
+            ));
 
-        public static Compiler<Expr, string> ValueType =
+        public static Compiler<Expr, string> ValueType = new Compiler<Expr, string>("ValueType", () =>
             Util.Next("valuetype").Apply(
-            Util.Next(input => TypeReference(input)).Select(typeRef =>
+            Util.Next(TypeReference).Select(typeRef =>
 
             $"valuetype {typeRef}"
 
-            ));
+            )));
 
-        public static Compiler<Expr, string> ClassRef =
+        public static Compiler<Expr, string> ClassRef = new Compiler<Expr, string>("ClassRef", () => 
             Util.Next("class").Apply(
-            Util.Next(input => TypeReference(input)).Select(typeRef =>
+            Util.Next(TypeReference).Select(typeRef =>
 
             $"class {typeRef}"
 
-            ));
+            )));
 
         // 185
         // TODO: this isn't the whole def. but it doesn't seem super important to implement the rest. idk
         public static Compiler<Expr, string> Bound = 
             Util.SymbolIs("...");
 
-        public static Compiler<Expr, string> TypeModifier =
-            CompilerExtensions.Or(
+        public static Compiler<Expr, string> TypeModifier = new Compiler<Expr, string>("TypeModifier", () => 
+            Compiler<Expr, string>.Or(
                 "TypeModifier",
                 
                 Util.Next(Type).Bind(typ =>
@@ -206,34 +263,34 @@ namespace JEM.Compile.CIL
                 $"{typ} {sym}"
 
                 )),
-                input => GenericType(input), 
-                input => ArrayType(input), 
-                input => ModType(input), 
-                input => PinnedType(input)
-            );
+                GenericType, 
+                ArrayType, 
+                ModType, 
+                PinnedType
+            ));
 
         public static Compiler<Expr, string> PinnedType =
             Util.Next(Type).Bind(typ =>
-            Util.Next("pinned").Return(
+            Util.Next("pinned").Return<string>(
 
             $"{typ} pinned"
 
             ));
 
-        public static Compiler<Expr, string> ModType =
+        public static Compiler<Expr, string> ModType = new Compiler<Expr, string>("ModType", () =>
             Util.Next(Type).Bind(typ =>
             Util.Next(Util.SymbolIn("modopt", "modreq")).Bind(mod =>
-            Util.Next(input => TypeReference(input)).Select(typeRef =>
+            Util.Next(TypeReference).Select(typeRef =>
 
             $"{typ} {mod} ({typeRef})"
 
-            )));
+            ))));
 
         public static Compiler<Expr, string> ArrayType =
             Util.Next(Type).Bind(typ =>
             Util.Next("[").Apply(
             Bound.Many().Bind(bnds =>
-            Util.Next("]").Return(
+            Util.Next("]").Return<string>(
 
             $"{typ}[{String.Join(", ", bnds)}]"
 
@@ -243,7 +300,7 @@ namespace JEM.Compile.CIL
             Util.Next(Type).Bind(typ =>
             Util.Next("<").Apply(
             GenArgs.Bind(genArgs =>
-            Util.Next(">").Return(
+            Util.Next(">").Return<string>(
 
             $"{typ}<{genArgs}>"
 
@@ -257,7 +314,7 @@ namespace JEM.Compile.CIL
             Util.NextOptional("instance").Bind(instance =>
             (instance != null ?
                 Util.NextOptional("explicit") :
-                Compile.Return<Expr, string>(null)).Bind(expl =>
+                Compiler<Expr, string>.Return(null)).Bind(expl =>
             Util.Next(CallKind).Select(callKind =>
 
             $"{instance} {expl} {callKind}"
@@ -275,63 +332,63 @@ namespace JEM.Compile.CIL
 
             )), "unmanaged");
 
-        public static Compiler<Expr, string> Parameters = 
-            Util.Many(input => Param(input)).Select(xs => 
+        public static Compiler<Expr, string> Parameters = new Compiler<Expr, string>("Parameters", () =>
+            Util.Many(Param).Select(xs => 
 
             String.Join(", ",xs)
 
-            );
+            ));
 
-        public static Compiler<Expr, string> Param =
-            Util.Many(input => ParamAttr(input)).Bind(attrs =>
-            Util.Next(input => Type(input)).Bind(typ =>
-            Util.NextOptional(input => Marshal(input)).Bind(marshal =>
-            Util.NextOptional(input => Id(input)).Select(id =>
+        public static Compiler<Expr, string> Param = new Compiler<Expr, string>("Param", () => 
+            Util.Many(ParamAttr).Bind(attrs =>
+            Util.Next(Type).Bind(typ =>
+            Util.NextOptional(Marshal).Bind(marshal =>
+            Util.NextOptional(Id).Select(id =>
 
             $"{String.Join(' ', attrs)} {typ} {marshal} {id}"
 
-            ))));
+            )))));
 
         public static Compiler<Expr, string> ParamAttr =
             Util.SymbolIn("in", "opt", "out").Select(x => $"[{x}]");
 
         // 146
-        public static Compiler<Expr, string> TypeReference =
-            Util.NextOptional(input => ResolutionScope(input)).Bind(resScope =>
+        public static Compiler<Expr, string> TypeReference = new Compiler<Expr, string>("TypeReference", () =>
+            Util.NextOptional(ResolutionScope).Bind(resScope =>
             DottedName.Many().Select(dottedNames =>
 
             $"{resScope} {String.Join('/', dottedNames)}"
 
-            ));
+            )));
 
-        public static Compiler<Expr, string> ResolutionScope =
+        public static Compiler<Expr, string> ResolutionScope = new Compiler<Expr, string>("ResolutionScope", () => 
             Util.Next(".module").Apply(
             Util.Next(Filename).Select(x =>
 
             $"[.module {x}]"
 
             ))
-            .Or(Util.Next(DottedName.Select(x => $"[{x}]")), "resolution scope");
+            .Or(Util.Next(DottedName.Select(x => $"[{x}]")), "resolution scope"));
 
         public static Compiler<Expr, string> Id = Util.Symbol;
 
         // 211
-        public static Compiler<Expr, string> FieldAttr =
+        public static Compiler<Expr, string> FieldAttr = new Compiler<Expr, string>("FieldAttr", () =>
             Util.SymbolIn("assembly", "famandassem", "family", "famorassem", 
                 "initonly", "notserialized", "private", "compilercontrolled",
                 "public", "rtspecialname", "specialname", "static")
-            .Or(input => Marshal(input), "marshal");
+            .Or(Marshal, "marshal"));
 
 
-        public static Compiler<Expr, string> Marshal =
+        public static Compiler<Expr, string> Marshal = new Compiler<Expr, string>("Marshal", () => 
             Util.Next("marshal").Apply(
-            Util.Next(input => NativeType(input)).Select(typ => 
+            Util.Next(NativeType).Select(typ => 
 
             $"marshal ({typ})"
 
-            ));
+            )));
 
-        public static Compiler<Expr, string> NativeType =
+        public static Compiler<Expr, string> NativeType = new Compiler<Expr, string>("NativeType", () =>
             Util.SymbolIn(new List<string>()
             {
                 "[]", 
@@ -340,12 +397,12 @@ namespace JEM.Compile.CIL
                 "lpstr", "lpwstr",
                 "method",
             })
-            .Or(input => SimpleIntType(input), "IntType");
+            .Or(SimpleIntType, "IntType"));
 
         // 148
         public static Compiler<Expr, string> NativeTypeArray =
             Util.Next(NativeType).Bind(nType =>
-            Util.Next("[]").Return(
+            Util.Next("[]").Return<string>(
 
             $"{nType}[]"
 
@@ -353,103 +410,103 @@ namespace JEM.Compile.CIL
             Util.Next(NativeType).Bind(nType => 
             Util.Next("[").Apply(
             Util.Next(Util.IntConstant).Bind(i => 
-            Util.Next("]").Return(
+            Util.Next("]").Return<string>(
             
             $"{nType}[{i}]"
 
             )))), "Native Array"); // TODO: Theres other versions that I'm not worrying about
 
-        public static Compiler<Expr, string> IntType =
+        public static Compiler<Expr, string> IntType = new Compiler<Expr, string>("IntType", () => 
             Util.NextOptional("unsigned").Bind(unsigned =>
             Util.Next(SimpleIntType).Select(intType => 
 
             $"{unsigned} {intType}"
 
             ))
-            .Or(input => SimpleIntType(input), "SimpleIntType");
+            .Or(SimpleIntType, "SimpleIntType"));
 
         public static Compiler<Expr, string> SimpleIntType =
             Util.SymbolIn("int", "int8", "int16", "int32", "int64");
 
 
         // 161
-        public static Compiler<Expr, string> ClassDecl =
+        public static Compiler<Expr, string> ClassDecl = new Compiler<Expr, string>("ClassDecl", () => 
             Util.Next(".class").Apply(
-            CompilerExtensions.Bind<Expr, string, string>(input => ClassHeader(input), header =>
-            Util.Many<string>(input => ClassMember(input)).Select(members =>
+            ClassHeader.Bind(header =>
+            Util.Many<string>(ClassMember).Select(members =>
 
             $".class {header} {{\n{String.Join("\n", members)}\n}}"
 
-            )));
+            ))));
 
         // 161
-        public static Compiler<Expr, string> ClassHeader =
-            Util.Many(input => ClassAttr(input)).Bind(classAttrs =>
-            Util.Next(input => Id(input)).Bind(id =>
-            Util.NextOptional(input => GenPars(input)).Bind(genPars =>
+        public static Compiler<Expr, string> ClassHeader = new Compiler<Expr, string>("ClassHeader", () => 
+            Util.Many(ClassAttr).Bind(classAttrs =>
+            Util.Next(Id).Bind(id =>
+            Util.NextOptional(GenPars).Bind(genPars =>
             Util.NextOptional(Extends).Bind(baseClass =>
             Util.NextOptional(Implements).Select(interfaces =>
 
             $"{string.Join(" ", classAttrs)} {id}{genPars} {baseClass} {interfaces}"
 
-            )))));
+            ))))));
 
-        public static Compiler<Expr, string> Extends =
+        public static Compiler<Expr, string> Extends = new Compiler<Expr, string>("Extends", () => 
             Util.Next("extends").Apply(
-            Util.Next(input => Id(input)).Select(id =>
+            Util.Next(Id).Select(id =>
 
             $"extends {id}"
 
-            ));
+            )));
 
-        public static Compiler<Expr, string> Implements =
+        public static Compiler<Expr, string> Implements = new Compiler<Expr, string>("Implements", () =>
             Util.Next("implements").Apply(
-            Util.Many(input => Id(input)).Select(ids =>
+            Util.Many(Id).Select(ids =>
 
             $"implements {string.Join(", ", ids)}"
 
-            ));
+            )));
 
         // 145 TODO: Didn't finish def. too tired
-        public static Compiler<Expr, string> TypeSpec = 
-            CompilerExtensions.Or<Expr, string>(
+        public static Compiler<Expr, string> TypeSpec = new Compiler<Expr, string>("TypeSpec", () =>
+            Compiler<Expr, string>.Or(
                 "TypeSpec",
 
                 Util.Next("[").Apply(
                 Util.NextOptional(".module").Bind(mod => 
                 Util.Next(DottedName).Bind(n => 
-                Util.Next("]").Return(
+                Util.Next("]").Return<string>(
 
                 $"[{mod} {n}]"
 
                 )))),
-                input => Type(input), 
-                input => TypeReference(input)
-            );
+                Type, 
+                TypeReference
+            ));
 
         // 165
-        public static Compiler<Expr, string> GenPars = 
-            Util.AtLeastOnce(input => GenPar(input)).Select(x => "<" + String.Join(", ", x) + ">");
+        public static Compiler<Expr, string> GenPars = new Compiler<Expr, string>("GenPars", () => 
+            Util.AtLeastOnce(GenPar).Select(x => "<" + String.Join(", ", x) + ">"));
 
         // 165
-        public static Compiler<Expr, string> GenPar =
-            Util.Many(input => GenParAttribs(input)).Bind(attribs =>
-            Util.NextOptional(input => GenConstraints(input)).Bind(constraints =>
-            Util.Next(input => Id(input)).Select(id =>
+        public static Compiler<Expr, string> GenPar = new Compiler<Expr, string>("GenPar", () =>
+            Util.Many(GenParAttribs).Bind(attribs =>
+            Util.NextOptional(GenConstraints).Bind(constraints =>
+            Util.Next(Id).Select(id =>
 
             $"{String.Join(" ", attribs)} {constraints} {id}"
 
             )))
-            .Or(input => Id(input), "GenPar Id");
+            .Or(Id, "GenPar Id"));
 
         // 165
         public static Compiler<Expr, string> GenParAttribs = 
             Util.SymbolIn("+","-","class","valuetype",".ctor");
 
         // 166
-        public static Compiler<Expr, string> GenConstraints = 
-            Util.AtLeastOnce(input => Type(input))
-            .Select(typs => "("+String.Join(", ", typs)+")");
+        public static Compiler<Expr, string> GenConstraints = new Compiler<Expr, string>("GenConstraints", () => 
+            Util.AtLeastOnce(Type)
+            .Select(typs => "("+String.Join(", ", typs)+")"));
 
 
         // 162
@@ -467,49 +524,49 @@ namespace JEM.Compile.CIL
 
 
         // 169
-        public static Compiler<Expr, string> ClassMember = input =>
-            CompilerExtensions.Or(
+        public static Compiler<Expr, string> ClassMember = new Compiler<Expr, string>("ClassMember", () =>
+            Compiler<Expr, string>.Or(
                 "ClassMember",
                 Util.Next(".custom").Apply(CustomDecl.Select(c => $".custom {c}")),
                 Util.Next(".data").Apply(DataDecl.Select(d => $".data {d}")),
                 Util.Next(".field").Apply(FieldDecl.Select(f => $".field {f}"))
 
-            )(input);
+            ));
 
         // 225
-        public static Compiler<Expr, string> CustomDecl = Compile.Error<Expr, string>("unimplemented");
+        public static Compiler<Expr, string> CustomDecl = Compiler<Expr, string>.Error("unimplemented");
 
         // 213
-        public static Compiler<Expr, string> DataDecl =
-            Util.NextOptional(input => DataLabel(input)).Bind(label =>
-            Util.Next(input => DdBody(input)).Select(body =>
+        public static Compiler<Expr, string> DataDecl = new Compiler<Expr, string>("DataDecl", () =>
+            Util.NextOptional(DataLabel).Bind(label =>
+            Util.Next(DdBody).Select(body =>
 
             label != null ? $"{label} = {body}" : $"{body}"
 
-            ));
+            )));
 
-        public static Compiler<Expr, string> DataLabel = input => Id(input);
+        public static Compiler<Expr, string> DataLabel = new Compiler<Expr, string>("DataLabel", () => Id);
 
         // 213
-        public static Compiler<Expr, string> DdBody = 
-            CompilerExtensions.Or(
+        public static Compiler<Expr, string> DdBody = new Compiler<Expr, string>("DdBody", () => 
+            Compiler<Expr, string>.Or(
                 "DdBody",
 
-                input => DdItem(input),
-                Util.Many(input => DdItem(input)).Select(items => $"{{{string.Join(", ", items)}}}")
-            );
+                DdItem,
+                Util.Many(DdItem).Select(items => $"{{{string.Join(", ", items)}}}")
+            ));
 
         // 213
-        public static Compiler<Expr, string> DdItem =
-            CompilerExtensions.Or(
+        public static Compiler<Expr, string> DdItem = new Compiler<Expr, string>("DdItem", () => 
+            Compiler<Expr, string>.Or(
                 "DdItem",
 
 
-                Util.Next("&").Apply(Util.Next(input => Id(input)).Select(id => $"& ({id})")),
+                Util.Next("&").Apply(Util.Next(Id).Select(id => $"& ({id})")),
 
-                Util.Next("bytearray").Apply(Util.Next(input => Bytes(input)).Select(bytes => $"bytearray ({bytes})")),
+                Util.Next("bytearray").Apply(Util.Next(Bytes).Select(bytes => $"bytearray ({bytes})")),
 
-                Util.Next("char").Apply(Util.Next("*").Apply(Util.Next(input => QString(input)).Select(qstr => $"char * ({qstr})"))),
+                Util.Next("char").Apply(Util.Next("*").Apply(Util.Next(QString).Select(qstr => $"char * ({qstr})"))),
 
                 Util.Next(Util.SymbolIn("float32","float64")).Bind(fType => 
                 Util.NextOptional(Util.FloatConstant.Select(x => (double?)x)).Bind(fValue => 
@@ -526,11 +583,11 @@ namespace JEM.Compile.CIL
                 $"{iType} " + (iValue != null ? $"({iValue}) " : "") + (cValue != null ? $"[{cValue}]" : "")
 
                 )))
-            );
+            ));
 
         public static Compiler<Expr, string> QString = Util.StringConstant.Select(s => $"{EscapeString(s)}");
 
-        public static Compiler<Expr, string> SQString = Compile.Error<Expr, string>("Unimplemented (needs parser update)");
+        public static Compiler<Expr, string> SQString = Compiler<Expr, string>.Error("Unimplemented (needs parser update)");
 
         public static string EscapeString(string input)
         {

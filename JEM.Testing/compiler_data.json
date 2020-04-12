@@ -68,10 +68,34 @@
         "\"some filename\"": "\"some filename\""
     },
     "Field": {
-        "(.field private int32 xOrigin)": ".field  private int32 xOrigin"
+        "(.field private int32 xOrigin)": ".field  private int32 xOrigin ",
+        "(.field private int32 xOrigin = bool true)": ".field  private int32 xOrigin = bool (true)",
+        "(.field private int32 xOrigin = unsigned int64 123)": ".field  private int32 xOrigin = unsigned int64 (123)",
+        "(.field private int32 xOrigin at Something)": ".field  private int32 xOrigin at Something"
+    },
+    "FieldInit": {
+        "(bool true)": "bool (true)",
+        "(bytearray (1 2 3 4 5))": "bytearray (1 2 3 4 5)",
+        "(char 128)": "char (128)",
+        "(float32 1.3)": "float32 (1.3)",
+        "(float32 123)": "float32 (123)",
+        "(float64 1.3)": "float64 (1.3)",
+        "(float64 123)": "float64 (123)",
+        "(unsigned int8 127)": "unsigned int8 (127)",
+        "(int16 123)": " int16 (123)",
+        "(unsigned int32 123)": "unsigned int32 (123)",
+        "(int64 123)": " int64 (123)",
+        "\"Some String\"": "\"Some String\"",
+        "nullref": "nullref"
+
+    },
+    "FieldInitOrDataLabel": {
+        "(= bool true)": "= bool (true)",
+        "(= (bool true))": "= bool (true)",
+        "(at Something)":  "at Something"
     },
     "FieldDecl": {
-        "(private int32 xOrigin)": " private int32 xOrigin"
+        "(private int32 xOrigin)": " private int32 xOrigin "
     },
     "Type": {
         "(! 10)": "!10",

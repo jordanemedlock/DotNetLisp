@@ -23,7 +23,7 @@ namespace JEM.Testing
         public void TestSymbol()
         {
             var s = new Symbol("A");
-            var res = Util.Symbol(s);
+            var res = Util.Symbol.Compile(s);
             HasValue(res, s.Value);
         }
 
@@ -31,7 +31,7 @@ namespace JEM.Testing
         public void TestString()
         {
             var s = new StringConstant("A");
-            var res = Util.StringConstant(s);
+            var res = Util.StringConstant.Compile(s);
             HasValue(res, s.Value);
         }
 
@@ -39,7 +39,7 @@ namespace JEM.Testing
         public void TestInt()
         {
             var s = new IntConstant(123);
-            var res = Util.IntConstant(s);
+            var res = Util.IntConstant.Compile(s);
             HasValue(res, s.Value);
         }
 
@@ -47,7 +47,7 @@ namespace JEM.Testing
         public void TestFloat()
         {
             var f = new FloatConstant(123.34);
-            var res = Util.FloatConstant(f);
+            var res = Util.FloatConstant.Compile(f);
             HasValue(res, f.Value);
         }
 
@@ -55,7 +55,7 @@ namespace JEM.Testing
         public void TestBool()
         {
             var f = new BoolConstant(true);
-            var res = Util.BoolConstant(f);
+            var res = Util.BoolConstant.Compile(f);
             HasValue(res, f.Value);
         }
 
@@ -63,7 +63,7 @@ namespace JEM.Testing
         public void TestNull()
         {
             var f = new NullConstant();
-            var res = Util.NullConstant(f);
+            var res = Util.NullConstant.Compile(f);
             HasValue(res, null);
         }
 
@@ -74,10 +74,10 @@ namespace JEM.Testing
             var symbol = new Symbol("b");
             var compiler = Util.StringConstant
                 .Or(Util.Symbol);
-            var res = compiler(symbol);
+            var res = compiler.Compile(symbol);
             HasValue(res, symbol.Value);
 
-            res = compiler(stringConstant);
+            res = compiler.Compile(stringConstant);
             HasValue(res, stringConstant.Value);
         }
         
@@ -90,7 +90,7 @@ namespace JEM.Testing
             foreach (var kvp in pairs)
             {
                 var parsed = SExprParser.Parse(kvp.Key);
-                var res = compiler(parsed[0]);
+                var res = compiler.Compile(parsed[0]);
                 if (kvp.Value is string s)
                 {
                     Assert.True(res.HasValue, $"Result has no value with error: {res.Error}");

@@ -9,21 +9,21 @@ namespace JEM.Compile
     public static class Util
     {
 
-        public static Compiler<Expr, Expr> Expr = input =>
+        public static Compiler<Expr, Expr> Expr = new Compiler<Expr,Expr>(input =>
         {
             return new CompilerResult<Expr, Expr>(input, null);
-        };
+        });
 
         public static Compiler<Expr, string> SymbolIs(string value) => Symbol.Where(x => x == value, $"{{0}} is not Symbol({value})");
         public static Compiler<Expr, string> SymbolIn(params string[] values) => Symbol.Where(x => values.Contains(x), "{0} is not in [" + String.Join(", ", values) + "]");
         public static Compiler<Expr, string> SymbolIn(List<string> values) => Symbol.Where(x => values.Contains(x), "{0} is not in [" + String.Join(", ", values) + "]");
 
-        public static Compiler<Expr, string> Symbol = Expr.Is<Expr, Expr, Symbol>().Value();
-        public static Compiler<Expr, string> StringConstant = Expr.Is<Expr, Expr, StringConstant>().Value();
-        public static Compiler<Expr, long> IntConstant = Expr.Is<Expr, Expr, IntConstant>().Value();
-        public static Compiler<Expr, double> FloatConstant = Expr.Is<Expr, Expr, FloatConstant>().Value();
-        public static Compiler<Expr, bool> BoolConstant = Expr.Is<Expr, Expr, BoolConstant>().Value();
-        public static Compiler<Expr, object> NullConstant = Expr.Is<Expr, Expr, NullConstant>().Value();
+        public static Compiler<Expr, string> Symbol = Expr.Is<Symbol>().Value();
+        public static Compiler<Expr, string> StringConstant = Expr.Is<StringConstant>().Value();
+        public static Compiler<Expr, long> IntConstant = Expr.Is<IntConstant>().Value();
+        public static Compiler<Expr, double> FloatConstant = Expr.Is<FloatConstant>().Value();
+        public static Compiler<Expr, bool> BoolConstant = Expr.Is<BoolConstant>().Value();
+        public static Compiler<Expr, object> NullConstant = Expr.Is<NullConstant>().Value();
 
         public static Compiler<Expr, string> Value(this Compiler<Expr, Symbol> compiler)
         {
@@ -47,7 +47,7 @@ namespace JEM.Compile
         }
         public static Compiler<Expr, object> Value(this Compiler<Expr, NullConstant> compiler)
         {
-            return compiler.Select<Expr, NullConstant, object>(x => null);
+            return compiler.Select<object>(x => null);
         }
 
 
@@ -55,11 +55,11 @@ namespace JEM.Compile
 
         public static Compiler<Expr, T> Next<T>(Compiler<Expr, T> match)
         {
-            return input =>
+            return new Compiler<Expr, T>($"Next({match.Name})", input =>
             {
                 if (input is SExpr e && e.Count > 0)
                 {
-                    var results = match(e.Head());
+                    var results = match.Compile(e.Head());
                     return results.Bind(val =>
                     {
                         return new CompilerResult<Expr, T>()
@@ -73,15 +73,15 @@ namespace JEM.Compile
                 {
                     return new CompilerResult<Expr, T>($"{input.ToString()} is not SExpr or emtpy in Next");
                 }
-            };
+            });
         }
         public static Compiler<Expr, string> Next(string symbol)
         {
-            return input =>
+            return new Compiler<Expr, string> ($"Next({symbol})", input =>
             {
                 if (input is SExpr e && e.Count > 0)
                 {
-                    var results = SymbolIs(symbol)(e.Head());
+                    var results = SymbolIs(symbol).Compile(e.Head());
                     return results.Bind(val =>
                     {
                         return new CompilerResult<Expr, string>()
@@ -95,7 +95,7 @@ namespace JEM.Compile
                 {
                     return new CompilerResult<Expr, string>($"{input.ToString()} is not SExpr or emtpy in NextSymbol");
                 }
-            };
+            });
         }
 
 
@@ -103,7 +103,7 @@ namespace JEM.Compile
         // Is ther any way I can make this more complicated lol
         public static Compiler<Expr, List<T>> Many<T>(this Compiler<Expr, T> inner)
         {
-            return input =>
+            return new Compiler<Expr, List<T>>($"Many({inner.Name})", input =>
             {
                 if (input is SExpr e)
                 {
@@ -115,7 +115,7 @@ namespace JEM.Compile
                     int i = 0;
                     foreach (var value in e.Values)
                     {
-                        var innerResults = inner(value);
+                        var innerResults = inner.Compile(value);
                         if (innerResults.HasValue)
                         {
 
@@ -134,12 +134,12 @@ namespace JEM.Compile
                 {
                     return new CompilerResult<Expr, List<T>>($"{input} is not SExpr in Many");
                 }
-            };
+            });
         }
 
         public static Compiler<Expr, List<T>> AtLeastOnce<T>(this Compiler<Expr, T> inner)
         {
-            return input =>
+            return new Compiler<Expr, List<T>>($"AtLeastOnce({inner.Name})", input =>
             {
                 if (input is SExpr e && e.Count >= 1)
                 {
@@ -151,7 +151,7 @@ namespace JEM.Compile
                     int i = 0;
                     foreach (var value in e.Values)
                     {
-                        var innerResults = inner(value);
+                        var innerResults = inner.Compile(value);
                         if (innerResults.HasValue)
                         {
 
@@ -170,17 +170,17 @@ namespace JEM.Compile
                 {
                     return new CompilerResult<Expr, List<T>>($"{input} is not SExpr (or Count >=1) in AtLeastOnce");
                 }
-            };
+            });
         }
 
         internal static Compiler<Expr, T> NextOptional<T>(Compiler<Expr, T> match)
         {
 
-            return input =>
+            return new Compiler<Expr, T>($"NextOptional({match.Name})", input =>
             {
                 if (input is SExpr e && e.Count > 0)
                 {
-                    var results = match(e.Head());
+                    var results = match.Compile(e.Head());
                     if (results.HasValue)
                     {
                         return results.Bind(val =>
@@ -213,7 +213,7 @@ namespace JEM.Compile
                 {
                     return new CompilerResult<Expr, T>($"{input.ToString()} is not SExpr in NextOptional");
                 }
-            };
+            });
         }
         internal static Compiler<Expr, string> NextOptional(string symbol)
         {
