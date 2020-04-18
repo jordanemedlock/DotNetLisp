@@ -18,13 +18,13 @@ namespace JEM.Parse
             from content in Character.Except(x => " ()".Contains(x), "symbol characters").Many()
             select open + new string(content));
 
-        static TextParser<Unit> StringToken { get; } =
+        public static TextParser<TextSpan> StringToken { get; } = Span.MatchedBy(
             from open in Character.EqualTo('"')
             from content in Span.EqualTo("\\\"").Value(Unit.Value).Try()
                 .Or(Character.Except('"').Value(Unit.Value))
                 .IgnoreMany()
             from close in Character.EqualTo('"')
-            select Unit.Value;
+            select Unit.Value);
 
         public static TextParser<TextSpan> IntToken = Numerics.Integer;
 

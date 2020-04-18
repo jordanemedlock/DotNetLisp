@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Superpower.Model;
 
 namespace JEM.Model
 {
     public abstract class Expr
     {
+
+        public TextSpan TextSpan { get; set; } = TextSpan.None;
+
         public virtual string ToString(bool top = false)
         {
             return "";

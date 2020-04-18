@@ -253,7 +253,7 @@
     "GenPars": {
 
         "((+ - class .ctor (int32) Something) (Something) ((int32 float32) Something))": "<+ - class .ctor (int32) Something,   Something,  (int32, float32) Something>",
-        "()": false, // at least one
+        "()": false,
         "((Something))": "<  Something>",
         "(Something)": "<Something>",
         "(T U)": "<T, U>"
@@ -267,7 +267,7 @@
     "GenParAttribs": {
         "+": "+",
         "-": "-",
-        "class": "class",
+        "class": true,
         "valuetype": true,
         ".ctor": true,
         "somethingelse": false

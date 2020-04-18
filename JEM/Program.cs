@@ -12,10 +12,6 @@ namespace JEM
     {
         static void Main(string[] args)
         {
-            var str = " \"\" ";
-            //var x = SExprParser.Parse(str);
-            //var file = new ILFile().Compile(x);
-            //Console.WriteLine(file);
         }
 
     }

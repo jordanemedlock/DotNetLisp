@@ -5,6 +5,7 @@ using System.Text;
 using JEM.Model;
 using JEM.Parse;
 using Superpower;
+using Superpower.Model;
 using Xunit;
 
 namespace JEM.Testing
@@ -34,6 +35,7 @@ namespace JEM.Testing
             var res = SExprParser.Parse(input);
             Assert.Single(res, output);
             Assert.IsType<Symbol>(res[0]);
+            Assert.NotEqual(TextSpan.None, res[0].TextSpan);
         }
 
         [Theory]
@@ -51,6 +53,7 @@ namespace JEM.Testing
             Console.WriteLine(res.ToString());
             Assert.IsType<JEM.Model.StringConstant>(res[0]);
             Assert.Single(res, output);
+            Assert.NotEqual(TextSpan.None, res[0].TextSpan);
         }
 
         [Theory]
@@ -66,6 +69,7 @@ namespace JEM.Testing
             Console.WriteLine(res.ToString());
             Assert.IsType<JEM.Model.IntConstant>(res[0]);
             Assert.Single(res, output);
+            Assert.NotEqual(TextSpan.None, res[0].TextSpan);
         }
 
         [Theory]
@@ -86,6 +90,7 @@ namespace JEM.Testing
             Console.WriteLine(res.ToString());
             Assert.IsType<JEM.Model.FloatConstant>(res[0]);
             Assert.Single(res, output);
+            Assert.NotEqual(TextSpan.None, res[0].TextSpan);
 
         }
 
@@ -114,6 +119,7 @@ namespace JEM.Testing
             Assert.Single(res);
             Assert.IsType<SExpr>(res[0]);
             Assert.Empty(res.As<SExpr>()[0].As<SExpr>());
+            Assert.NotEqual(TextSpan.None, res[0].TextSpan);
 
         }
 
@@ -133,7 +139,9 @@ namespace JEM.Testing
             };
 
             foreach(var keyValuePair in cases) {
-                Assert.Equal(keyValuePair.Value, SExprParser.Parse(keyValuePair.Key));
+                var res = SExprParser.Parse(keyValuePair.Key);
+                Assert.Equal(keyValuePair.Value, res);
+                Assert.NotEqual(TextSpan.None, res.TextSpan);
             }
         }
     }
