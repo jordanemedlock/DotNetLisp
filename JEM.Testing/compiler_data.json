@@ -309,17 +309,28 @@
         "(.field private int32 xOrigin = unsigned int64 123)": ".field  private int32 xOrigin = unsigned int64 (123)",
         "(.field private int32 xOrigin at Something)": ".field  private int32 xOrigin at Something",
         "(.data Something (int64 0))":  ".data Something = int64 (0) ",
-        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)"
+        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)",
+        "(.event Something ((.fire (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))))": ".event Something {\n.fire instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)\n}"
 
     },
     "EventDecl": {
-
+        "(Something ((.fire (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))))": "Something {\n.fire instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)\n}"
     },
     "EventHeader": {
-
+        "(specialname rtspecialname (class (Something)) SomethingElse)": "specialname rtspecialname class  Something SomethingElse",
+        "(rtspecialname (class (Something)) SomethingElse)": " rtspecialname class  Something SomethingElse",
+        "(specialname (class (Something)) SomethingElse)": "specialname  class  Something SomethingElse",
+        "((class (Something)) SomethingElse)": "  class  Something SomethingElse",
+        "(SomethingElse)": "   SomethingElse"
     },
     "EventMember": {
-
+        "(.addon (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": ".addon instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)",
+        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)",
+        "(.fire (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": ".fire instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)",
+        "(.other (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": ".other instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)",
+        "(.removeon (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": ".removeon instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)",
+        "(.line 1)": ".line 1 ",
+        "(.line 1 10)": ".line 1:10 "
     },
     "FireDecl": {
         "((instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": "instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)"

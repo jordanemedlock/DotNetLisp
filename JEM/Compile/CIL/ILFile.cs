@@ -556,7 +556,7 @@ namespace JEM.Compile.CIL
 
             $"{sn} {rtsn} {typeSpec} {id}"
 
-            ))))
+            )))).Or(Id)
         );
 
         // 218
