@@ -30,8 +30,8 @@ namespace JEM.Testing
         [Fact]
         public void TestString()
         {
-            var s = new StringConstant("A");
-            var res = Util.StringConstant.Select(x => x.Value).Compile(s);
+            var s = new StringConstant("A", true);
+            var res = Util.SQStringConstant.Select(x => x.Value).Compile(s);
             HasValue(res, s.Value);
         }
 
@@ -70,9 +70,9 @@ namespace JEM.Testing
         [Fact]
         public void TestOr()
         {
-            var stringConstant = new StringConstant("a");
+            var stringConstant = new StringConstant("a", true);
             var symbol = new Symbol("b");
-            var compiler = Util.StringConstant.Select(x => x.Value)
+            var compiler = Util.SQStringConstant.Select(x => x.Value)
                 .Or(Util.Symbol);
             var res = compiler.Compile(symbol);
             HasValue(res, symbol.Value);

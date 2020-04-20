@@ -336,8 +336,8 @@
         "((instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": "instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)"
     },
     "ExternSourceDecl": {
-        // "(.line 1 10 'Something')": ".line 1:10 'Something'",
-        // "(.line 1 'Something')": ".line 1 'Something'",
+        "(.line 1 10 'Something')": ".line 1:10 'Something'",
+        "(.line 1 'Something')": ".line 1 'Something'",
         "(.line 1)": ".line 1 ",
         "(.line 1 10)": ".line 1:10 "
     },

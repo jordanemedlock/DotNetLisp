@@ -44,12 +44,12 @@ namespace JEM.Parse
 
 
         public static TextParser<Expr> StringParser = Span.MatchedBy(Character.AnyChar.Many()).Apply(span => (
-            from open in Character.EqualTo('"')
-            from chars in Character.ExceptIn('"', '\\')
+            from open in Character.In('"', '\'')
+            from chars in Character.ExceptIn(open, '\\')
                 .Or(Character.EqualTo('\\')
                     .IgnoreThen(
                         Character.EqualTo('\\')
-                        .Or(Character.EqualTo('"'))
+                        .Or(Character.EqualTo(open))
                         .Or(Character.EqualTo('/'))
                         .Or(Character.EqualTo('b').Value('\b'))
                         .Or(Character.EqualTo('f').Value('\f'))
@@ -62,8 +62,8 @@ namespace JEM.Parse
                                     .Select(cc => (char)cc)))
                         .Named("escape sequence")))
                 .Many()
-            from close in Character.EqualTo('"')
-            select (Expr)new StringConstant(new string(chars)) { TextSpan = span})(span) );
+            from close in Character.EqualTo(open)
+            select (Expr)new StringConstant(new string(chars), open == '\'') { TextSpan = span})(span) );
         // public static TextParser<Expr> StringParser = 
         //     from span in Span.MatchedBy(Character.AnyChar.Many().Select(cs => new string(cs)))
         //     select (Expr)new StringConstant(span.ToStringValue()) 
@@ -71,7 +71,7 @@ namespace JEM.Parse
         //         TextSpan = span
         //     };
         public static TokenListParser<SExprToken, Expr> StringTokenParser = Token
-            .EqualTo(SExprToken.String)
+            .EqualTo(SExprToken.DQString).Or(Token.EqualTo(SExprToken.SQString))
             .Apply(StringParser);
 
         public static TextParser<Expr> IntParser = 

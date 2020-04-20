@@ -81,7 +81,22 @@ namespace JEM.Testing
         public void TestSingleString(string input)
         {
             var res = Tokenizer.Tokenize(input).ToList().Select(x => x.Kind);
-            Assert.Single(res, SExprToken.String);
+            Assert.Single(res, SExprToken.DQString);
+        }
+        
+        [Theory]
+        [InlineData(" \'\' ")]
+        [InlineData("\'something\'")]
+        [InlineData("\'another thing\'")]
+        [InlineData("\'12346!@#$@#%&^$%&*\'")]
+        [InlineData("\'\\n \\r something\'")]
+        [InlineData("\'\\\\ all kinds of stuff\'    ")]
+        [InlineData("\'     \'")]
+        [InlineData("\'() -_ somehting\'")]
+        public void TestSingleSQString(string input)
+        {
+            var res = Tokenizer.Tokenize(input).ToList().Select(x => x.Kind);
+            Assert.Single(res, SExprToken.SQString);
         }
 
         [Theory]
@@ -149,10 +164,10 @@ namespace JEM.Testing
         [InlineData("", new SExprToken[] { })]
         [InlineData("a", new SExprToken[] { SExprToken.Symbol })]
         [InlineData("1:10", new SExprToken[] { SExprToken.Integer, SExprToken.Operator, SExprToken.Integer })]
-        [InlineData("(a \"bc\" 123)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Integer, SExprToken.Close })]
+        [InlineData("(a \"bc\" 123)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.DQString, SExprToken.Integer, SExprToken.Close })]
         [InlineData("(()((", new SExprToken[] { SExprToken.Open, SExprToken.Open, SExprToken.Close, SExprToken.Open, SExprToken.Open })]
-        [InlineData("(a \"bc\" 123.01)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Float, SExprToken.Close })]
-        [InlineData("(a \"bc\" 123 0.0)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Integer, SExprToken.Float, SExprToken.Close })]
+        [InlineData("(a \"bc\" 123.01)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.DQString, SExprToken.Float, SExprToken.Close })]
+        [InlineData("(a \"bc\" 123 0.0)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.DQString, SExprToken.Integer, SExprToken.Float, SExprToken.Close })]
         [InlineData("(a [] somthing + - / *)", 
             new SExprToken[] { SExprToken.Open,
                 SExprToken.Symbol, SExprToken.Operator, SExprToken.Symbol, SExprToken.Operator,

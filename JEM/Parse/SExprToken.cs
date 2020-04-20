@@ -12,7 +12,8 @@ namespace JEM.Parse
         Symbol,
         Operator,
         Integer,
-        String,
+        DQString,
+        SQString,
         Float,
 
 

@@ -37,7 +37,7 @@ namespace JEM.Compile.CIL
         // 138
         public static Compiler<Expr, string> Culture =
             Util.Next(".culture").Apply(
-            Util.Next(Util.StringConstant).Select(str => 
+            Util.Next(Util.DQStringConstant).Select(str => 
             
             $".culture {str.Escaped()}"
 
@@ -115,7 +115,7 @@ namespace JEM.Compile.CIL
             ))))));
 
         public static Compiler<Expr, string> Filename = 
-            Util.StringConstant.Select(x => x.Escaped());
+            Util.DQStringConstant.Select(x => x.Escaped());
 
         public static Compiler<Expr, string> Bytes =
             Util.IntConstant.Many().Select(ints =>
@@ -726,9 +726,9 @@ namespace JEM.Compile.CIL
                 )))
             ));
 
-        public static Compiler<Expr, string> QString = Util.StringConstant.Select(s => $"{s.Escaped()}");
+        public static Compiler<Expr, string> QString = Util.DQStringConstant.Select(s => $"{s.Escaped()}");
 
-        public static Compiler<Expr, string> SQString = Compiler<Expr, string>.Error("Unimplemented (needs parser update)");
+        public static Compiler<Expr, string> SQString = Util.SQStringConstant.Select(s => $"{s.Escaped()}");
 
     }
 }

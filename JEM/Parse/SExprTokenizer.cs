@@ -26,12 +26,20 @@ namespace JEM.Parse
             select open + new string(rest)
         );
 
-        public static TextParser<TextSpan> StringToken { get; } = Span.MatchedBy(
+        public static TextParser<TextSpan> DQStringToken { get; } = Span.MatchedBy(
             from open in Character.EqualTo('"')
             from content in Span.EqualTo("\\\"").Value(Unit.Value).Try()
                 .Or(Character.Except('"').Value(Unit.Value))
                 .IgnoreMany()
             from close in Character.EqualTo('"')
+            select Unit.Value);
+
+        public static TextParser<TextSpan> SQStringToken { get; } = Span.MatchedBy(
+            from open in Character.EqualTo('\'')
+            from content in Span.EqualTo("\\\'").Value(Unit.Value).Try()
+                .Or(Character.Except('\'').Value(Unit.Value))
+                .IgnoreMany()
+            from close in Character.EqualTo('\'')
             select Unit.Value);
 
         public static TextParser<TextSpan> IntToken = Numerics.Integer;
@@ -56,7 +64,8 @@ namespace JEM.Parse
                 .Match(FloatToken, SExprToken.Float, requireDelimiters: true)
                 .Match(OperatorToken, SExprToken.Operator)
                 .Match(SymbolToken, SExprToken.Symbol, requireDelimiters: true)
-                .Match(StringToken, SExprToken.String, requireDelimiters: true)
+                .Match(DQStringToken, SExprToken.DQString, requireDelimiters: true)
+                .Match(SQStringToken, SExprToken.SQString, requireDelimiters: true)
                 .Build();
         
         

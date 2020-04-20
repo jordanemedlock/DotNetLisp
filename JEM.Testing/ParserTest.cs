@@ -122,7 +122,8 @@ namespace JEM.Testing
             {
                 [""] = new SExpr(),
                 ["a"] = new SExpr(new Symbol("a")),
-                ["(a \"bc\" 123)"] = new SExpr(new SExpr(new Symbol("a"), new StringConstant("bc"), new IntConstant(123))),
+                ["(a \"bc\" 123)"] = new SExpr(new SExpr(new Symbol("a"), new StringConstant("bc", false), new IntConstant(123))),
+                ["(a \'bc\' 123)"] = new SExpr(new SExpr(new Symbol("a"), new StringConstant("bc", true), new IntConstant(123))),
                 ["(* & [])"] = new SExpr(new SExpr(new Symbol("*"), new Symbol("&"), new Symbol("[]"))),
                 ["(() () ())"] = new SExpr(new SExpr(new SExpr(), new SExpr(), new SExpr())),
                 ["(( (a) ))"] = new SExpr(new SExpr(new SExpr(new SExpr(new Symbol("a"))))),

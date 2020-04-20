@@ -19,7 +19,8 @@ namespace JEM.Compile
         public static Compiler<Expr, string> SymbolIn(List<string> values) => Symbol.Where(x => values.Contains(x), "{0} is not in [" + String.Join(", ", values) + "]");
 
         public static Compiler<Expr, string> Symbol = Expr.Is<Symbol>().Value();
-        public static Compiler<Expr, StringConstant> StringConstant = Expr.Is<StringConstant>();
+        public static Compiler<Expr, StringConstant> DQStringConstant = Expr.Is<StringConstant>().Where(s => !s.SingleQuote);
+        public static Compiler<Expr, StringConstant> SQStringConstant = Expr.Is<StringConstant>().Where(s => s.SingleQuote);
         public static Compiler<Expr, long> IntConstant = Expr.Is<IntConstant>().Value();
         public static Compiler<Expr, double> FloatConstant = Expr.Is<FloatConstant>().Value();
         public static Compiler<Expr, bool> BoolConstant = Expr.Is<BoolConstant>().Value();
