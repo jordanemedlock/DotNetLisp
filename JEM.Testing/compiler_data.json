@@ -54,7 +54,11 @@
         "(.corflags 123)": ".corflags 123",
         "(.file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
         "(.file \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file  \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
-        "(.file \"some_filename.txt\" .hash (1 2 3 4))": ".file  \"some_filename.txt\" .hash = (1 2 3 4) "
+        "(.file \"some_filename.txt\" .hash (1 2 3 4))": ".file  \"some_filename.txt\" .hash = (1 2 3 4) ",
+        "(.field private int32 xOrigin)": ".field  private int32 xOrigin ",
+        "(.field private int32 xOrigin = bool true)": ".field  private int32 xOrigin = bool (true)",
+        "(.field private int32 xOrigin = unsigned int64 123)": ".field  private int32 xOrigin = unsigned int64 (123)",
+        "(.field private int32 xOrigin at Something)": ".field  private int32 xOrigin at Something"
     },
     "Corflags": {
         "(.corflags 123)": ".corflags 123"
@@ -300,7 +304,75 @@
         "unicode": true
     },
     "ClassMember": {
-        "(.data Something (int64 0))":  ".data Something = int64 (0) "
+        "(.field private int32 xOrigin)": ".field  private int32 xOrigin ",
+        "(.field private int32 xOrigin = bool true)": ".field  private int32 xOrigin = bool (true)",
+        "(.field private int32 xOrigin = unsigned int64 123)": ".field  private int32 xOrigin = unsigned int64 (123)",
+        "(.field private int32 xOrigin at Something)": ".field  private int32 xOrigin at Something",
+        "(.data Something (int64 0))":  ".data Something = int64 (0) ",
+        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)"
+
+    },
+    "EventDecl": {
+
+    },
+    "EventHeader": {
+
+    },
+    "EventMember": {
+
+    },
+    "FireDecl": {
+        "((instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": "instance explicit default int class Something::SomeMethod(int v1, int v2)"
+    },
+    "ExternSourceDecl": {
+        // "(.line 1 10 'Something')": ".line 1:10 'Something'",
+        // "(.line 1 'Something')": ".line 1 'Something'",
+        "(.line 1)": ".line 1 ",
+        "(.line 1:10)": ".line 1:10 "
+    },
+    "CustomDecl": {
+        "(abstract bool .ctor () = (1 2 3 4))": "abstract  bool  .ctor()  = (1 2 3 4)"
+    },
+    "Ctor":{
+        "(abstract (instance default) bool (marshal int32) .ctor (T U) ((int v1) (float32 v2)) cil)": 
+        "abstract instance  default bool marshal (int32) .ctor<T, U>( int  v1,  float32  v2) cil"
+
+    },
+    "MethodHeader": {
+        "(abstract (instance default) bool (marshal int32) SomeMethod (T U) ((int v1) (float32 v2)) cil)": 
+        "abstract instance  default bool marshal (int32) SomeMethod<T, U>( int  v1,  float32  v2) cil"
+    },
+    "MethodName":{
+        ".ctor": true,
+        ".cctor": true,
+        "Something": true,
+        "Something.SomethingElse": true
+    },
+    "ImplAttr": {
+        "cil": true,
+        "forwardref": true,
+        "internalcall": true,
+        "managed": true,
+        "native": true,
+        "noinlining": true,
+        "runtime": true,
+        "synchronized": true,
+        "unmanaged": true
+    },
+    "MethodAttr": {
+        "abstract": true,
+        "final": true,
+        "(pinvokeimpl \"Something\" (as \"SomethingElse\") ansi autochar)": "pinvokeimpl (\"Something\" as \"SomethingElse\" ansi autochar)"
+    },
+    "PinvAttr": {
+        "ansi": true,
+        "autochar": true,
+        "cdecl": true,
+        "fastcall": true,
+        "stdcall": true,
+        "thiscall": true,
+        "unicode": true,
+        "platformapi": true
     },
     "DataDecl": {
         "(Something (int16 152))": "Something = int16 (152) "

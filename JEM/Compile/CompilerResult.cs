@@ -80,7 +80,7 @@ namespace JEM.Compile
             }
         }
 
-        internal CompilerResult<TInput, V> Return<V>(V value)
+        public CompilerResult<TInput, V> Return<V>(V value)
         {
             if (HasValue)
             {
@@ -90,6 +90,11 @@ namespace JEM.Compile
             {
                 return new CompilerResult<TInput, V>(Error);
             }
+        }
+
+        public CompilerResult<TInput, V> CastEmpty<V>() 
+        {
+            return new CompilerResult<TInput, V>(this.Error);
         }
     }
 }

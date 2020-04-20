@@ -22,14 +22,12 @@ namespace JEM.Model
         }
 
 
-        public override string ToString(bool top = true) {
-            var inners = String.Join(" ", Values.Select(v => v.ToString(false)));
-            if (top) {
-                return "<" + inners + ">";
-            } else {
-                return "(" + inners + ")";
-            }
+        public override string ToString() {
+            var inners = String.Join(" ", Values.Select(v => v.ToString()));
+            return "(" + inners + ")";
         }
+
+
 
         public Expr Head()
         {

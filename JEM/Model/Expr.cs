@@ -9,11 +9,6 @@ namespace JEM.Model
     {
 
         public TextSpan TextSpan { get; set; } = TextSpan.None;
-
-        public virtual string ToString(bool top = false)
-        {
-            return "";
-        }
         
         public override bool Equals(object other)
         {

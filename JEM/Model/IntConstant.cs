@@ -12,7 +12,7 @@ namespace JEM.Model
         {
             Value = value;
         }
-        public override string ToString(bool top = false)
+        public override string ToString()
         {
             return $"{Value}";
         }

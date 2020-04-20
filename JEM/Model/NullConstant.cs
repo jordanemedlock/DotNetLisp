@@ -6,7 +6,7 @@ namespace JEM.Model
 {
     public class NullConstant : Expr
     {
-        public override string ToString(bool top)
+        public override string ToString()
         {
             return "null";
         }

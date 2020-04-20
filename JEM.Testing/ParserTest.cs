@@ -94,20 +94,6 @@ namespace JEM.Testing
 
         }
 
-        //[Theory]
-        //[InlineData("-1e-10", -1e-10)]
-        //public void TestSingleItem(string input, double output)
-        //{
-        //    var tok = SExprTokenizer.Instance.Tokenize(input);
-        //    var res = SExprParser.Exprs.Parse(tok);
-        //    Console.WriteLine(res.ToString());
-        //    Assert.IsType<JEM.Model.FloatConstant>(res[0]);
-        //    Assert.Single(res, output);
-
-        //}
-
-
-
         [Theory]
         [InlineData("()")]
         [InlineData("( )")]
@@ -135,7 +121,8 @@ namespace JEM.Testing
                 ["(a \"bc\" 123)"] = new SExpr(new SExpr(new Symbol("a"), new StringConstant("bc"), new IntConstant(123))),
                 ["(* & [])"] = new SExpr(new SExpr(new Symbol("*"), new Symbol("&"), new Symbol("[]"))),
                 ["(() () ())"] = new SExpr(new SExpr(new SExpr(), new SExpr(), new SExpr())),
-                ["(( (a) ))"] = new SExpr(new SExpr(new SExpr(new SExpr(new Symbol("a")))))
+                ["(( (a) ))"] = new SExpr(new SExpr(new SExpr(new SExpr(new Symbol("a"))))),
+                ["1:10"] = new SExpr(new IntConstant(1), new Symbol(":"), new IntConstant(10))
             };
 
             foreach(var keyValuePair in cases) {

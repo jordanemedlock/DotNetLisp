@@ -39,7 +39,7 @@ namespace JEM.Compile.CIL
             Util.Next(".culture").Apply(
             Util.Next(Util.StringConstant).Select(str => 
             
-            $".culture {EscapeString(str)}"
+            $".culture {str.Escaped()}"
 
             ));
 
@@ -90,7 +90,8 @@ namespace JEM.Compile.CIL
 
                 Assembly,
                 Corflags, 
-                FileDirective
+                FileDirective,
+                Field
            ));
 
         public static Compiler<Expr, string> Corflags = new Compiler<Expr, string>("Corflags", () =>
@@ -114,7 +115,7 @@ namespace JEM.Compile.CIL
             ))))));
 
         public static Compiler<Expr, string> Filename = 
-            Util.StringConstant.Select(EscapeString);
+            Util.StringConstant.Select(x => x.Escaped());
 
         public static Compiler<Expr, string> Bytes =
             Util.IntConstant.Many().Select(ints =>
@@ -382,7 +383,7 @@ namespace JEM.Compile.CIL
 
         public static Compiler<Expr, string> Marshal = new Compiler<Expr, string>("Marshal", () => 
             Util.Next("marshal").Apply(
-            Util.Next(NativeType).Select(typ => 
+            Util.NextOptional(NativeType).Select(typ => 
 
             $"marshal ({typ})"
 
@@ -467,7 +468,7 @@ namespace JEM.Compile.CIL
 
             )));
 
-        // 145 TODO: Didn't finish def. too tired
+        // 145s
         public static Compiler<Expr, string> TypeSpec = new Compiler<Expr, string>("TypeSpec", () =>
             Compiler<Expr, string>.Or(
                 "TypeSpec",
@@ -527,14 +528,154 @@ namespace JEM.Compile.CIL
         public static Compiler<Expr, string> ClassMember = new Compiler<Expr, string>("ClassMember", () =>
             Compiler<Expr, string>.Or(
                 "ClassMember",
-                Util.Next(".custom").Apply(CustomDecl.Select(c => $".custom {c}")),
+                ClassDecl,
+                Util.Next(".custom").Apply(CustomDecl.Select(c => $".custom {c}")), 
                 Util.Next(".data").Apply(DataDecl.Select(d => $".data {d}")),
+                Util.Next(".event").Apply(EventDecl.Select(e => $".event {e}")),
                 Util.Next(".field").Apply(FieldDecl.Select(f => $".field {f}"))
+                // TODO: Continue here
 
             ));
 
+        // 218
+        public static Compiler<Expr, string> EventDecl = new Compiler<Expr, string>("EventDecl", () => 
+            Util.Next(EventHeader).Bind(header => 
+            Util.Next(EventMember.Many()).Select(members => 
+            
+            $"{header} {{\n{string.Join("\n", members)}\n}}"
+
+            ))
+        );
+
+        // 218
+        public static Compiler<Expr, string> EventHeader = new Compiler<Expr, string>("EventHeader", () => 
+            Util.NextOptional("specialname").Bind(sn => 
+            Util.NextOptional("rtspecialname").Bind(rtsn => 
+            Util.NextOptional(TypeSpec).Bind(typeSpec => 
+            Util.Next(Id).Select(id => 
+
+            $"{sn} {rtsn} {typeSpec} {id}"
+
+            ))))
+        );
+
+        // 218
+        public static Compiler<Expr, string> EventMember = new Compiler<Expr, string>("EventMember", () => 
+            Compiler<Expr, string>.Or(
+                Util.Next(".addon").Apply(FireDecl).Select(a => $".addon {a}"),
+                Util.Next(".custom").Apply(CustomDecl).Select(c => $".custom {c}"),
+                Util.Next(".fire").Apply(FireDecl).Select(f => $".fire {f}"),
+                Util.Next(".other").Apply(FireDecl).Select(o => $".other {o}"),
+                Util.Next(".removeon").Apply(FireDecl).Select(r => $".removeon {r}"),
+                ExternSourceDecl
+            )
+        );
+
+        // 218
+        public static Compiler<Expr, string> FireDecl = new Compiler<Expr, string>("AddonDecl", () => 
+            Util.Next(CallConv).Bind(callConv => 
+            Util.Next(Type).Bind(type => 
+            Util.NextOptional(TypeSpec.Select(ts => ts + " ::")).Bind(typeSpec => 
+            Util.Next(MethodName).Bind(methodName => 
+            Util.Next(Parameters).Select(parameters => 
+
+            $"{callConv} {type} {typeSpec} {methodName}({parameters})"
+
+            )))))
+        );
+
+        // 134
+        public static Compiler<Expr, string> ExternSourceDecl = new Compiler<Expr, string>("ExternSourceDecl", () => 
+            Util.Next(".line").Apply(
+            Util.Next(Util.IntConstant).Bind(i => 
+            Util.NextOptional(Util.IntConstant.Select(l => $":{l}")).Bind(c => 
+            Util.NextOptional(SQString).Select(id => 
+            
+            $".line {i}{c} {id}"
+
+            ))))
+        );
+
+
         // 225
-        public static Compiler<Expr, string> CustomDecl = Compiler<Expr, string>.Error("unimplemented");
+        // MethodHeader should be ctor (a special case for MethodHeader, not sure if I should sep. it)
+        public static Compiler<Expr, string> CustomDecl = new Compiler<Expr, string>("CustomDecl", () =>
+            Ctor.Bind(ctor => 
+            Util.Next("=").Apply(
+            Util.Next(Bytes).Select(bytes => 
+
+            $"{ctor} = ({bytes})"
+
+            ))));
+
+
+        // 198 I know this is a duplicate, I just think its going to be better like this
+        public static Compiler<Expr, string> Ctor = new Compiler<Expr, string>("Ctor", () => 
+            MethodAttr.Many().Bind(attrs => 
+            Util.NextOptional(CallConv).Bind(callConv => 
+            Util.Next(Type).Bind(@type =>
+            Util.NextOptional(Marshal).Bind(marshal => 
+            Util.Next(".ctor").Bind(methodName =>
+            Util.NextOptional(GenPars).Bind(genPars => 
+            Util.Next(Parameters).Bind(parameters => 
+            ImplAttr.Many().Select(implAttrs => 
+
+            $"{string.Join(" ", attrs)} {callConv} {@type} {marshal} {methodName}{genPars}({parameters}) {string.Join(" ", implAttrs)}"
+
+            )))))))));
+
+        // 198
+        public static Compiler<Expr, string> MethodHeader = new Compiler<Expr, string>("MethodHeader", () => 
+            MethodAttr.Many().Bind(attrs => 
+            Util.NextOptional(CallConv).Bind(callConv => 
+            Util.Next(Type).Bind(@type =>
+            Util.NextOptional(Marshal).Bind(marshal => 
+            Util.Next(MethodName).Bind(methodName =>
+            Util.NextOptional(GenPars).Bind(genPars => 
+            Util.Next(Parameters).Bind(parameters => 
+            ImplAttr.Many().Select(implAttrs => 
+
+            $"{string.Join(" ", attrs)} {callConv} {@type} {marshal} {methodName}{genPars}({parameters}) {string.Join(" ", implAttrs)}"
+
+            )))))))));
+
+        // 198
+        public static Compiler<Expr, string> MethodName = new Compiler<Expr, string>("MethodName", () =>
+            Compiler<Expr, string>.Or(
+                Util.SymbolIn(".cctor", ".ctor"),
+                DottedName
+            ) 
+        );
+
+        // 204
+        public static Compiler<Expr, string> ImplAttr = new Compiler<Expr, string>("ImplAttr", () => 
+            Util.SymbolIn("cil", "forwardref", "internalcall", "managed", "native",
+            "noinlining", "runtime", "synchronized", "unmanaged")
+        );
+
+        // 202
+        public static Compiler<Expr, string> MethodAttr = new Compiler<Expr, string>("MethodAttr", () => 
+            Util.SymbolIn("abstract", "assembly", "compilercontrolled", "famandassem",
+            "family", "famorassem", "final", "hidebysig", "newslot", "private",
+            "public", "rtspecialname", "specialname", "static", "virtual", "strict")
+            .Or(
+            
+            Util.Next("pinvokeimpl").Apply(
+            Util.Next(QString).Bind(qString => 
+            Util.NextOptional(
+                Util.Next("as").Apply(Util.Next(QString)).Select(x => $"as {x}")
+            ).Bind(asQString => 
+            PinvAttr.Many().Select(pinvAttrs => 
+            
+            $"pinvokeimpl ({qString} {asQString} {string.Join(" ", pinvAttrs)})"
+            
+            ))))));
+
+        // 208
+        public static Compiler<Expr, string> PinvAttr = new Compiler<Expr, string>("PinvAttr", () => 
+            Util.SymbolIn("ansi", "autochar", "cdecl", "fastcall", "stdcall", 
+            "thiscall", "unicode", "platformapi")
+        );
 
         // 213
         public static Compiler<Expr, string> DataDecl = new Compiler<Expr, string>("DataDecl", () =>
@@ -585,32 +726,9 @@ namespace JEM.Compile.CIL
                 )))
             ));
 
-        public static Compiler<Expr, string> QString = Util.StringConstant.Select(s => $"{EscapeString(s)}");
+        public static Compiler<Expr, string> QString = Util.StringConstant.Select(s => $"{s.Escaped()}");
 
         public static Compiler<Expr, string> SQString = Compiler<Expr, string>.Error("Unimplemented (needs parser update)");
 
-        public static string EscapeString(string input)
-        {
-            var ret = input;
-            foreach (var kvp in escapeMapping)
-            {
-                ret = ret.Replace(kvp.Key, kvp.Value);
-            }
-            return "\"" + ret + "\"";
-        }
-
-        private static Dictionary<string, string> escapeMapping = new Dictionary<string, string>()
-        {
-            {"\"", @"\\\"""},
-            {"\\\\", @"\\"},
-            {"\a", @"\a"},
-            {"\b", @"\b"},
-            {"\f", @"\f"},
-            {"\n", @"\n"},
-            {"\r", @"\r"},
-            {"\t", @"\t"},
-            {"\v", @"\v"},
-            {"\0", @"\0"},
-        };
     }
 }

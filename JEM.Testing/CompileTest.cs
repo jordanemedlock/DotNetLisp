@@ -82,7 +82,7 @@ namespace JEM.Testing
         }
         
         [Theory]
-        [JsonFileData("compiler_data.json")]
+        [JsonFileData("compiler_data.json", "ExternSourceDecl")]
         public void TestCompilerData(string compilerName, Dictionary<string, object> pairs)
         {
             var compiler = (Compiler<Expr, string>) typeof(ILFile).GetField(compilerName).GetValue(null);
@@ -93,7 +93,7 @@ namespace JEM.Testing
                 var res = compiler.Compile(parsed[0]);
                 if (kvp.Value is string s)
                 {
-                    Assert.True(res.HasValue, $"Result has no value with error: {res.Error}");
+                    Assert.True(res.HasValue, $"Result from \"{kvp.Key}\" in {compilerName} has no value with error: {res.Error}");
                     Assert.Equal(s, res.Value);
                 }
                 else if (kvp.Value is bool b)

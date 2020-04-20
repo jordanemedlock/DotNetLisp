@@ -8,7 +8,7 @@ namespace JEM.Model
     {
         public string Value { get; set; }
 
-        public override string ToString(bool top = true)
+        public override string ToString()
         {
             return Value;
         }
