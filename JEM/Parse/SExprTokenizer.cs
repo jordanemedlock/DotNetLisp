@@ -13,10 +13,18 @@ namespace JEM.Parse
     
     public class SExprTokenizer
     {
+
+        public static char[] OperatorCharacters = new char[]{'`','~','!','@','#','$','%','^','&','*','-','=','+','[',']','{','}',';',':',',','<','>','/','?','|','\\'};
         public static TextParser<TextSpan> SymbolToken = Span.MatchedBy(
-            from open in Character.Letter.Or(Character.Except(x => " \"'()".Contains(x), "symbol characters"))
+            from open in Character.Letter.Or(Character.In('_','.'))
             from content in Character.Except(x => " ()".Contains(x), "symbol characters").Many()
             select open + new string(content));
+
+        public static TextParser<TextSpan> OperatorToken = Span.MatchedBy(
+            from open in Character.In(OperatorCharacters)
+            from rest in Character.In(OperatorCharacters).Many()
+            select open + new string(rest)
+        );
 
         public static TextParser<TextSpan> StringToken { get; } = Span.MatchedBy(
             from open in Character.EqualTo('"')
@@ -46,6 +54,7 @@ namespace JEM.Parse
                 .Match(Character.EqualTo(')'), SExprToken.Close)
                 .Match(IntToken, SExprToken.Integer, requireDelimiters: true)
                 .Match(FloatToken, SExprToken.Float, requireDelimiters: true)
+                .Match(OperatorToken, SExprToken.Operator)
                 .Match(SymbolToken, SExprToken.Symbol, requireDelimiters: true)
                 .Match(StringToken, SExprToken.String, requireDelimiters: true)
                 .Build();

@@ -10,6 +10,7 @@ namespace JEM.Parse
         None,
 
         Symbol,
+        Operator,
         Integer,
         String,
         Float,

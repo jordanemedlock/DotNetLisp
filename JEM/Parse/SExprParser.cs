@@ -13,7 +13,7 @@ namespace JEM.Parse
     public static class SExprParser
     { 
 
-        public static TextParser<Expr> SymbolParser = SExprTokenizer.SymbolToken.Select(x =>
+        public static TextParser<Expr> SymbolParser = SExprTokenizer.SymbolToken.Or(SExprTokenizer.OperatorToken).Select(x =>
         {
             switch (x.ToStringValue())
             {
@@ -36,7 +36,7 @@ namespace JEM.Parse
             }
         });
         public static TokenListParser<SExprToken, Expr> SymbolTokenParser = Token
-            .EqualTo(SExprToken.Symbol)
+            .EqualTo(SExprToken.Symbol).Or(Token.EqualTo(SExprToken.Operator))
             .Apply(SymbolParser);
 
         

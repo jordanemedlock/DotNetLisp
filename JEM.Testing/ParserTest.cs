@@ -22,14 +22,18 @@ namespace JEM.Testing
         }
 
         [Theory]
-        [InlineData("a", "a")]
-        [InlineData("abcd ", "abcd")]
-        [InlineData("a123 ", "a123")]
-        [InlineData(".a", ".a")]
-        [InlineData("a.b.c.d", "a.b.c.d")]
-        [InlineData("_a", "_a")]
-        [InlineData("a_b_c", "a_b_c")]
-        [InlineData("_", "_")]
+        // [InlineData("a", "a")]
+        // [InlineData("abcd ", "abcd")]
+        // [InlineData("a123 ", "a123")]
+        // [InlineData(".a", ".a")]
+        // [InlineData("a.b.c.d", "a.b.c.d")]
+        // [InlineData("_a", "_a")]
+        // [InlineData("a_b_c", "a_b_c")]
+        // [InlineData("_", "_")]
+        [InlineData("&", "&")]
+        [InlineData("<*>", "<*>")]
+        [InlineData("<<<", "<<<")]
+        [InlineData("-+-", "-+-")]
         public void TestSingleSymbol(string input, string output)
         {
             var res = SExprParser.Parse(input);
@@ -122,7 +126,8 @@ namespace JEM.Testing
                 ["(* & [])"] = new SExpr(new SExpr(new Symbol("*"), new Symbol("&"), new Symbol("[]"))),
                 ["(() () ())"] = new SExpr(new SExpr(new SExpr(), new SExpr(), new SExpr())),
                 ["(( (a) ))"] = new SExpr(new SExpr(new SExpr(new SExpr(new Symbol("a"))))),
-                ["1:10"] = new SExpr(new IntConstant(1), new Symbol(":"), new IntConstant(10))
+                ["1:10"] = new SExpr(new IntConstant(1), new Symbol(":"), new IntConstant(10)),
+                ["(.line 1:10)"] = new SExpr(new SExpr(new Symbol(".line"), new IntConstant(1), new Symbol(":"), new IntConstant(10)))
             };
 
             foreach(var keyValuePair in cases) {
