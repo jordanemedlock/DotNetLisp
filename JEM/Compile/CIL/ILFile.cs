@@ -532,7 +532,8 @@ namespace JEM.Compile.CIL
                 Util.Next(".custom").Apply(CustomDecl.Select(c => $".custom {c}")), 
                 Util.Next(".data").Apply(DataDecl.Select(d => $".data {d}")),
                 Util.Next(".event").Apply(EventDecl.Select(e => $".event {e}")),
-                Util.Next(".field").Apply(FieldDecl.Select(f => $".field {f}"))
+                Util.Next(".field").Apply(FieldDecl.Select(f => $".field {f}")),
+                Util.Next(".method").Apply(MethodDecl.Select(m => $".method {m}"))
                 // TODO: Continue here
 
             ));
@@ -608,6 +609,28 @@ namespace JEM.Compile.CIL
 
             ))));
 
+        // 169
+        public static Compiler<Expr, string> MethodDecl = new Compiler<Expr, string>("MethodDecl", () =>
+            MethodHeader.Bind(header => 
+            Util.Next(MethodBodyItem.Many()).Select(items => 
+            
+            $"{header} {{\n{string.Join("\n", items)}\n}}"
+
+            ))
+        );
+
+        // 199
+        public static Compiler<Expr, string> MethodBodyItem = new Compiler<Expr, string>("MethodBodyItem", () =>
+            Compiler<Expr, string>.Or("MethodBodyItem",
+                Util.Next(".custom").Apply(CustomDecl.Select(c => $".custom {c}")),
+                Util.Next(".data").Apply(DataDecl.Select(d => $".data {d}")),
+                Util.Next(".emitbyte").Apply(Util.IntConstant.Select(i => $".emitbyte {i}")),
+                Util.Next(".entrypoint"),
+                
+
+                // TODO: continue here
+            )
+        );
 
         // 198 I know this is a duplicate, I just think its going to be better like this
         public static Compiler<Expr, string> Ctor = new Compiler<Expr, string>("Ctor", () => 
