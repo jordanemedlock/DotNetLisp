@@ -94,7 +94,7 @@ namespace JEM.Compile
 
         public Compiler<TInput, V> Is<V>() where V : class
         {
-            return this.Where(x => x is V, $"Is({typeof(V)})").Select(x => x as V);
+            return this.Where(x => x is V, $"{{0}} is not {typeof(V)})").Select(x => x as V);
         }
 
         public Compiler<TInput, TOutput> Or(Compiler<TInput, TOutput> other)
@@ -155,13 +155,23 @@ namespace JEM.Compile
             return new Compiler<TInput, TOutput>($"Compiler.Or({name}, { string.Join(", ", compilers.Select(x => x.Name)) })", input =>
             {
                 CompilerResult<TInput, TOutput> result;
+                List<CompilerResult<TInput, TOutput>> results = new List<CompilerResult<TInput, TOutput>>();
                 int i = 0;
                 do
                 {
                     result = compilers[i++].Compile(input);
+                    results.Add(result);
                 }
                 while (!result.HasValue && i < compilers.Length);
                 result.HappyPath.Add($"{name}[{i - 1}]");
+                if (i == compilers.Length && !result.HasValue) {
+                    string errorMessages = "[\n";
+                    for (int j=0; j < compilers.Length; j++) {
+                        errorMessages += (results[j].HasValue ? results[j].Value.ToString() : results[j].Error) + "\n";
+                    }
+                    errorMessages += "]";
+                    return new CompilerResult<TInput, TOutput>($"{input} doesn't match any compiler in {name} with errors: {errorMessages}");
+                }
                 return result;
             });
         }

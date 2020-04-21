@@ -344,6 +344,30 @@
     "CustomDecl": {
         "(abstract bool .ctor () = (1 2 3 4))": "abstract  bool  .ctor()  = (1 2 3 4)"
     },
+    "MethodDecl": {
+
+    },
+    "MethodBodyItem": {
+        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)",
+        "(.data Something (int64 0))":  ".data Something = int64 (0) ",
+        "(.emitbyte 10)": ".emitbyte 10",
+        "(.entrypoint)": ".entrypoint",
+        "(.locals init (int))": ".locals init (int)",
+        "(.locals (int (float32 x)))": ".locals  (int, float32 x)"
+    },
+    "LocalsDecl": {
+        "(init (int))": "init (int)",
+        "((int (float32 x)))": " (int, float32 x)"
+    },
+    "LocalsSignature": {
+        "((int x))": "int x", 
+        "((int x) (float32 y))": "int x, float32 y",
+        "(int (float32 x))": "int, float32 x"
+    },
+    "Local": {
+        "int": true,
+        "(int x)": "int x"
+    },
     "Ctor":{
         "(abstract (instance default) bool (marshal int32) .ctor (T U) ((int v1) (float32 v2)) cil)": 
         "abstract instance  default bool marshal (int32) .ctor<T, U>( int  v1,  float32  v2) cil"

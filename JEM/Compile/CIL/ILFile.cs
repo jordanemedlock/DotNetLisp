@@ -624,12 +624,37 @@ namespace JEM.Compile.CIL
             Compiler<Expr, string>.Or("MethodBodyItem",
                 Util.Next(".custom").Apply(CustomDecl.Select(c => $".custom {c}")),
                 Util.Next(".data").Apply(DataDecl.Select(d => $".data {d}")),
-                Util.Next(".emitbyte").Apply(Util.IntConstant.Select(i => $".emitbyte {i}")),
+                Util.Next(".emitbyte").Apply(Util.Next(Util.IntConstant).Select(i => $".emitbyte {i}")),
                 Util.Next(".entrypoint"),
-                
+                Util.Next(".locals").Apply(LocalsDecl.Select(l => $".locals {l}"))
 
                 // TODO: continue here
             )
+        );
+
+        // 201
+        public static Compiler<Expr, string> LocalsDecl = new Compiler<Expr, string>("LocalsDecl", () => 
+            Util.NextOptional("init").Bind(init => 
+            Util.Next(LocalsSignature).Select(localsSig => 
+            
+            $"{init} ({localsSig})"
+
+            ))
+        );
+
+        // 201 
+        public static Compiler<Expr, string> LocalsSignature = new Compiler<Expr, string>("LocalsSignature", () => 
+            Local.AtLeastOnce().Select(ls => string.Join(", ", ls))
+        );
+
+        // 201
+        public static Compiler<Expr, string> Local = new Compiler<Expr, string>("Local", () => 
+            Util.Next(Type).Bind(@type => 
+            Util.Next(Id).Select(id => 
+
+            $"{@type} {id}"
+
+            )).Or(Type)
         );
 
         // 198 I know this is a duplicate, I just think its going to be better like this
