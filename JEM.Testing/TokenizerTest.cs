@@ -164,6 +164,7 @@ namespace JEM.Testing
         [InlineData("", new SExprToken[] { })]
         [InlineData("a", new SExprToken[] { SExprToken.Symbol })]
         [InlineData("1:10", new SExprToken[] { SExprToken.Integer, SExprToken.Operator, SExprToken.Integer })]
+        [InlineData("<T U>", new SExprToken[] { SExprToken.Operator, SExprToken.Symbol, SExprToken.Symbol, SExprToken.Operator })]
         [InlineData("(a \"bc\" 123)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.DQString, SExprToken.Integer, SExprToken.Close })]
         [InlineData("(()((", new SExprToken[] { SExprToken.Open, SExprToken.Open, SExprToken.Close, SExprToken.Open, SExprToken.Open })]
         [InlineData("(a \"bc\" 123.01)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.DQString, SExprToken.Float, SExprToken.Close })]

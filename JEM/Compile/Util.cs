@@ -14,11 +14,21 @@ namespace JEM.Compile
             return new CompilerResult<Expr, Expr>(input, null);
         });
 
+        public static Compiler<Expr, T> Return<T>(T value) 
+        {
+            return new Compiler<Expr, T>($"Return({value})", input => new CompilerResult<Expr, T>(value, input));
+        }
+
         public static Compiler<Expr, string> SymbolIs(string value) => Symbol.Where(x => x == value, $"{{0}} is not Symbol({value})");
         public static Compiler<Expr, string> SymbolIn(params string[] values) => Symbol.Where(x => values.Contains(x), "{0} is not in [" + String.Join(", ", values) + "]");
         public static Compiler<Expr, string> SymbolIn(List<string> values) => Symbol.Where(x => values.Contains(x), "{0} is not in [" + String.Join(", ", values) + "]");
 
+        public static Compiler<Expr, string> OperatorIs(string value) => Operator.Where(x => x == value, $"{{0}} is not Operator({value})");
+        public static Compiler<Expr, string> OperatorIn(params string[] values) => Operator.Where(x => values.Contains(x), "{0} is not in [" + String.Join(", ", values) + "]");
+        public static Compiler<Expr, string> OperatorIn(List<string> values) => Operator.Where(x => values.Contains(x), "{0} is not in [" + String.Join(", ", values) + "]");
+
         public static Compiler<Expr, string> Symbol = Expr.Is<Symbol>().Value();
+        public static Compiler<Expr, string> Operator = Expr.Is<Operator>().Value();
         public static Compiler<Expr, StringConstant> DQStringConstant = Expr.Is<StringConstant>().Where(s => !s.SingleQuote);
         public static Compiler<Expr, StringConstant> SQStringConstant = Expr.Is<StringConstant>().Where(s => s.SingleQuote);
         public static Compiler<Expr, long> IntConstant = Expr.Is<IntConstant>().Value();
@@ -27,6 +37,10 @@ namespace JEM.Compile
         public static Compiler<Expr, object> NullConstant = Expr.Is<NullConstant>().Value();
 
         public static Compiler<Expr, string> Value(this Compiler<Expr, Symbol> compiler)
+        {
+            return compiler.Select(x => x.Value);
+        }
+        public static Compiler<Expr, string> Value(this Compiler<Expr, Operator> compiler)
         {
             return compiler.Select(x => x.Value);
         }
@@ -133,7 +147,7 @@ namespace JEM.Compile
                 }
                 else
                 {
-                    return new CompilerResult<Expr, List<T>>($"{input} is not SExpr in Many");
+                    return new CompilerResult<Expr, List<T>>($"{input} is not SExpr in Many({inner.Name})");
                 }
             });
         }
@@ -219,6 +233,11 @@ namespace JEM.Compile
         public static Compiler<Expr, string> NextOptional(string symbol)
         {
             return NextOptional(SymbolIs(symbol));
+        }
+
+        internal static Compiler<Expr, string> Nil()
+        {
+            return Expr.Is<SExpr>().Where(s => s.Count == 0, "{0} is not Nil").Return("");
         }
     }
     

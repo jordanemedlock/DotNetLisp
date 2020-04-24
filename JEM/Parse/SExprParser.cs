@@ -13,7 +13,7 @@ namespace JEM.Parse
     public static class SExprParser
     { 
 
-        public static TextParser<Expr> SymbolParser = SExprTokenizer.SymbolToken.Or(SExprTokenizer.OperatorToken).Select(x =>
+        public static TextParser<Expr> SymbolParser = SExprTokenizer.SymbolToken.Select(x =>
         {
             switch (x.ToStringValue())
             {
@@ -36,10 +36,16 @@ namespace JEM.Parse
             }
         });
         public static TokenListParser<SExprToken, Expr> SymbolTokenParser = Token
-            .EqualTo(SExprToken.Symbol).Or(Token.EqualTo(SExprToken.Operator))
+            .EqualTo(SExprToken.Symbol)
             .Apply(SymbolParser);
 
-        
+
+        public static TextParser<Expr> OperatorParser = SExprTokenizer.OperatorToken
+            .Select(o => (Expr)new Operator(o.ToStringValue()) { TextSpan = o });
+
+        public static TokenListParser<SExprToken, Expr> OperatorTokenParser = Token
+            .EqualTo(SExprToken.Operator)
+            .Apply(OperatorParser);
 
 
 
@@ -101,6 +107,7 @@ namespace JEM.Parse
 
         public static TokenListParser<SExprToken, Expr> Expr = 
             SymbolTokenParser
+            .Or(OperatorTokenParser)
             .Or(StringTokenParser)
             .Or(IntTokenParser)
             .Or(FloatTokenParser)

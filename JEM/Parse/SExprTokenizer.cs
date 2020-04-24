@@ -6,6 +6,7 @@ using Superpower.Model;
 using Superpower;
 using Superpower.Parsers;
 using Superpower.Tokenizers;
+using System.Linq;
 
 namespace JEM.Parse
 {
@@ -17,7 +18,7 @@ namespace JEM.Parse
         public static char[] OperatorCharacters = new char[]{'`','~','!','@','#','$','%','^','&','*','-','=','+','[',']','{','}',';',':',',','<','>','/','?','|','\\'};
         public static TextParser<TextSpan> SymbolToken = Span.MatchedBy(
             from open in Character.Letter.Or(Character.In('_','.'))
-            from content in Character.Except(x => " ()".Contains(x), "symbol characters").Many()
+            from content in Character.Letter.Or(Character.In('_','.')).Or(Character.Numeric).Many()
             select open + new string(content));
 
         public static TextParser<TextSpan> OperatorToken = Span.MatchedBy(

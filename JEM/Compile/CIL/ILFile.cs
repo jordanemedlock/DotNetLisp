@@ -183,8 +183,8 @@ namespace JEM.Compile.CIL
         public static Compiler<Expr, string> FieldInitOrDataLabel = new Compiler<Expr, string>("FieldInitOrDataLabel", () => 
             Compiler<Expr, string>.Or(
                 "FieldExprOrDataLabel",
-                Util.Next("=").Apply(Util.Next(FieldInit).Select(f => $"= {f}")),
-                Util.Next("=").Apply(FieldInit.Select(f => $"= {f}")),
+                Util.Next(Util.OperatorIs("=")).Apply(Util.Next(FieldInit).Select(f => $"= {f}")),
+                Util.Next(Util.OperatorIs("=")).Apply(FieldInit.Select(f => $"= {f}")),
                 Util.Next("at").Apply(Util.Next(DataLabel).Select(d => $"at {d}"))
 
             ));
@@ -206,7 +206,7 @@ namespace JEM.Compile.CIL
             Compiler<Expr, string>.Or(
                 "Type",
 
-                Util.Next(Util.SymbolIn("!", "!!")).Bind(exp => 
+                Util.Next(Util.OperatorIn("!", "!!")).Bind(exp => 
                 Util.Next(Util.IntConstant).Select(i => $"{exp}{i}")),
 
                 Util.SymbolIn(new List<string>() {
@@ -259,7 +259,7 @@ namespace JEM.Compile.CIL
                 "TypeModifier",
                 
                 Util.Next(Type).Bind(typ =>
-                Util.Next(Util.SymbolIn("&", "*")).Select(sym =>
+                Util.Next(Util.OperatorIn("&", "*")).Select(sym =>
 
                 $"{typ} {sym}"
 
@@ -289,9 +289,9 @@ namespace JEM.Compile.CIL
 
         public static Compiler<Expr, string> ArrayType =
             Util.Next(Type).Bind(typ =>
-            Util.Next("[").Apply(
+            Util.Next(Util.OperatorIs("[")).Apply(
             Bound.Many().Bind(bnds =>
-            Util.Next("]").Return<string>(
+            Util.Next(Util.OperatorIs("]")).Return<string>(
 
             $"{typ}[{String.Join(", ", bnds)}]"
 
@@ -299,9 +299,9 @@ namespace JEM.Compile.CIL
 
         public static Compiler<Expr, string> GenericType =
             Util.Next(Type).Bind(typ =>
-            Util.Next("<").Apply(
+            Util.Next(Util.OperatorIs("<")).Apply(
             GenArgs.Bind(genArgs =>
-            Util.Next(">").Return<string>(
+            Util.Next(Util.OperatorIs(">")).Return<string>(
 
             $"{typ}<{genArgs}>"
 
@@ -392,26 +392,26 @@ namespace JEM.Compile.CIL
         public static Compiler<Expr, string> NativeType = new Compiler<Expr, string>("NativeType", () =>
             Util.SymbolIn(new List<string>()
             {
-                "[]", 
                 "bool",
                 "float32", "float64",
                 "lpstr", "lpwstr",
                 "method",
             })
-            .Or(SimpleIntType, "IntType"));
+            .Or(SimpleIntType, "IntType"))
+            .Or(Util.OperatorIs("[]"));
 
         // 148
         public static Compiler<Expr, string> NativeTypeArray =
             Util.Next(NativeType).Bind(nType =>
-            Util.Next("[]").Return<string>(
+            Util.Next(Util.OperatorIs("[]")).Return<string>(
 
             $"{nType}[]"
 
             )).Or(
             Util.Next(NativeType).Bind(nType => 
-            Util.Next("[").Apply(
+            Util.Next(Util.OperatorIs("[")).Apply(
             Util.Next(Util.IntConstant).Bind(i => 
-            Util.Next("]").Return<string>(
+            Util.Next(Util.OperatorIs("]")).Return<string>(
             
             $"{nType}[{i}]"
 
@@ -444,7 +444,7 @@ namespace JEM.Compile.CIL
         public static Compiler<Expr, string> ClassHeader = new Compiler<Expr, string>("ClassHeader", () => 
             Util.Many(ClassAttr).Bind(classAttrs =>
             Util.Next(Id).Bind(id =>
-            Util.NextOptional(GenPars).Bind(genPars =>
+            GenPars.Bind(genPars =>
             Util.NextOptional(Extends).Bind(baseClass =>
             Util.NextOptional(Implements).Select(interfaces =>
 
@@ -473,10 +473,10 @@ namespace JEM.Compile.CIL
             Compiler<Expr, string>.Or(
                 "TypeSpec",
 
-                Util.Next("[").Apply(
+                Util.Next(Util.OperatorIs("[")).Apply(
                 Util.NextOptional(".module").Bind(mod => 
                 Util.Next(DottedName).Bind(n => 
-                Util.Next("]").Return<string>(
+                Util.Next(Util.OperatorIs("]")).Return<string>(
 
                 $"[{mod} {n}]"
 
@@ -487,7 +487,14 @@ namespace JEM.Compile.CIL
 
         // 165
         public static Compiler<Expr, string> GenPars = new Compiler<Expr, string>("GenPars", () => 
-            Util.AtLeastOnce(GenPar).Select(x => "<" + String.Join(", ", x) + ">"));
+            Util.Next(Util.OperatorIs("<")).Apply(
+            GenPar.AtLeastOnce().Bind(genPars => 
+            Util.Next(Util.OperatorIs(">")).Return(
+
+            $"<{string.Join(", ", genPars)}>"
+
+            )))
+            .Or(Util.Return("")));
 
         // 165
         public static Compiler<Expr, string> GenPar = new Compiler<Expr, string>("GenPar", () =>
@@ -502,7 +509,8 @@ namespace JEM.Compile.CIL
 
         // 165
         public static Compiler<Expr, string> GenParAttribs = 
-            Util.SymbolIn("+","-","class","valuetype",".ctor");
+            Util.SymbolIn("class","valuetype",".ctor")
+            .Or(Util.OperatorIn("+","-"));
 
         // 166
         public static Compiler<Expr, string> GenConstraints = new Compiler<Expr, string>("GenConstraints", () => 
@@ -602,7 +610,7 @@ namespace JEM.Compile.CIL
         // MethodHeader should be ctor (a special case for MethodHeader, not sure if I should sep. it)
         public static Compiler<Expr, string> CustomDecl = new Compiler<Expr, string>("CustomDecl", () =>
             Ctor.Bind(ctor => 
-            Util.Next("=").Apply(
+            Util.Next(Util.OperatorIs("=")).Apply(
             Util.Next(Bytes).Select(bytes => 
 
             $"{ctor} = ({bytes})"
@@ -664,7 +672,7 @@ namespace JEM.Compile.CIL
             Util.Next(Type).Bind(@type =>
             Util.NextOptional(Marshal).Bind(marshal => 
             Util.Next(".ctor").Bind(methodName =>
-            Util.NextOptional(GenPars).Bind(genPars => 
+            GenPars.Bind(genPars => 
             Util.Next(Parameters).Bind(parameters => 
             ImplAttr.Many().Select(implAttrs => 
 
@@ -679,7 +687,7 @@ namespace JEM.Compile.CIL
             Util.Next(Type).Bind(@type =>
             Util.NextOptional(Marshal).Bind(marshal => 
             Util.Next(MethodName).Bind(methodName =>
-            Util.NextOptional(GenPars).Bind(genPars => 
+            GenPars.Bind(genPars => // TODO: I need to solve the ambiguity between genpars and parameters
             Util.Next(Parameters).Bind(parameters => 
             ImplAttr.Many().Select(implAttrs => 
 
@@ -751,11 +759,11 @@ namespace JEM.Compile.CIL
                 "DdItem",
 
 
-                Util.Next("&").Apply(Util.Next(Id).Select(id => $"& ({id})")),
+                Util.Next(Util.OperatorIs("&")).Apply(Util.Next(Id).Select(id => $"& ({id})")),
 
                 Util.Next("bytearray").Apply(Util.Next(Bytes).Select(bytes => $"bytearray ({bytes})")),
 
-                Util.Next("char").Apply(Util.Next("*").Apply(Util.Next(QString).Select(qstr => $"char * ({qstr})"))),
+                Util.Next("char").Apply(Util.Next(Util.OperatorIs("*")).Apply(Util.Next(QString).Select(qstr => $"char * ({qstr})"))),
 
                 Util.Next(Util.SymbolIn("float32","float64")).Bind(fType => 
                 Util.NextOptional(Util.FloatConstant.Select(x => (double?)x)).Bind(fValue => 

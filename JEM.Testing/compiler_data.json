@@ -345,7 +345,10 @@
         "(abstract bool .ctor () = (1 2 3 4))": "abstract  bool  .ctor()  = (1 2 3 4)"
     },
     "MethodDecl": {
-
+        "(abstract bool SomeMethod () cil ())": "abstract  bool  SomeMethod() cil {\n\n}",
+        "(abstract bool SomeMethod () cil ((.entrypoint)))": "abstract  bool  SomeMethod() cil {\n.entrypoint\n}",
+        "(abstract bool SomeMethod () cil ((.locals (int (float32 x)))))": "abstract  bool  SomeMethod() cil {\n.locals  (int, float32 x)\n}",
+        "(abstract bool SomeMethod () cil ((.entrypoint) (.custom abstract bool .ctor () = (1 2 3 4))))": "abstract  bool  SomeMethod() cil {\n.entrypoint\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n}"
     },
     "MethodBodyItem": {
         "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)",
@@ -369,13 +372,21 @@
         "(int x)": "int x"
     },
     "Ctor":{
-        "(abstract (instance default) bool (marshal int32) .ctor (T U) ((int v1) (float32 v2)) cil)": 
+        "(abstract (instance default) bool (marshal int32) .ctor<T U> ((int v1) (float32 v2)) cil)": 
         "abstract instance  default bool marshal (int32) .ctor<T, U>( int  v1,  float32  v2) cil"
 
     },
     "MethodHeader": {
-        "(abstract (instance default) bool (marshal int32) SomeMethod (T U) ((int v1) (float32 v2)) cil)": 
-        "abstract instance  default bool marshal (int32) SomeMethod<T, U>( int  v1,  float32  v2) cil"
+        "(abstract (instance default) bool (marshal int32) SomeMethod<T U> ((int v1) (float32 v2)) cil)": 
+        "abstract instance  default bool marshal (int32) SomeMethod<T, U>( int  v1,  float32  v2) cil",
+        "(abstract bool (marshal int32) SomeMethod<T U> ((int v1) (float32 v2)) cil)": 
+        "abstract  bool marshal (int32) SomeMethod<T, U>( int  v1,  float32  v2) cil",
+        "(abstract bool SomeMethod<T U> ((int v1) (float32 v2)) cil)": 
+        "abstract  bool  SomeMethod<T, U>( int  v1,  float32  v2) cil",
+        "(abstract bool SomeMethod ((int v1) (float32 v2)) cil)": 
+        "abstract  bool  SomeMethod( int  v1,  float32  v2) cil",
+        "(abstract bool SomeMethod () cil)": 
+        "abstract  bool  SomeMethod() cil"
     },
     "MethodName":{
         ".ctor": true,
