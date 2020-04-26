@@ -90,6 +90,8 @@ namespace JEM.Testing
             foreach (var kvp in pairs)
             {
                 var parsed = SExprParser.Parse(kvp.Key);
+                compiler.Generate();
+                var name = compiler.Name;
                 var res = compiler.Compile(parsed[0]);
                 if (kvp.Value is string s)
                 {

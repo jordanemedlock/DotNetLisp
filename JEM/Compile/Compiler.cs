@@ -12,31 +12,41 @@ namespace JEM.Compile
     {
         public string Name { get; set; }
 
-        public Func<TInput, CompilerResult<TInput, TOutput>> Compile { get; }
+        public Func<TInput, CompilerResult<TInput, TOutput>> InternalCompile { get; set; }
 
-        // public Func<Compiler<TInput, TOutput>> CompilerGenerator { get; set; }
+        public Func<Compiler<TInput, TOutput>> CompilerGenerator { get; set; }
 
         public Compiler(Func<TInput, CompilerResult<TInput, TOutput>> compile) {
-            Compile = compile;
+            InternalCompile = compile;
         }
         
 
         public Compiler(string name, Func<TInput, CompilerResult<TInput, TOutput>> compile)
         {
             Name = name;
-            Compile = compile;
+            InternalCompile = compile;
         }
 
         public Compiler(string name, Func<Compiler<TInput, TOutput>> func)
         {
             
-            Compile = input =>
-            {
-                var compiler = func();
-                // this.Name += " => " + compiler.Name;
-                return compiler.Compile(input);
-            };
+            CompilerGenerator = func;
             Name = name;
+        }
+
+        public CompilerResult<TInput, TOutput> Compile (TInput input) {
+            if (InternalCompile == null) {
+                Generate();
+            }
+            return InternalCompile(input);
+        }
+
+        public void Generate() {
+            if (CompilerGenerator != null) {
+                var compiler = CompilerGenerator();
+                Name = "(" + Name + " = " + compiler.Name + ")";
+                InternalCompile = compiler.Compile;
+            }
         }
         
         public Compiler<TInput, V> Bind<V>(Func<TOutput, Compiler<TInput, V>> func)
@@ -55,7 +65,7 @@ namespace JEM.Compile
 
         public Compiler<TInput, V> Apply<V>(Compiler<TInput, V> other)
         {
-            return new Compiler<TInput, V>($"{Name}", input =>
+            return new Compiler<TInput, V>($"{Name} {other.Name}", input =>
             {
                 var res = this.Compile(input);
                 if (!res.HasValue)

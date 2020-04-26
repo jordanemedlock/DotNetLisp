@@ -81,7 +81,7 @@ namespace JEM.Compile
 
         public static Compiler<Expr, T> Next<T>(Compiler<Expr, T> match)
         {
-            return new Compiler<Expr, T>($" : {match.Name}", input =>
+            return new Compiler<Expr, T>($"{match.Name}", input =>
             {
                 if (input is SExpr e && e.Count > 0)
                 {
@@ -103,7 +103,7 @@ namespace JEM.Compile
         }
         public static Compiler<Expr, string> Next(string symbol)
         {
-            return new Compiler<Expr, string> ($" : {symbol}", input =>
+            return new Compiler<Expr, string> ($"{symbol}", input =>
             {
                 if (input is SExpr e && e.Count > 0)
                 {

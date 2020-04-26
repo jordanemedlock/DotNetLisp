@@ -68,10 +68,15 @@
         "(int64 at Something)": " int64 at Something"
     },
     "MResourceDecl": {
-
+        "(public Something (.assembly extern SomethingElse) (.file AnotherThing at 10) (.custom abstract bool .ctor () = (1 2 3 4)))": 
+        "public Something {\n.assembly extern SomethingElse\n.file AnotherThing at 10\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n}",
+        "(private Something)": 
+        "private Something {\n\n}"
     },
     "ManResDecl": {
-
+        "(.assembly extern SomethingElse)": ".assembly extern SomethingElse",
+        "(.file AnotherThing at 10)": ".file AnotherThing at 10",
+        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)"
     },
     "FileDirective": {
         "(.file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
@@ -82,7 +87,7 @@
         "\"some filename\"": "\"some filename\""
     },
     "Bytes": {
-
+        "(1 2 3 4)": "1 2 3 4"
     },
     "Field": {
         "(.field private int32 xOrigin)": ".field  private int32 xOrigin ",
@@ -207,7 +212,7 @@
         "(A.B.C)": "[A.B.C]"
     },
     "Id": {
-
+        "Something": true
     },
     "FieldAttr": {
         "assembly": "assembly",
@@ -265,10 +270,12 @@
         "(public SomeName <T U> (extends SomeOtherClass) (implements SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass implements SomeOtherClass"
     },
     "Extends": {
-
+        "(extends Something)": "extends Something",
+        "(extends)": false
     },
     "Implements": {
-
+        "(implements Something SomethingElse)": "implements Something, SomethingElse",
+        "(implements)": false
     },
     "TypeSpec": {
         "((.module \"something.txt\") Something)": "[.module \"something.txt\"] Something",
@@ -381,20 +388,57 @@
         "(.locals (int (float32 x)))": ".locals  (int, float32 x)"
     },
     "Instr": {
+        "nop": true
+    },
+    "ScopeBlock":{
+        "()": "{\n\n}",
+        "((.custom abstract bool .ctor () = (1 2 3 4)) (.data Something (int64 0)))": "{\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n.data Something = int64 (0) \n}"
+    },
+    "SecurityDecl":{
+        "(.permissionset assert = (1 2 3 4))": ".permissionset assert = (1 2 3 4)",
+        "(.permission reqrefuse (Something SomethingElse) (('A' = 'B') ('C' = 'D')))": ".permission reqrefuse  Something/SomethingElse ('A' = 'B', 'C' = 'D')"
+    },
+    "SecAction":{
+        "assert": true,
+        "reqrefuse": true
+    },
+    "NameValPairs":{
+        "(('A' = 'B') ('C' = 'D'))": "'A' = 'B', 'C' = 'D'"
 
     },
-    "ScopeBlock":{},
-    "SecurityDecl":{},
-    "SecAction":{},
-    "NameValPairs":{},
-    "NameValPair":{},
-    "SEHBlock":{},
-    "TryBlock":{},
-    "SEHClause":{},
-    "HandlerBlock":{},
-    "ParamDir":{},
-    "OverrideDir":{},
-    "GenArity":{},
+    "NameValPair":{
+        "('A' = 'B')": "'A' = 'B'"
+    },
+    "SEHBlock":{
+        "((.try Something to SomethingElse) (finally handler Something to SomethingElse))": ".try Something to SomethingElse\nfinally handler Something to SomethingElse"
+    },
+    "TryBlock":{
+        "(.try Something to SomethingElse)": ".try Something to SomethingElse",
+        "(.try ((.custom abstract bool .ctor () = (1 2 3 4)) (.data Something (int64 0))))": ".try {\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n.data Something = int64 (0) \n}"
+    },
+    "SEHClause":{
+        "(catch (Something) handler Something to SomethingElse)": "catch  Something handler Something to SomethingElse",
+        "(filter Something handler Something to SomethingElse)": "filter Something handler Something to SomethingElse",
+        "(fault handler Something to SomethingElse)": "fault handler Something to SomethingElse",
+        "(finally handler Something to SomethingElse)": "finally handler Something to SomethingElse"
+    },
+    "HandlerBlock":{
+        "(handler Something to SomethingElse)": "handler Something to SomethingElse",
+        "((.custom abstract bool .ctor () = (1 2 3 4)) (.data Something (int64 0)))": "{\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n.data Something = int64 (0) \n}"
+    },
+    "ParamDir":{
+        "(10 = (bool true))": "[10] = bool (true)",
+        "(10)": "[10]",
+        "(type 10)": "type [10]"
+    },
+    "OverrideDir":{
+        "([Something] SomethingElse)": "[ Something]::SomethingElse",
+        "(method default int int SomethingElse <[10]> ((int someting) (float32 somethingElse)))":
+        "method   default int  int::SomethingElse <[10]>( int  someting,  float32  somethingElse)"
+    },
+    "GenArity":{
+        "(<[10]>)": "<[10]>"
+    },
     "LocalsDecl": {
         "(init (int))": "init (int)",
         "((int (float32 x)))": " (int, float32 x)"
@@ -485,6 +529,10 @@
         "(int8 10 10)": "int8 (10) [10]",
         "(int16)": "int16 "
     },
-    "QString": {},
-    "SQString": {}
+    "QString": {
+        "\"Something\"": true
+    },
+    "SQString": {
+        "'Something'": true
+    }
 }

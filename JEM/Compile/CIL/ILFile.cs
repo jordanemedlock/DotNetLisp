@@ -10,20 +10,20 @@ namespace JEM.Compile.CIL
     public static class ILFile
     {
         public static Compiler<Expr, string> DottedName = 
-            Util.Symbol.Where(x => !x.StartsWith('.') || !x.EndsWith('.'), "Value is not DottedName");
+            Util.Symbol.Where(x => !x.StartsWith('.') || !x.EndsWith('.'), "DottedName");
 
         // 138
-        public static Compiler<Expr, string> HashAlg =
+        public static Compiler<Expr, string> HashAlg = new Compiler<Expr, string>("HashAlg", () => 
             Util.Next(".hash").Apply(
             Util.Next("algorithm").Apply(
             Util.Next(Util.IntConstant).Select(i =>
             
             $".hash algorithm {i}"
             
-            )));
+            ))));
 
         // 138
-        public static Compiler<Expr, string> Version =
+        public static Compiler<Expr, string> Version = new Compiler<Expr, string>("Version", () => 
             Util.Next(".ver").Apply(
             Util.Next(Util.IntConstant).Bind(major =>
             Util.Next(Util.IntConstant).Bind(minor =>
@@ -32,27 +32,27 @@ namespace JEM.Compile.CIL
             
             $".ver {major} : {minor} : {build} : {revision}"
 
-            )))));
+            ))))));
 
         // 138
-        public static Compiler<Expr, string> Culture =
+        public static Compiler<Expr, string> Culture = new Compiler<Expr, string>("Culture", () =>
             Util.Next(".culture").Apply(
             Util.Next(Util.DQStringConstant).Select(str => 
             
             $".culture {str.Escaped()}"
 
-            ));
+            )));
 
         // 138
-        public static Compiler<Expr, string> AsmDecl =
+        public static Compiler<Expr, string> AsmDecl = new Compiler<Expr, string>("AsmDecl", () => 
             Compiler<Expr, string>.Or(
                 HashAlg,
                 Version, 
                 Culture
-            );
+            ));
 
         // 137
-        public static Compiler<Expr, string> ExternAssembly =
+        public static Compiler<Expr, string> ExternAssembly = new Compiler<Expr, string>("ExternAssembly", () => 
             Util.Next(".assembly").Apply(
             Util.Next("extern").Apply(
             Util.Next(DottedName).Bind(dottedName => 
@@ -60,20 +60,21 @@ namespace JEM.Compile.CIL
             
             $".assembly extern {dottedName} {{\n\t{string.Join('\n', asmDecls)}\n}}"
             
-            ))));
+            )))));
 
         // 137
-        public static Compiler<Expr, string> NonExternAssembly =
+        public static Compiler<Expr, string> NonExternAssembly = new Compiler<Expr, string>("NonExternAssembly", () => 
             Util.Next(".assembly").Apply(
             Util.Next(DottedName).Bind(dottedName => 
             Util.Next(AsmDecl.Many()).Select(asmDecls =>
             
             $".assembly {dottedName} {{\n\t{string.Join('\n', asmDecls)}\n}}"
 
-            )));
+            ))));
 
-        public static Compiler<Expr, string> Assembly =
-            ExternAssembly.Or(NonExternAssembly);
+        public static Compiler<Expr, string> Assembly = new Compiler<Expr, string>("Assembly", () => 
+            ExternAssembly.Or(NonExternAssembly)
+        );
 
         // 135
         public static Compiler<Expr, string> Decl = new Compiler<Expr, string>("Decl", () =>
@@ -112,7 +113,7 @@ namespace JEM.Compile.CIL
             Util.Next(DottedName).Bind(dottedName =>
             ManResDecl.Many().Select(ress => 
             
-            $"{access} {dottedName} {{\n{string.Join("\n", ress)}"
+            $"{access} {dottedName} {{\n{string.Join("\n", ress)}\n}}"
             
             )))
         );
@@ -143,7 +144,7 @@ namespace JEM.Compile.CIL
         );
 
         // 135
-        public static Compiler<Expr, string> FileDirective =
+        public static Compiler<Expr, string> FileDirective = new Compiler<Expr, string>("FileDirective", () =>
             Util.Next(".file").Apply(
             Util.NextOptional("nometadata").Bind(nometa => 
             Util.Next(Filename).Bind(filename => 
@@ -153,17 +154,17 @@ namespace JEM.Compile.CIL
 
             $".file {nometa} {filename} .hash = ({bytes}) {entryPoint}"
 
-            ))))));
+            )))))));
 
-        public static Compiler<Expr, string> Filename = 
-            Util.DQStringConstant.Select(x => x.Escaped());
+        public static Compiler<Expr, string> Filename = new Compiler<Expr, string>("Filename", () => 
+            Util.DQStringConstant.Select(x => x.Escaped()));
 
-        public static Compiler<Expr, string> Bytes =
+        public static Compiler<Expr, string> Bytes = new Compiler<Expr, string>("Bytes", () => 
             Util.IntConstant.Many().Select(ints =>
 
             $"{String.Join(' ', ints)}"
 
-            );
+            ));
 
         // 210
         public static Compiler<Expr, string> Field = new Compiler<Expr, string>("Field", () => 
@@ -228,7 +229,7 @@ namespace JEM.Compile.CIL
             ));
 
         // 210
-        public static Compiler<Expr, string> FieldDecl =
+        public static Compiler<Expr, string> FieldDecl = new Compiler<Expr, string>("FieldDecl", () => 
             Util.NextOptional(Util.IntConstant.Select(i => "[" + i + "]")).Bind(i =>
             FieldAttr.Many().Bind(fas =>
             Util.Next(Type).Bind(typ =>
@@ -237,7 +238,7 @@ namespace JEM.Compile.CIL
 
             $"{i} {String.Join(' ', fas ?? new List<string>())} {typ} {id} {expr}"
 
-            )))));
+            ))))));
 
         // 144
         public static Compiler<Expr, string> Type = new Compiler<Expr, string>("Type", () =>
@@ -304,13 +305,13 @@ namespace JEM.Compile.CIL
                 PinnedType
             ));
 
-        public static Compiler<Expr, string> PinnedType =
+        public static Compiler<Expr, string> PinnedType = new Compiler<Expr, string>("PinnedType", () => 
             Util.Next(Type).Bind(typ =>
             Util.Next("pinned").Return<string>(
 
             $"{typ} pinned"
 
-            ));
+            )));
 
         public static Compiler<Expr, string> ModType = new Compiler<Expr, string>("ModType", () =>
             Util.Next(Type).Bind(typ =>
@@ -321,7 +322,7 @@ namespace JEM.Compile.CIL
 
             ))));
 
-        public static Compiler<Expr, string> ArrayType =
+        public static Compiler<Expr, string> ArrayType = new Compiler<Expr, string>("ArrayType", () => 
             Util.Next(Type).Bind(typ =>
             Util.Next(Util.OperatorIs("[")).Apply(
             Bound.Many().Bind(bnds =>
@@ -329,9 +330,9 @@ namespace JEM.Compile.CIL
 
             $"{typ}[{String.Join(", ", bnds)}]"
 
-            ))));
+            )))));
 
-        public static Compiler<Expr, string> GenericType =
+        public static Compiler<Expr, string> GenericType = new Compiler<Expr, string>("GenericType", () => 
             Util.Next(Type).Bind(typ =>
             Util.Next(Util.OperatorIs("<")).Apply(
             GenArgs.Bind(genArgs =>
@@ -339,13 +340,13 @@ namespace JEM.Compile.CIL
 
             $"{typ}<{genArgs}>"
 
-            ))));
+            )))));
 
-        public static Compiler<Expr, string> GenArgs = 
-            Type.Many().Select(xs => String.Join(", ", xs));
+        public static Compiler<Expr, string> GenArgs = new Compiler<Expr, string>("GenArgs", () => 
+            Type.Many().Select(xs => String.Join(", ", xs)));
 
         // 197
-        public static Compiler<Expr, string> CallConv =
+        public static Compiler<Expr, string> CallConv = new Compiler<Expr, string>("CallConv", () => 
             Util.NextOptional("instance").Bind(instance =>
             (instance != null ?
                 Util.NextOptional("explicit") :
@@ -354,10 +355,10 @@ namespace JEM.Compile.CIL
 
             $"{instance} {expl} {callKind}"
 
-            )));
+            ))));
 
         // 197
-        public static Compiler<Expr, string> CallKind =
+        public static Compiler<Expr, string> CallKind = new Compiler<Expr, string>("CallKind", () => 
             Util.SymbolIn("default", "vararg")
             .Or(
             Util.Next("unmanaged").Apply(
@@ -365,7 +366,7 @@ namespace JEM.Compile.CIL
 
             $"unmanaged {x}"
 
-            )));
+            ))));
 
         public static Compiler<Expr, string> Parameters = new Compiler<Expr, string>("Parameters", () =>
             Util.Many(Param).Select(xs => 
@@ -384,8 +385,8 @@ namespace JEM.Compile.CIL
 
             )))));
 
-        public static Compiler<Expr, string> ParamAttr =
-            Util.SymbolIn("in", "opt", "out").Select(x => $"[{x}]");
+        public static Compiler<Expr, string> ParamAttr = new Compiler<Expr, string>("ParamAttr", () => 
+            Util.SymbolIn("in", "opt", "out").Select(x => $"[{x}]"));
 
         // 146
         public static Compiler<Expr, string> TypeReference = new Compiler<Expr, string>("TypeReference", () =>
@@ -460,8 +461,8 @@ namespace JEM.Compile.CIL
             ))
             .Or(SimpleIntType));
 
-        public static Compiler<Expr, string> SimpleIntType =
-            Util.SymbolIn("int", "int8", "int16", "int32", "int64");
+        public static Compiler<Expr, string> SimpleIntType = new Compiler<Expr, string>("SimpleIntType", () => 
+            Util.SymbolIn("int", "int8", "int16", "int32", "int64"));
 
 
         // 161
@@ -496,7 +497,7 @@ namespace JEM.Compile.CIL
 
         public static Compiler<Expr, string> Implements = new Compiler<Expr, string>("Implements", () =>
             Util.Next("implements").Apply(
-            Util.Many(Id).Select(ids =>
+            Util.AtLeastOnce(Id).Select(ids =>
 
             $"implements {string.Join(", ", ids)}"
 
@@ -540,9 +541,9 @@ namespace JEM.Compile.CIL
             .Or(Id));
 
         // 165
-        public static Compiler<Expr, string> GenParAttribs = 
+        public static Compiler<Expr, string> GenParAttribs = new Compiler<Expr, string>("GenParAttribs", () => 
             Util.SymbolIn("class","valuetype",".ctor")
-            .Or(Util.OperatorIn("+","-"));
+            .Or(Util.OperatorIn("+","-")));
 
         // 166
         public static Compiler<Expr, string> GenConstraints = new Compiler<Expr, string>("GenConstraints", () => 
@@ -551,7 +552,7 @@ namespace JEM.Compile.CIL
 
 
         // 162
-        public static Compiler<Expr, string> ClassAttr =
+        public static Compiler<Expr, string> ClassAttr = new Compiler<Expr, string>("ClassAttr", () => 
             Util.SymbolIn("public", "abstract", "ansi", "autochar", "beforefieldinit", "explicit",
                 "interface", "private", "rtspecialname", "sealed", "sequential", "serializable",
                 "specialname", "unicode")
@@ -561,7 +562,7 @@ namespace JEM.Compile.CIL
 
             $"nested {inner}"
 
-            )));
+            ))));
 
 
         // 169
@@ -722,9 +723,9 @@ namespace JEM.Compile.CIL
         );
 
         // 224
-        public static Compiler<Expr, string> SecAction = 
+        public static Compiler<Expr, string> SecAction = new Compiler<Expr, string>("SecAction", () => 
             Util.SymbolIn("assert", "demand", "deny", "inheritcheck", "linkcheck", 
-            "permitonly", "reqopt", "reqrefuse", "request");
+            "permitonly", "reqopt", "reqrefuse", "request"));
 
         // 224
         public static Compiler<Expr, string> NameValPairs = new Compiler<Expr, string>("NameValPairs", () => 
@@ -747,7 +748,7 @@ namespace JEM.Compile.CIL
             Util.Next(TryBlock).Bind(tryBlock => 
             SEHClause.AtLeastOnce().Select(clauses => 
             
-            $"{tryBlock} {string.Join("\n", clauses)}"
+            $"{tryBlock}\n{string.Join("\n", clauses)}"
 
             ))
         );
@@ -846,7 +847,7 @@ namespace JEM.Compile.CIL
         // 170
         public static Compiler<Expr, string> OverrideDir = new Compiler<Expr, string>("OverrideDir", () => 
             Compiler<Expr, string>.Or(
-                Util.Next(TypeSpec).Bind(typeSpec => 
+                TypeSpec.Or(Util.Next(TypeSpec)).Bind(typeSpec => 
                 Util.Next(MethodName).Select(methodName => 
                 
                 $"{typeSpec}::{methodName}"
@@ -854,9 +855,9 @@ namespace JEM.Compile.CIL
                 )),
 
                 Util.Next("method").Apply(
-                Util.Next(CallConv).Bind(callConv => 
+                CallConv.Bind(callConv => 
                 Util.Next(Type).Bind(@type => 
-                Util.Next(TypeSpec).Bind(typeSpec => 
+                TypeSpec.Or(Util.Next(TypeSpec)).Bind(typeSpec => 
                 Util.Next(MethodName).Bind(methodName => 
                 GenArity.Bind(genArity => 
                 Util.Next(Parameters).Select(parameters => 

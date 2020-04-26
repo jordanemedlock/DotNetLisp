@@ -25,7 +25,7 @@ namespace JEM.Model
 
     public override string ToString()
     {
-      return Quote + Escaped() + Quote;
+      return Escaped();
     }
 
     public string Escaped()
