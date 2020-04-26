@@ -574,13 +574,65 @@ namespace JEM.Compile.CIL
                 Util.Next(".event").Apply(EventDecl.Select(e => $".event {e}")),
                 Util.Next(".field").Apply(FieldDecl.Select(f => $".field {f}")),
                 Util.Next(".method").Apply(MethodDecl.Select(m => $".method {m}")),
-                
-                // TODO: ClassMember Continue here
+                Util.Next(".override").Apply(OverrideDecl.Select(o => $".override {o}")),
+                Util.Next(".pack").Apply(Util.IntConstant.Select(i => $".pack {i}")),
+                Util.Next(".param").Apply(Util.Next("type").Apply(Util.Next(Util.IntConstant.Select(i => $".param type [{i}]")))),
+                Util.Next(".property").Apply(PropHeader.Bind(propHeader => PropMember.Many().Select(members => $".property {propHeader} {{\n{string.Join("\n", members)}\n}}"))),
                 Util.Next(".size").Apply(Util.IntConstant.Select(i => $".size {i}")),
                 ExternSourceDecl,
                 SecurityDecl
 
             ));
+
+        // 216
+        public static Compiler<Expr, string> PropHeader = new Compiler<Expr, string>("PropHeader", () => 
+            Util.NextOptional("specialname").Bind(specialName =>
+            Util.NextOptional("rtspecialname").Bind(rtSpecialName => 
+            CallConv.Bind(callConv => 
+            Util.Next(Type).Bind(@type =>
+            Util.Next(Id).Bind(id =>
+            Util.Next(Parameters).Select(@params =>
+
+            $"{specialName} {rtSpecialName} {callConv} {@type} {id} ({@params})"
+
+            ))))))
+        );
+
+        // 216
+        public static Compiler<Expr, string> PropMember = new Compiler<Expr, string>("PropMember", () =>
+            Compiler<Expr, string>.Or(
+                Util.Next(".custom").Apply(CustomDecl.Select(c => $".custom {c}")),
+
+                Util.Next(Util.SymbolIn(".get", ".set", ".other")).Bind(propItem =>
+                CallConv.Bind(callConv =>
+                Util.Next(Type).Bind(@type =>
+                Util.NextOptional(TypeSpec.Select(t => t + "::")).Bind(typeSpec => 
+                Util.Next(MethodName).Bind(methodName => 
+                Util.Next(Parameters).Select(@params => 
+
+                $"{propItem} {callConv} {@type} {typeSpec}{methodName}({@params})"
+
+                )))))),
+
+                ExternSourceDecl
+            )
+        );
+
+        // 169
+        public static Compiler<Expr, string> OverrideDecl = new Compiler<Expr, string>("OverrideDecl", () => 
+            Util.Next(TypeSpec).Bind(ts1 => 
+            Util.Next(MethodName).Bind(m1 => 
+            Util.Next("with").Apply(
+            CallConv.Bind(callConv =>
+            Util.Next(Type).Bind(@type =>
+            Util.Next(TypeSpec).Bind(ts2 =>
+            Util.Next(MethodName).Bind(m2 => 
+            Util.Next(Parameters).Select(@params =>
+            
+            $"{ts1}::{m1} with {callConv} {@type} {ts2}::{m2}({@params})"
+
+            ))))))))
+        );
 
         // 218
         public static Compiler<Expr, string> EventDecl = new Compiler<Expr, string>("EventDecl", () => 
@@ -676,6 +728,8 @@ namespace JEM.Compile.CIL
                 Util.Next(".param").Apply(ParamDir.Select(p => $".param {p}")),
                 ExternSourceDecl,
                 Instr,
+                InstrPrefix,
+                ObjectModel,
                 Util.Next(Id).Bind(id => Util.Next(Util.OperatorIs(":").Return($"{id}:"))),
                 ScopeBlock,
                 SecurityDecl,
@@ -684,13 +738,300 @@ namespace JEM.Compile.CIL
             )
         );
 
-        // Partition III
+        // 349
+        public static Compiler<Expr, string> InstrPrefix = new Compiler<Expr, string>("InstrPrefix", () => 
+            Compiler<Expr, string>.Or(
+                Util.Next("constrained.").Apply(
+                Util.Next(Type).Select(@type => 
+
+                $"constrained. {@type}"
+
+                )),
+
+                Util.Next("no.").Apply(
+                Util.Next(Util.SymbolIn("typecheck", "rangecheck", "nullcheck")).Select(check =>
+                
+                $"no. {check}"
+                
+                )),
+
+                Util.SymbolIs("readonly."),
+
+                Util.SymbolIs("tail."),
+
+                // 354
+                Util.Next("unaligned.").Apply( 
+                Util.Next(Util.IntConstant).Select(i => 
+                
+                $"unaligned. {i}"
+                
+                )),
+
+                Util.SymbolIs("volatile.")
+            )
+        );
+
+        // 357
         public static Compiler<Expr, string> Instr = new Compiler<Expr, string>("Instr", () => 
             Compiler<Expr, string>.Or(
-                Util.SymbolIn("nop")
+
+                // Arithmetic Operations
+                Util.SymbolIn(
+                    "add", "add.ovf", "add.ovf.un",
+                    "div", "div.un",
+                    "mul", "mul.ovf", "mul.ovf.un", 
+                    "rem", "rem.un",
+                    "sub", "sub.ovf", "sub.ovf.un",
+                    "neg"
+                ),
+                
+                // Binary Operations
+                Util.SymbolIn(
+                    "and", "neg", "not", "or", "xor"
+                ),
+
+                // Stack Operations
+                Util.SymbolIn(
+                    "dup", "pop"
+                ),
+
+                // Breaks
+                Util.Next(Util.SymbolIn(
+                    "beq", "beq.s", 
+                    "bne.un", "bne.un.s", 
+                    "bge", "bge.s", "bge.un", "bge.un.s", 
+                    "bgt", "bgt.s", "bgt.un", "bgt.un.s", 
+                    "ble", "ble.s", "ble.un", "ble.un.s", 
+                    "blt", "blt.s", "blt.un", "blt.un.s",
+                    "brfalse", "brfalse.s", 
+                    "brinst", "brinst.s",
+                    "brnull", "brnull.s",
+                    "brtrue", "brtrue.s",
+                    "brzero", "brzero.s"
+                    )
+                ).Bind(instr =>
+                Util.Next(Util.IntConstant).Select(i => 
+                
+                $"{instr} {i}"
+                
+                )),
+                Util.SymbolIn("break"),
+
+                // Compare
+                Util.SymbolIn(
+                    "ceq", "cgt", "cgt.un", "ckfinite", "clt", "clt.un"
+                ),
+
+                // Calls 
+                Util.Next(Util.SymbolIn("call", "callvirt")).Bind(instr =>
+                // I read the examples and it looks like this is the right way to reference a method
+                MethodHeader.Select(method => 
+
+                $"{instr} {method}"
+
+                )),
+                Util.Next(Util.SymbolIn("calli")).Bind(instr =>
+                // TODO: Find an example of this. this calls for a "call site descriptor", 
+                // which I think is like methodheader but without the name, idk I haven't made a compiler for that
+                MethodHeader.Select(method => 
+
+                $"{instr} {method}"
+
+                )),
+                Util.Next(Util.SymbolIn("jmp")).Bind(instr =>
+                // TODO: Looks like its similar to call* but with a tighter method req. so idk
+                MethodHeader.Select(method => 
+
+                $"{instr} {method}"
+
+                )),
+
+
+                // Convert
+                Util.SymbolIn(
+                    "conv.i1", "conv.i2", "conv.i4", "conv.i8", 
+                    "conv.u1", "conv.u2", "conv.u4", "conv.u8", 
+                    "conv.r4", "conv.r8",
+                    "conv.i", "conv.u", "conv.r.un",
+
+                    "conv.ovf.i1", "conv.ovf.i2", "conv.ovf.i4", "conv.ovf.i8", 
+                    "conv.ovf.u1", "conv.ovf.u2", "conv.ovf.u4", "conv.ovf.u8", 
+                    "conv.ovf.i", "conv.ovf.u",
+
+                    "conv.ovf.i1.un", "conv.ovf.i2.un", "conv.ovf.i4.un", "conv.ovf.i8.un", 
+                    "conv.ovf.u1.un", "conv.ovf.u2.un", "conv.ovf.u4.un", "conv.ovf.u8.un", 
+                    "conv.ovf.i.un", "conv.ovf.u.un"
+                ),
+                
+                
+                // Load/Store
+                Util.SymbolIn("ldarg.0", "ldarg.1", "ldarg.2", "ldarg.3"),
+
+                Util.Next(Util.SymbolIn("ldarg", "ldarg.s", "ldarga", "ldarga.s")).Bind(inst => 
+                Util.Next(Util.IntConstant).Select(i =>
+                
+                $"{inst} {i}"
+                
+                )),
+                Util.Next(Util.SymbolIn("ldc.i4", "ldc.i8", "ldc.i4.s")).Bind(instr => 
+                Util.Next(Util.IntConstant).Select(i => 
+                
+                $"{instr} {i}"
+                
+                )),
+                Util.Next(Util.SymbolIn("ldc.r4", "ldc.r8")).Bind(instr => 
+                Util.Next(Util.FloatConstant).Select(i => 
+                
+                $"{instr} {i}"
+                
+                )),
+                Util.SymbolIn(
+                    "ldc.i4.0", "ldc.i4.1", "ldc.i4.2", "ldc.i4.3", "ldc.i4.4", 
+                    "ldc.i4.5", "ldc.i4.6", "ldc.i4.7", "ldc.i4.8", 
+                    "ldc.i4.m1", "ldc.i4.M1"
+                ),
+                Util.Next(Util.SymbolIn("ldftn")).Bind(instr =>
+                // TODO: I'm duplicating all of these signatures because I dont fully understand them lol
+                MethodHeader.Select(method => 
+
+                $"{instr} {method}"
+
+                )),
+                Util.SymbolIn(
+                    "ldind.i1", "ldind.i2", "ldind.i4", "ldind.i8",
+                    "ldind.u1", "ldind.u2", "ldind.u4", "ldind.u8",
+                    "ldind.r4", "ldind.r8",
+                    "ldind.i", "ldind.ref"
+                ),
+                Util.SymbolIn(
+                    "ldloc.1", "ldloc.2", "ldloc.3", "ldloc.4",
+                    "stloc.1", "stloc.2", "stloc.3", "stloc"
+                ),
+                Util.Next(Util.SymbolIn(
+                    "ldloc", "ldloc.s", "ldloca", "ldloca.s",
+                    "stloc", "stloc.s", "stloca", "stloca.s"
+                    )).Bind(instr => 
+                Util.Next(Util.IntConstant).Select(i => 
+                
+                $"{instr} {i}"
+                
+                )),
+                Util.SymbolIn("ldnull"),
+                Util.SymbolIn("starg", "starg.s"),
+                Util.SymbolIn(
+                    "stind.i1", "stind.i2", "stind.i4", "stind.i8",
+                    "stind.r4", "stind.r8", 
+                    "stind.i", "stind.ref"
+                ),
+
+
+                Util.Next(Util.SymbolIn("leave", "leave.s")).Bind(instr => 
+                Util.Next(Util.IntConstant).Select(i => 
+                
+                $"{instr} {i}"
+
+                )),
+
+                // Everything else
+
+                Util.SymbolIn("endfilter", "endfault", "endfinally"),
+
+                Util.SymbolIn("cpblk", "initblk"),
+                Util.SymbolIn("localloc"),
+
+                Util.SymbolIn("ret"),
+
+                Util.SymbolIn("nop"),
+
+                Util.SymbolIn("shl", "shr", "shr.un"),
+
+
+                Util.Next("switch").Apply(
+                Util.IntConstant.AtLeastOnce().Select(@is => 
+
+                $"switch {string.Join(" ", @is)}"
+
+                )),
+
+                Util.SymbolIn("arglist")
             )
-            // TODO: Instr Continue here
         );
+
+        // 427
+        public static Compiler<Expr, string> ObjectModel = new Compiler<Expr, string>("ObjectModel", () => 
+            Compiler<Expr, string>.Or(
+                Util.Next(Util.SymbolIn(
+                    "callvirt", 
+                    "ldvirtftn",
+                    "newobj"
+                )).Bind(instr =>
+                Util.Next(MethodHeader).Select(header => 
+                
+                $"{instr} {header}"
+                
+                )),
+
+                Util.Next(Util.SymbolIn(
+                    "box", "unbox", "unbox.any",
+                    "castclass", "cpobj", "initobj", "isinst", 
+                    "ldelem", "ldelema", "stelem",
+                    "ldobj", "stobj",
+                    "mkrefany",
+                    "newarr",
+                    "refanyval",
+                    "sizeof"
+                )).Bind(instr =>
+                Util.Next(Type).Select(@type => 
+                
+                $"{instr} {@type}"
+                
+                )),
+
+                Util.SymbolIn(
+                    "ldelem.i1", "ldelem.i2", "ldelem.i4", "ldelem.i8",
+                    "ldelem.u1", "ldelem.u2", "ldelem.u4", "ldelem.u8", 
+                    "ldelem.r4", "ldelem.r8", 
+                    "ldelem.i", "ldelem.ref",
+                    "stelem.i1", "stelem.i2", "stelem.i4", "stelem.i8",
+                    "stelem.u1", "stelem.u2", "stelem.u4", "stelem.u8", 
+                    "stelem.r4", "stelem.r8", 
+                    "stelem.i", "stelem.ref"
+                ),
+
+                Util.Next(Util.SymbolIn(
+                    "ldfld", "ldflda", 
+                    "ldsfld", "ldsflda",
+                    "stfld", "stsfld"
+                )).Bind(instr =>
+                Util.Next(FieldDecl).Select(field =>
+                
+                $"{instr} {field}"
+
+                )),
+
+                Util.SymbolIn("ldlen"),
+
+                Util.Next("ldstr").Apply(
+                Util.Next(QString).Select(str =>
+                
+                $"ldstr {str}"
+                
+                )),
+
+                // FIXME: not sure if this is the full definition or the right one, 
+                // gonna need to experiment
+                Util.Next("ldtoken").Apply(
+                Util.Next(Type.Or(MethodHeader).Or(FieldDecl)).Select(token => 
+                
+                $"ldtoken {token}"
+                
+                )),
+
+                Util.SymbolIn("refanytype", "rethrow", "throw")
+
+            )
+        );
+
 
         // 205
         public static Compiler<Expr, string> ScopeBlock = new Compiler<Expr, string>("ScopeBlock", () => 
