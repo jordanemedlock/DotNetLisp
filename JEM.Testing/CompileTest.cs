@@ -82,7 +82,7 @@ namespace JEM.Testing
         }
         
         [Theory]
-        [JsonFileData("compiler_data.json")]
+        [JsonFileData(@"TestFiles\compiler_data.json")]
         public void TestCompilerData(string compilerName, Dictionary<string, object> pairs)
         {
             var compiler = (Compiler<Expr, string>) typeof(ILFile).GetField(compilerName).GetValue(null);

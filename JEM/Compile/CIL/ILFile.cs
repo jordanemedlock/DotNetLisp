@@ -91,9 +91,15 @@ namespace JEM.Compile.CIL
                 Util.Next(".mresource").Apply(MResourceDecl.Select(r => $".mresource {r}")),
                 Util.Next(".subsystem").Apply(Util.IntConstant.Select(i => $".subsystem {i}")),
                 Util.Next(".vtfixup").Apply(VTFixupDecl.Select(vtf => $".vtfixup {vtf}")),
+                ClassDecl,
                 ExternSourceDecl,
                 SecurityDecl
            ));
+
+        // 135
+        public static Compiler<Expr, string> Compiler = new Compiler<Expr, string>("Compiler", () => 
+            Decl.Many().Select(decls => string.Join("\n\n", decls))
+        );
 
         // 207
         public static Compiler<Expr, string> VTFixupDecl = new Compiler<Expr, string>("VTFixupDecl", () => 
