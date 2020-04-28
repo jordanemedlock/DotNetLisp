@@ -20,37 +20,25 @@
         "(.ver 1 0 0 0)": ".ver 1 : 0 : 0 : 0",
         "(.culture \"en-us\")": ".culture \"en-us\""
     },
-    "ExternAssembly": {
-        "(.assembly extern A.B.C ((.culture \"en-us\")))": ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly extern A ((.ver 1 0 0 0)))": ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly extern F ((.hash algorithm 1)))": ".assembly extern F {\n\t.hash algorithm 1\n}",
-        "(.assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
-    },
-    "NonExternAssembly": {
-        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly A ((.ver 1 0 0 0)))": ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly F ((.hash algorithm 1)))": ".assembly F {\n\t.hash algorithm 1\n}",
-        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
-    },
-    "Assembly": {
-        "(.assembly extern A.B.C ((.culture \"en-us\")))": ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly extern A ((.ver 1 0 0 0)))": ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly extern F ((.hash algorithm 1)))": ".assembly extern F {\n\t.hash algorithm 1\n}",
-        "(.assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
-        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly A ((.ver 1 0 0 0)))": ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly F ((.hash algorithm 1)))": ".assembly F {\n\t.hash algorithm 1\n}",
-        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
+    "AssemblyDecl": {
+        "(extern A.B.C ((.culture \"en-us\")))": "extern A.B.C {\n\t.culture \"en-us\"\n}",
+        "(extern A ((.ver 1 0 0 0)))": "extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(extern F ((.hash algorithm 1)))": "extern F {\n\t.hash algorithm 1\n}",
+        "(extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": "extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
+        "(A.B.C ((.culture \"en-us\")))": " A.B.C {\n\t.culture \"en-us\"\n}",
+        "(A ((.ver 1 0 0 0)))": " A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(F ((.hash algorithm 1)))": " F {\n\t.hash algorithm 1\n}",
+        "(anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": " anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
     },
     "Decl": {
         "(.assembly extern A.B.C ((.culture \"en-us\")))": ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}",
         "(.assembly extern A ((.ver 1 0 0 0)))": ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
         "(.assembly extern F ((.hash algorithm 1)))": ".assembly extern F {\n\t.hash algorithm 1\n}",
         "(.assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
-        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly A ((.ver 1 0 0 0)))": ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly F ((.hash algorithm 1)))": ".assembly F {\n\t.hash algorithm 1\n}",
-        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
+        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly  A.B.C {\n\t.culture \"en-us\"\n}",
+        "(.assembly A ((.ver 1 0 0 0)))": ".assembly  A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(.assembly F ((.hash algorithm 1)))": ".assembly  F {\n\t.hash algorithm 1\n}",
+        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly  anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
         "(.corflags 123)": ".corflags 123",
         "(.file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
         "(.file \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file  \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
@@ -78,22 +66,16 @@
         "(.file AnotherThing at 10)": ".file AnotherThing at 10",
         "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)"
     },
-    "FileDirective": {
-        "(.file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
-        "(.file \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file  \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
-        "(.file \"some_filename.txt\" .hash (1 2 3 4))": ".file  \"some_filename.txt\" .hash = (1 2 3 4) "
+    "FileDecl": {
+        "(nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": "nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
+        "(\"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": " \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
+        "(\"some_filename.txt\" .hash (1 2 3 4))": " \"some_filename.txt\" .hash = (1 2 3 4) "
     },
     "Filename": {
         "\"some filename\"": "\"some filename\""
     },
     "Bytes": {
         "(1 2 3 4)": "1 2 3 4"
-    },
-    "Field": {
-        "(.field private int32 xOrigin)": ".field  private int32 xOrigin ",
-        "(.field private int32 xOrigin = bool true)": ".field  private int32 xOrigin = bool (true)",
-        "(.field private int32 xOrigin = unsigned int64 123)": ".field  private int32 xOrigin = unsigned int64 (123)",
-        "(.field private int32 xOrigin at Something)": ".field  private int32 xOrigin at Something"
     },
     "FieldInit": {
         "(bool true)": "bool (true)",
@@ -365,10 +347,10 @@
         "((instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": "instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)"
     },
     "ExternSourceDecl": {
-        "(.line 1 10 'Something')": ".line 1:10 'Something'",
-        "(.line 1 'Something')": ".line 1 'Something'",
-        "(.line 1)": ".line 1 ",
-        "(.line 1 10)": ".line 1:10 "
+        "(1 10 'Something')": "1:10 'Something'",
+        "(1 'Something')": "1 'Something'",
+        "(1)": "1 ",
+        "(1 10)": "1:10 "
     },
     "CustomDecl": {
         "(abstract bool .ctor () = (1 2 3 4))": "abstract  bool  .ctor()  = (1 2 3 4)"
@@ -394,9 +376,11 @@
         "()": "{\n\n}",
         "((.custom abstract bool .ctor () = (1 2 3 4)) (.data Something (int64 0)))": "{\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n.data Something = int64 (0) \n}"
     },
-    "SecurityDecl":{
-        "(.permissionset assert = (1 2 3 4))": ".permissionset assert = (1 2 3 4)",
-        "(.permission reqrefuse (Something SomethingElse) (('A' = 'B') ('C' = 'D')))": ".permission reqrefuse  Something/SomethingElse ('A' = 'B', 'C' = 'D')"
+    "PermissionSetDecl":{
+        "(assert = (1 2 3 4))": "assert = (1 2 3 4)"
+    },
+    "PermissionDecl": {
+        "(reqrefuse (Something SomethingElse) (('A' = 'B') ('C' = 'D')))": "reqrefuse  Something/SomethingElse ('A' = 'B', 'C' = 'D')"
     },
     "SecAction":{
         "assert": true,

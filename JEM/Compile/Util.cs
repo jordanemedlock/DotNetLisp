@@ -126,8 +126,44 @@ namespace JEM.Compile
 
 
 
-        // Is ther any way I can make this more complicated lol
+        // This one fails if any of the inner compilers fail
         public static Compiler<Expr, List<T>> Many<T>(this Compiler<Expr, T> inner)
+        {
+            return new Compiler<Expr, List<T>>($"{inner.Name}*", input =>
+            {
+                if (input is SExpr e)
+                {
+                    var results = new CompilerResult<Expr, List<T>>()
+                    {
+                        Value = new List<T>(),
+                        Remainder = null
+                    };
+                    int i = 0;
+                    foreach (var value in e.Values)
+                    {
+                        var innerResults = inner.Compile(value);
+                        if (innerResults.HasValue)
+                        {
+                            results.Value.Add(innerResults.Value);
+                        }
+                        else
+                        {
+                            return new CompilerResult<Expr, List<T>>(innerResults.Error);
+                        }
+                        i++;
+                    }
+                    return results;
+                }
+                else
+                {
+                    return new CompilerResult<Expr, List<T>>($"{input} is not SExpr in {inner.Name}*");
+                }
+            });
+        }
+
+
+        // Is ther any way I can make this more complicated lol
+        public static Compiler<Expr, List<T>> ManyUntil<T>(this Compiler<Expr, T> inner)
         {
             return new Compiler<Expr, List<T>>($"{inner.Name}*", input =>
             {
@@ -244,6 +280,40 @@ namespace JEM.Compile
                 }
             });
         }
+
+        public static Compiler<Expr, T> StartsWith<T>(Dictionary<string, Compiler<Expr, T>> compilers)
+        {
+            return new Compiler<Expr, T>(input => 
+            {
+                string start;
+                SExpr rest;
+                if (input is SExpr se && se.Count > 0 && se.Head() is Symbol symbol) 
+                {
+                    start = symbol.Value;
+                    rest = se.Tail();
+                }
+                else if (input is Symbol s)
+                {
+                    start = s.Value;
+                    rest = null;
+                }
+                else 
+                {
+                    return new CompilerResult<Expr, T>($"{input} is not SExpr or Symbol in StartsWith");
+                }
+
+                foreach (var kvp in compilers)
+                {
+                    if (start == kvp.Key)
+                    {
+                        return kvp.Value.Compile(rest);
+                    }
+                }
+
+                return new CompilerResult<Expr, T>($"{start} is not in {compilers.Keys.ToList()}");
+            });
+        }
+
         public static Compiler<Expr, string> NextOptional(string symbol)
         {
             return NextOptional(SymbolIs(symbol));

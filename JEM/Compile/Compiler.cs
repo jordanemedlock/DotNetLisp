@@ -135,14 +135,19 @@ namespace JEM.Compile
         {
             return new Compiler<TInput, TOutput>($"{string.Join(" | ", compilers.Select(x => x.Name))}", input =>
             {
-                CompilerResult<TInput, TOutput> result;
-                int i = 0;
-                do
+                List<CompilerResult<TInput, TOutput>> results = new List<CompilerResult<TInput, TOutput>>();
+                var errorMessage = $"{input} failed in Or with messages: \n";
+                for (int i=0; i < compilers.Length; i++)
                 {
-                    result = compilers[i++].Compile(input);
+                    results.Add(compilers[i].Compile(input));
+                    if (results[i].HasValue)
+                    {
+                        return results[i];
+                    }
+                    errorMessage += compilers[i].Name + ": " + results[i].Error + "\n";
                 }
-                while (!result.HasValue && i < compilers.Length);
-                return result;
+
+                return new CompilerResult<TInput, TOutput>(errorMessage);
             });
         }
 
