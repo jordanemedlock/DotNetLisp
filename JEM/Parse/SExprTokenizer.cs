@@ -56,9 +56,31 @@ namespace JEM.Parse
                 Character.In('e', 'E').IgnoreThen(Numerics.Integer).OptionalOrDefault()
                 .Select(f => f == TextSpan.None ? d : new TextSpan(d.Source, d.Position, d.Length + f.Length + 1)));
 
+        public static TextParser<TextSpan> SingleLineComment = Comment.SqlStyle;
+
+        public static TextParser<TextSpan> MultiLineComment = input =>
+        {
+            var begin = Span.EqualTo("{-")(input);
+            if (!begin.HasValue) return begin;
+
+            var content = begin.Remainder;
+            while (!content.IsAtEnd)
+            {
+                var end = Span.EqualTo("-}")(content);
+                if (end.HasValue) return Result.Value(input.Until(end.Remainder), input, end.Remainder);
+
+                content = content.ConsumeChar().Remainder;
+
+            }
+
+            return Span.EqualTo("-}")(content);
+        };
+
         public static Tokenizer<SExprToken> Instance { get; } =
             new TokenizerBuilder<SExprToken>()
                 .Ignore(Span.WhiteSpace)
+                .Match(SingleLineComment, SExprToken.Comment)
+                .Match(MultiLineComment, SExprToken.Comment)
                 .Match(Character.EqualTo('('), SExprToken.Open)
                 .Match(Character.EqualTo(')'), SExprToken.Close)
                 .Match(IntToken, SExprToken.Integer, requireDelimiters: true)

@@ -15,6 +15,7 @@ namespace JEM.Parse
         DQString,
         SQString,
         Float,
+        Comment,
 
 
         [Token(Example = "(")]
