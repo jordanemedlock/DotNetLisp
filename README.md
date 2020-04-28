@@ -34,9 +34,11 @@ They can be in any order as well, although I think this should be the prefered o
 Justification: I want the syntax to be simple and descriptive.  And I want to keep a pattern of
 "What it is" followed by its definition.  That way the process is "What to I want to make" => "What do I want to name it" => "What do I want it to be". Eg. (class Name (fields ...)).  Also I want to group fields with fields and methods with methods so that the classes can't become entirely unstructured. I want to enforce some grouping.
 
-TODO: finish GenericsDef to include type conditions.
-TODO: add properties (I don't really want them to be separate from fields, because they are semantically similar)
-TODO: Attributes. Don't super care about these yet. 
+TODO:
+
+- finish GenericsDef to include type conditions.
+- add properties (I don't really want them to be separate from fields, because they are semantically similar)
+- Attributes. Don't super care about these yet.
 
 ```Lisp
 
@@ -58,7 +60,9 @@ ClassRef := Id [`<`TypeRef+`>`]
 
 ### FieldDecl
 
-TODO: Add more to FieldInit. This has interesting loading rules, not sure what rules will need to be considered.
+TODO:
+
+- Add more to FieldInit. This has interesting loading rules, not sure what rules will need to be considered.
 
 ```Lisp
 
@@ -72,7 +76,9 @@ FieldInit := ConstantValue
 
 Notes: I want method decl to be small and similar to lambda creation. I think I want it to be default functional with explicit imperative syntax. I'm thinking the `do` keyword. I also want to implement currying, but I understand that's an advanced feature and I haven't even figured out lambdas yet lol.
 
-TODO: Default values in parameters
+TODO:
+
+- Default values in parameters
 
 ```Lisp
 
