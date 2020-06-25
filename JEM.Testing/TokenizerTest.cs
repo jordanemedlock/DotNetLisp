@@ -137,6 +137,7 @@ namespace JEM.Testing
         [Theory]
         [InlineData("", new SExprToken[] { })]
         [InlineData("a", new SExprToken[] { SExprToken.Symbol })]
+        [InlineData("1 : 10", new SExprToken[] { SExprToken.Integer, SExprToken.Symbol, SExprToken.Integer })]
         [InlineData("(a \"bc\" 123)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Integer, SExprToken.Close })]
         [InlineData("(()((", new SExprToken[] { SExprToken.Open, SExprToken.Open, SExprToken.Close, SExprToken.Open, SExprToken.Open })]
         [InlineData("(a \"bc\" 123.01)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Float, SExprToken.Close })]

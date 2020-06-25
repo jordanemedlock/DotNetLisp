@@ -31,7 +31,7 @@ namespace JEM.Testing
         public void TestString()
         {
             var s = new StringConstant("A");
-            var res = Util.StringConstant.Compile(s);
+            var res = Util.StringConstant.Value().Compile(s);
             HasValue(res, s.Value);
         }
 
@@ -72,7 +72,7 @@ namespace JEM.Testing
         {
             var stringConstant = new StringConstant("a");
             var symbol = new Symbol("b");
-            var compiler = Util.StringConstant
+            var compiler = Util.StringConstant.Value()
                 .Or(Util.Symbol);
             var res = compiler.Compile(symbol);
             HasValue(res, symbol.Value);
@@ -82,7 +82,7 @@ namespace JEM.Testing
         }
         
         [Theory]
-        [JsonFileData("compiler_data.json", "ExternSourceDecl")]
+        [JsonFileData("Data/compiler_data.json")]
         public void TestCompilerData(string compilerName, Dictionary<string, object> pairs)
         {
             var compiler = (Compiler<Expr, string>) typeof(ILFile).GetField(compilerName).GetValue(null);

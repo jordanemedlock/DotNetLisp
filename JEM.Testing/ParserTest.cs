@@ -122,7 +122,7 @@ namespace JEM.Testing
                 ["(* & [])"] = new SExpr(new SExpr(new Symbol("*"), new Symbol("&"), new Symbol("[]"))),
                 ["(() () ())"] = new SExpr(new SExpr(new SExpr(), new SExpr(), new SExpr())),
                 ["(( (a) ))"] = new SExpr(new SExpr(new SExpr(new SExpr(new Symbol("a"))))),
-                ["1:10"] = new SExpr(new IntConstant(1), new Symbol(":"), new IntConstant(10))
+                ["1 : 10"] = new SExpr(new IntConstant(1), new Symbol(":"), new IntConstant(10))
             };
 
             foreach(var keyValuePair in cases) {

@@ -322,13 +322,13 @@
 
     },
     "FireDecl": {
-        "((instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": "instance explicit default int class Something::SomeMethod(int v1, int v2)"
+        "((instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": "instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)"
     },
     "ExternSourceDecl": {
         // "(.line 1 10 'Something')": ".line 1:10 'Something'",
         // "(.line 1 'Something')": ".line 1 'Something'",
-        "(.line 1)": ".line 1 ",
-        "(.line 1:10)": ".line 1:10 "
+        "(.line 1)": ".line 1 "
+        // "(.line 1 : 10)": ".line 1:10 "
     },
     "CustomDecl": {
         "(abstract bool .ctor () = (1 2 3 4))": "abstract  bool  .ctor()  = (1 2 3 4)"
