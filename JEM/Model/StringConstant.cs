@@ -8,14 +8,19 @@ namespace JEM.Model
   {
     public string Value { get; set; }
 
-    public StringConstant(string value)
+    public bool SingleQuote { get; set; }
+
+    public string Quote => SingleQuote ? "'" : "\"";
+
+    public StringConstant(string value, bool singleQuote)
     {
       Value = value;
+      SingleQuote = singleQuote;
     }
 
     public static StringConstant FromUnescaped(string value)
     {
-      return new StringConstant(UnescapeString(value));
+      return new StringConstant(UnescapeString(value), IsSingleQuote(value));
     }
 
     public override string ToString()
@@ -25,7 +30,7 @@ namespace JEM.Model
 
     public string Escaped()
     {
-      return EscapeString(Value);
+      return Quote + EscapeString(Value) + Quote;
     }
 
     public override bool Equals(object other)
@@ -36,7 +41,7 @@ namespace JEM.Model
       }
       else if (other is StringConstant strC)
       {
-        return Value.Equals(strC.Value);
+        return Value.Equals(strC.Value) && SingleQuote == strC.SingleQuote;
       }
       else
       {
@@ -57,18 +62,23 @@ namespace JEM.Model
       {
         ret = ret.Replace(kvp.Key, kvp.Value);
       }
-      return "\"" + ret + "\"";
+      return ret;
     }
     public static string UnescapeString(string input)
     {
       var ret = input;
-      if (input[0] == '"') input = input.Remove(0, 1);
-      if (input[input.Length - 1] == '"') input = input.Remove(input.Length - 1, 1);
+      if (input[0] == '"' || input[0] == '\'') input = input.Remove(0, 1);
+      if (input[input.Length - 1] == '"' || input[input.Length - 1] == '\'') input = input.Remove(input.Length - 1, 1);
       foreach (var kvp in escapeMapping)
       {
         ret = ret.Replace(kvp.Value, kvp.Key);
       }
       return ret;
+    }
+
+    public static bool IsSingleQuote(string input) 
+    {
+      return input[0] == '\'';
     }
 
     private static Dictionary<string, string> escapeMapping = new Dictionary<string, string>()

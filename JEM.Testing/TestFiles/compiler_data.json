@@ -20,37 +20,25 @@
         "(.ver 1 0 0 0)": ".ver 1 : 0 : 0 : 0",
         "(.culture \"en-us\")": ".culture \"en-us\""
     },
-    "ExternAssembly": {
-        "(.assembly extern A.B.C ((.culture \"en-us\")))": ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly extern A ((.ver 1 0 0 0)))": ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly extern F ((.hash algorithm 1)))": ".assembly extern F {\n\t.hash algorithm 1\n}",
-        "(.assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
-    },
-    "NonExternAssembly": {
-        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly A ((.ver 1 0 0 0)))": ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly F ((.hash algorithm 1)))": ".assembly F {\n\t.hash algorithm 1\n}",
-        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
-    },
-    "Assembly": {
-        "(.assembly extern A.B.C ((.culture \"en-us\")))": ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly extern A ((.ver 1 0 0 0)))": ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly extern F ((.hash algorithm 1)))": ".assembly extern F {\n\t.hash algorithm 1\n}",
-        "(.assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
-        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly A ((.ver 1 0 0 0)))": ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly F ((.hash algorithm 1)))": ".assembly F {\n\t.hash algorithm 1\n}",
-        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
+    "AssemblyDecl": {
+        "(extern A.B.C ((.culture \"en-us\")))": "extern A.B.C {\n\t.culture \"en-us\"\n}",
+        "(extern A ((.ver 1 0 0 0)))": "extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(extern F ((.hash algorithm 1)))": "extern F {\n\t.hash algorithm 1\n}",
+        "(extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": "extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
+        "(A.B.C ((.culture \"en-us\")))": " A.B.C {\n\t.culture \"en-us\"\n}",
+        "(A ((.ver 1 0 0 0)))": " A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(F ((.hash algorithm 1)))": " F {\n\t.hash algorithm 1\n}",
+        "(anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": " anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}"
     },
     "Decl": {
         "(.assembly extern A.B.C ((.culture \"en-us\")))": ".assembly extern A.B.C {\n\t.culture \"en-us\"\n}",
         "(.assembly extern A ((.ver 1 0 0 0)))": ".assembly extern A {\n\t.ver 1 : 0 : 0 : 0\n}",
         "(.assembly extern F ((.hash algorithm 1)))": ".assembly extern F {\n\t.hash algorithm 1\n}",
         "(.assembly extern anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly extern anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
-        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly A.B.C {\n\t.culture \"en-us\"\n}",
-        "(.assembly A ((.ver 1 0 0 0)))": ".assembly A {\n\t.ver 1 : 0 : 0 : 0\n}",
-        "(.assembly F ((.hash algorithm 1)))": ".assembly F {\n\t.hash algorithm 1\n}",
-        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
+        "(.assembly A.B.C ((.culture \"en-us\")))": ".assembly  A.B.C {\n\t.culture \"en-us\"\n}",
+        "(.assembly A ((.ver 1 0 0 0)))": ".assembly  A {\n\t.ver 1 : 0 : 0 : 0\n}",
+        "(.assembly F ((.hash algorithm 1)))": ".assembly  F {\n\t.hash algorithm 1\n}",
+        "(.assembly anything ((.hash algorithm 1) (.ver 1 0 0 0) (.culture \"en-us\")))": ".assembly  anything {\n\t.hash algorithm 1\n.ver 1 : 0 : 0 : 0\n.culture \"en-us\"\n}",
         "(.corflags 123)": ".corflags 123",
         "(.file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
         "(.file \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file  \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
@@ -60,22 +48,34 @@
         "(.field private int32 xOrigin = unsigned int64 123)": ".field  private int32 xOrigin = unsigned int64 (123)",
         "(.field private int32 xOrigin at Something)": ".field  private int32 xOrigin at Something"
     },
-    "Corflags": {
-        "(.corflags 123)": ".corflags 123"
+    "VTFixupDecl": {
+        "(10 fromunmanaged at Something)": "10 fromunmanaged at Something",
+        "(10 int32 at Something)": "10 int32 at Something",
+        "(10 at Something)": false,
+        "(int32 at Something)": " int32 at Something",
+        "(int64 at Something)": " int64 at Something"
     },
-    "FileDirective": {
-        "(.file nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
-        "(.file \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": ".file  \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
-        "(.file \"some_filename.txt\" .hash (1 2 3 4))": ".file  \"some_filename.txt\" .hash = (1 2 3 4) "
+    "MResourceDecl": {
+        "(public Something (.assembly extern SomethingElse) (.file AnotherThing at 10) (.custom abstract bool .ctor () = (1 2 3 4)))": 
+        "public Something {\n.assembly extern SomethingElse\n.file AnotherThing at 10\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n}",
+        "(private Something)": 
+        "private Something {\n\n}"
+    },
+    "ManResDecl": {
+        "(.assembly extern SomethingElse)": ".assembly extern SomethingElse",
+        "(.file AnotherThing at 10)": ".file AnotherThing at 10",
+        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)"
+    },
+    "FileDecl": {
+        "(nometadata \"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": "nometadata \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
+        "(\"some_filename.txt\" .hash (1 2 3 4) .entrypoint)": " \"some_filename.txt\" .hash = (1 2 3 4) .entrypoint",
+        "(\"some_filename.txt\" .hash (1 2 3 4))": " \"some_filename.txt\" .hash = (1 2 3 4) "
     },
     "Filename": {
         "\"some filename\"": "\"some filename\""
     },
-    "Field": {
-        "(.field private int32 xOrigin)": ".field  private int32 xOrigin ",
-        "(.field private int32 xOrigin = bool true)": ".field  private int32 xOrigin = bool (true)",
-        "(.field private int32 xOrigin = unsigned int64 123)": ".field  private int32 xOrigin = unsigned int64 (123)",
-        "(.field private int32 xOrigin at Something)": ".field  private int32 xOrigin at Something"
+    "Bytes": {
+        "(1 2 3 4)": "1 2 3 4"
     },
     "FieldInit": {
         "(bool true)": "bool (true)",
@@ -193,6 +193,9 @@
         "(.module \"something.txt\")": "[.module \"something.txt\"]",
         "(A.B.C)": "[A.B.C]"
     },
+    "Id": {
+        "Something": true
+    },
     "FieldAttr": {
         "assembly": "assembly",
         "(marshal int32)": "marshal (int32)",
@@ -233,20 +236,28 @@
     },
     "ClassDecl": {
         "(.class public SomeName ())": ".class public SomeName   {\n\n}",
-        "(.class (nested public) SomeName (T U) ())": ".class nested public SomeName<T, U>   {\n\n}",
-        "(.class public SomeName (T U) (extends SomeOtherClass) ())": ".class public SomeName<T, U> extends SomeOtherClass  {\n\n}",
-        "(.class public SomeName (T U) (implements SomeOtherClass) ())": ".class public SomeName<T, U>  implements SomeOtherClass {\n\n}",
-        "(.class public SomeName (T U) (implements SomeOtherClass AnotherInterface) ())": ".class public SomeName<T, U>  implements SomeOtherClass, AnotherInterface {\n\n}",
-        "(.class public SomeName (T U) (extends SomeOtherClass) (implements SomeOtherClass) ())": ".class public SomeName<T, U> extends SomeOtherClass implements SomeOtherClass {\n\n}"
+        "(.class (nested public) SomeName <T U> ())": ".class nested public SomeName<T, U>   {\n\n}",
+        "(.class public SomeName <T U> (extends SomeOtherClass) ())": ".class public SomeName<T, U> extends SomeOtherClass  {\n\n}",
+        "(.class public SomeName <T U> (implements SomeOtherClass) ())": ".class public SomeName<T, U>  implements SomeOtherClass {\n\n}",
+        "(.class public SomeName <T U> (implements SomeOtherClass AnotherInterface) ())": ".class public SomeName<T, U>  implements SomeOtherClass, AnotherInterface {\n\n}",
+        "(.class public SomeName <T U> (extends SomeOtherClass) (implements SomeOtherClass) ())": ".class public SomeName<T, U> extends SomeOtherClass implements SomeOtherClass {\n\n}"
 
     },
     "ClassHeader": {
         "(public SomeName)": "public SomeName  ",
-        "((nested public) SomeName (T U))": "nested public SomeName<T, U>  ",
-        "(public SomeName (T U) (extends SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass ",
-        "(public SomeName (T U) (implements SomeOtherClass))": "public SomeName<T, U>  implements SomeOtherClass",
-        "(public SomeName (T U) (implements SomeOtherClass AnotherInterface))": "public SomeName<T, U>  implements SomeOtherClass, AnotherInterface",
-        "(public SomeName (T U) (extends SomeOtherClass) (implements SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass implements SomeOtherClass"
+        "((nested public) SomeName <T U>)": "nested public SomeName<T, U>  ",
+        "(public SomeName <T U> (extends SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass ",
+        "(public SomeName <T U> (implements SomeOtherClass))": "public SomeName<T, U>  implements SomeOtherClass",
+        "(public SomeName <T U> (implements SomeOtherClass AnotherInterface))": "public SomeName<T, U>  implements SomeOtherClass, AnotherInterface",
+        "(public SomeName <T U> (extends SomeOtherClass) (implements SomeOtherClass))": "public SomeName<T, U> extends SomeOtherClass implements SomeOtherClass"
+    },
+    "Extends": {
+        "(extends Something)": "extends Something",
+        "(extends)": false
+    },
+    "Implements": {
+        "(implements Something SomethingElse)": "implements Something, SomethingElse",
+        "(implements)": false
     },
     "TypeSpec": {
         "((.module \"something.txt\") Something)": "[.module \"something.txt\"] Something",
@@ -256,11 +267,11 @@
     },
     "GenPars": {
 
-        "((+ - class .ctor (int32) Something) (Something) ((int32 float32) Something))": "<+ - class .ctor (int32) Something,   Something,  (int32, float32) Something>",
-        "()": false,
-        "((Something))": "<  Something>",
-        "(Something)": "<Something>",
-        "(T U)": "<T, U>"
+        "(< (+ - class .ctor (int32) Something) (Something) ((int32 float32) Something) >)": "<+ - class .ctor (int32) Something,   Something,  (int32, float32) Something>",
+        "()": "",
+        "(< (Something) >)": "<  Something>",
+        "(<Something>)": "<Something>",
+        "(<T U>)": "<T, U>"
     },
     "GenPar": {
         "(+ - class .ctor (int32) Something)": "+ - class .ctor (int32) Something",
@@ -309,38 +320,138 @@
         "(.field private int32 xOrigin = unsigned int64 123)": ".field  private int32 xOrigin = unsigned int64 (123)",
         "(.field private int32 xOrigin at Something)": ".field  private int32 xOrigin at Something",
         "(.data Something (int64 0))":  ".data Something = int64 (0) ",
-        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)"
+        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)",
+        "(.event Something ((.fire (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))))": ".event Something {\n.fire instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)\n}"
 
     },
     "EventDecl": {
-
+        "(Something ((.fire (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))))": "Something {\n.fire instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)\n}"
     },
     "EventHeader": {
-
+        "(specialname rtspecialname (class (Something)) SomethingElse)": "specialname rtspecialname class  Something SomethingElse",
+        "(rtspecialname (class (Something)) SomethingElse)": " rtspecialname class  Something SomethingElse",
+        "(specialname (class (Something)) SomethingElse)": "specialname  class  Something SomethingElse",
+        "((class (Something)) SomethingElse)": "  class  Something SomethingElse",
+        "(SomethingElse)": "   SomethingElse"
     },
     "EventMember": {
-
+        "(.addon (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": ".addon instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)",
+        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)",
+        "(.fire (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": ".fire instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)",
+        "(.other (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": ".other instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)",
+        "(.removeon (instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": ".removeon instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)",
+        "(.line 1)": ".line 1 ",
+        "(.line 1 10)": ".line 1:10 "
     },
     "FireDecl": {
         "((instance explicit default) int (class (Something)) SomethingElse ((int v1) (int v2)))": "instance explicit default int class  Something :: SomethingElse( int  v1,  int  v2)"
     },
     "ExternSourceDecl": {
-        // "(.line 1 10 'Something')": ".line 1:10 'Something'",
-        // "(.line 1 'Something')": ".line 1 'Something'",
-        "(.line 1)": ".line 1 "
-        // "(.line 1 : 10)": ".line 1:10 "
+        "(1 10 'Something')": "1:10 'Something'",
+        "(1 'Something')": "1 'Something'",
+        "(1)": "1 ",
+        "(1 10)": "1:10 "
     },
     "CustomDecl": {
         "(abstract bool .ctor () = (1 2 3 4))": "abstract  bool  .ctor()  = (1 2 3 4)"
     },
+    "MethodDecl": {
+        "(abstract bool SomeMethod () cil ())": "abstract  bool  SomeMethod() cil {\n\n}",
+        "(abstract bool SomeMethod () cil ((.entrypoint)))": "abstract  bool  SomeMethod() cil {\n.entrypoint\n}",
+        "(abstract bool SomeMethod () cil ((.locals (int (float32 x)))))": "abstract  bool  SomeMethod() cil {\n.locals  (int, float32 x)\n}",
+        "(abstract bool SomeMethod () cil ((.entrypoint) (.custom abstract bool .ctor () = (1 2 3 4))))": "abstract  bool  SomeMethod() cil {\n.entrypoint\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n}"
+    },
+    "MethodBodyItem": {
+        "(.custom abstract bool .ctor () = (1 2 3 4))": ".custom abstract  bool  .ctor()  = (1 2 3 4)",
+        "(.data Something (int64 0))":  ".data Something = int64 (0) ",
+        "(.emitbyte 10)": ".emitbyte 10",
+        "(.entrypoint)": ".entrypoint",
+        "(.locals init (int))": ".locals init (int)",
+        "(.locals (int (float32 x)))": ".locals  (int, float32 x)"
+    },
+    "Instr": {
+        "nop": true
+    },
+    "ScopeBlock":{
+        "()": "{\n\n}",
+        "((.custom abstract bool .ctor () = (1 2 3 4)) (.data Something (int64 0)))": "{\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n.data Something = int64 (0) \n}"
+    },
+    "PermissionSetDecl":{
+        "(assert = (1 2 3 4))": "assert = (1 2 3 4)"
+    },
+    "PermissionDecl": {
+        "(reqrefuse (Something SomethingElse) (('A' = 'B') ('C' = 'D')))": "reqrefuse  Something/SomethingElse ('A' = 'B', 'C' = 'D')"
+    },
+    "SecAction":{
+        "assert": true,
+        "reqrefuse": true
+    },
+    "NameValPairs":{
+        "(('A' = 'B') ('C' = 'D'))": "'A' = 'B', 'C' = 'D'"
+
+    },
+    "NameValPair":{
+        "('A' = 'B')": "'A' = 'B'"
+    },
+    "SEHBlock":{
+        "((.try Something to SomethingElse) (finally handler Something to SomethingElse))": ".try Something to SomethingElse\nfinally handler Something to SomethingElse"
+    },
+    "TryBlock":{
+        "(.try Something to SomethingElse)": ".try Something to SomethingElse",
+        "(.try ((.custom abstract bool .ctor () = (1 2 3 4)) (.data Something (int64 0))))": ".try {\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n.data Something = int64 (0) \n}"
+    },
+    "SEHClause":{
+        "(catch (Something) handler Something to SomethingElse)": "catch  Something handler Something to SomethingElse",
+        "(filter Something handler Something to SomethingElse)": "filter Something handler Something to SomethingElse",
+        "(fault handler Something to SomethingElse)": "fault handler Something to SomethingElse",
+        "(finally handler Something to SomethingElse)": "finally handler Something to SomethingElse"
+    },
+    "HandlerBlock":{
+        "(handler Something to SomethingElse)": "handler Something to SomethingElse",
+        "((.custom abstract bool .ctor () = (1 2 3 4)) (.data Something (int64 0)))": "{\n.custom abstract  bool  .ctor()  = (1 2 3 4)\n.data Something = int64 (0) \n}"
+    },
+    "ParamDir":{
+        "(10 = (bool true))": "[10] = bool (true)",
+        "(10)": "[10]",
+        "(type 10)": "type [10]"
+    },
+    "OverrideDir":{
+        "([Something] SomethingElse)": "[ Something]::SomethingElse",
+        "(method default int int SomethingElse <[10]> ((int someting) (float32 somethingElse)))":
+        "method   default int  int::SomethingElse <[10]>( int  someting,  float32  somethingElse)"
+    },
+    "GenArity":{
+        "(<[10]>)": "<[10]>"
+    },
+    "LocalsDecl": {
+        "(init (int))": "init (int)",
+        "((int (float32 x)))": " (int, float32 x)"
+    },
+    "LocalsSignature": {
+        "((int x))": "int x", 
+        "((int x) (float32 y))": "int x, float32 y",
+        "(int (float32 x))": "int, float32 x"
+    },
+    "Local": {
+        "int": true,
+        "(int x)": "int x"
+    },
     "Ctor":{
-        "(abstract (instance default) bool (marshal int32) .ctor (T U) ((int v1) (float32 v2)) cil)": 
+        "(abstract (instance default) bool (marshal int32) .ctor<T U> ((int v1) (float32 v2)) cil)": 
         "abstract instance  default bool marshal (int32) .ctor<T, U>( int  v1,  float32  v2) cil"
 
     },
     "MethodHeader": {
-        "(abstract (instance default) bool (marshal int32) SomeMethod (T U) ((int v1) (float32 v2)) cil)": 
-        "abstract instance  default bool marshal (int32) SomeMethod<T, U>( int  v1,  float32  v2) cil"
+        "(abstract (instance default) bool (marshal int32) SomeMethod<T U> ((int v1) (float32 v2)) cil)": 
+        "abstract instance  default bool marshal (int32) SomeMethod<T, U>( int  v1,  float32  v2) cil",
+        "(abstract bool (marshal int32) SomeMethod<T U> ((int v1) (float32 v2)) cil)": 
+        "abstract  bool marshal (int32) SomeMethod<T, U>( int  v1,  float32  v2) cil",
+        "(abstract bool SomeMethod<T U> ((int v1) (float32 v2)) cil)": 
+        "abstract  bool  SomeMethod<T, U>( int  v1,  float32  v2) cil",
+        "(abstract bool SomeMethod ((int v1) (float32 v2)) cil)": 
+        "abstract  bool  SomeMethod( int  v1,  float32  v2) cil",
+        "(abstract bool SomeMethod () cil)": 
+        "abstract  bool  SomeMethod() cil"
     },
     "MethodName":{
         ".ctor": true,
@@ -401,5 +512,11 @@
         "(int32 1)": "int32 (1) ",
         "(int8 10 10)": "int8 (10) [10]",
         "(int16)": "int16 "
+    },
+    "QString": {
+        "\"Something\"": true
+    },
+    "SQString": {
+        "'Something'": true
     }
 }

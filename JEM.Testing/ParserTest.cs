@@ -30,11 +30,25 @@ namespace JEM.Testing
         [InlineData("_a", "_a")]
         [InlineData("a_b_c", "a_b_c")]
         [InlineData("_", "_")]
-        public void TestSingleSymbol(string input, string output)
+        public void TestSingleSymbol(string input, string output) 
         {
             var res = SExprParser.Parse(input);
             Assert.Single(res, output);
             Assert.IsType<Symbol>(res[0]);
+            Assert.NotEqual(TextSpan.None, res[0].TextSpan);
+
+        }
+
+        [Theory]
+        [InlineData("&", "&")]
+        [InlineData("<*>", "<*>")]
+        [InlineData("<<<", "<<<")]
+        [InlineData("-+-", "-+-")]
+        public void TestSingleOperator(string input, string output)
+        {
+            var res = SExprParser.Parse(input);
+            Assert.Single(res, output);
+            Assert.IsType<Operator>(res[0]);
             Assert.NotEqual(TextSpan.None, res[0].TextSpan);
         }
 
@@ -118,11 +132,14 @@ namespace JEM.Testing
             {
                 [""] = new SExpr(),
                 ["a"] = new SExpr(new Symbol("a")),
-                ["(a \"bc\" 123)"] = new SExpr(new SExpr(new Symbol("a"), new StringConstant("bc"), new IntConstant(123))),
-                ["(* & [])"] = new SExpr(new SExpr(new Symbol("*"), new Symbol("&"), new Symbol("[]"))),
+                ["(a \"bc\" 123)"] = new SExpr(new SExpr(new Symbol("a"), new StringConstant("bc", false), new IntConstant(123))),
+                ["(a \'bc\' 123)"] = new SExpr(new SExpr(new Symbol("a"), new StringConstant("bc", true), new IntConstant(123))),
+                ["(* & [])"] = new SExpr(new SExpr(new Operator("*"), new Operator("&"), new Operator("[]"))),
                 ["(() () ())"] = new SExpr(new SExpr(new SExpr(), new SExpr(), new SExpr())),
                 ["(( (a) ))"] = new SExpr(new SExpr(new SExpr(new SExpr(new Symbol("a"))))),
-                ["1 : 10"] = new SExpr(new IntConstant(1), new Symbol(":"), new IntConstant(10))
+                ["1:10"] = new SExpr(new IntConstant(1), new Operator(":"), new IntConstant(10)),
+                ["<T U>"] = new SExpr(new Operator("<"), new Symbol("T"), new Symbol("U"), new Operator(">")),
+                ["(.line 1:10)"] = new SExpr(new SExpr(new Symbol(".line"), new IntConstant(1), new Operator(":"), new IntConstant(10)))
             };
 
             foreach(var keyValuePair in cases) {

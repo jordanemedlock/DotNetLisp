@@ -27,6 +27,14 @@ namespace JEM.Testing
         [InlineData("_a")]
         [InlineData("a_b_c")]
         [InlineData("_")]
+        [InlineData(".")]
+        public void TestSingleSymbol(string input)
+        {
+            var res = Tokenizer.Tokenize(input).ToList().Select(x => x.Kind);
+            Assert.Single(res, SExprToken.Symbol);
+        }
+
+        [Theory]
         [InlineData("[")]
         [InlineData("]")]
         [InlineData("{")]
@@ -48,14 +56,17 @@ namespace JEM.Testing
         [InlineData(";")]
         [InlineData("|")]
         [InlineData("\\")]
-        [InlineData(".")]
         [InlineData(",")]
         [InlineData("`")]
         [InlineData("~")]
-        public void TestSingleSymbol(string input)
+        [InlineData("-+-")]
+        [InlineData("<<<")]
+        [InlineData("<*>")]
+        public void TestOperatorToken(string input) 
         {
+
             var res = Tokenizer.Tokenize(input).ToList().Select(x => x.Kind);
-            Assert.Single(res, SExprToken.Symbol);
+            Assert.Single(res, SExprToken.Operator);
         }
 
         [Theory]
@@ -70,7 +81,22 @@ namespace JEM.Testing
         public void TestSingleString(string input)
         {
             var res = Tokenizer.Tokenize(input).ToList().Select(x => x.Kind);
-            Assert.Single(res, SExprToken.String);
+            Assert.Single(res, SExprToken.DQString);
+        }
+        
+        [Theory]
+        [InlineData(" \'\' ")]
+        [InlineData("\'something\'")]
+        [InlineData("\'another thing\'")]
+        [InlineData("\'12346!@#$@#%&^$%&*\'")]
+        [InlineData("\'\\n \\r something\'")]
+        [InlineData("\'\\\\ all kinds of stuff\'    ")]
+        [InlineData("\'     \'")]
+        [InlineData("\'() -_ somehting\'")]
+        public void TestSingleSQString(string input)
+        {
+            var res = Tokenizer.Tokenize(input).ToList().Select(x => x.Kind);
+            Assert.Single(res, SExprToken.SQString);
         }
 
         [Theory]
@@ -137,15 +163,16 @@ namespace JEM.Testing
         [Theory]
         [InlineData("", new SExprToken[] { })]
         [InlineData("a", new SExprToken[] { SExprToken.Symbol })]
-        [InlineData("1 : 10", new SExprToken[] { SExprToken.Integer, SExprToken.Symbol, SExprToken.Integer })]
-        [InlineData("(a \"bc\" 123)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Integer, SExprToken.Close })]
+        [InlineData("1:10", new SExprToken[] { SExprToken.Integer, SExprToken.Operator, SExprToken.Integer })]
+        [InlineData("<T U>", new SExprToken[] { SExprToken.Operator, SExprToken.Symbol, SExprToken.Symbol, SExprToken.Operator })]
+        [InlineData("(a \"bc\" 123)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.DQString, SExprToken.Integer, SExprToken.Close })]
         [InlineData("(()((", new SExprToken[] { SExprToken.Open, SExprToken.Open, SExprToken.Close, SExprToken.Open, SExprToken.Open })]
-        [InlineData("(a \"bc\" 123.01)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Float, SExprToken.Close })]
-        [InlineData("(a \"bc\" 123 0.0)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.String, SExprToken.Integer, SExprToken.Float, SExprToken.Close })]
+        [InlineData("(a \"bc\" 123.01)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.DQString, SExprToken.Float, SExprToken.Close })]
+        [InlineData("(a \"bc\" 123 0.0)", new SExprToken[] { SExprToken.Open, SExprToken.Symbol, SExprToken.DQString, SExprToken.Integer, SExprToken.Float, SExprToken.Close })]
         [InlineData("(a [] somthing + - / *)", 
             new SExprToken[] { SExprToken.Open,
-                SExprToken.Symbol, SExprToken.Symbol, SExprToken.Symbol, SExprToken.Symbol,
-                SExprToken.Symbol, SExprToken.Symbol, SExprToken.Symbol,
+                SExprToken.Symbol, SExprToken.Operator, SExprToken.Symbol, SExprToken.Operator,
+                SExprToken.Operator, SExprToken.Operator, SExprToken.Operator,
             SExprToken.Close})]
         public void TestAllTogether(string input, SExprToken[] tokens)
         {

@@ -10,9 +10,12 @@ namespace JEM.Parse
         None,
 
         Symbol,
+        Operator,
         Integer,
-        String,
+        DQString,
+        SQString,
         Float,
+        Comment,
 
 
         [Token(Example = "(")]

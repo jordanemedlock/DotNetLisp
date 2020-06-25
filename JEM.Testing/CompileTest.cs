@@ -70,7 +70,7 @@ namespace JEM.Testing
         [Fact]
         public void TestOr()
         {
-            var stringConstant = new StringConstant("a");
+            var stringConstant = new StringConstant("a", true);
             var symbol = new Symbol("b");
             var compiler = Util.StringConstant.Value()
                 .Or(Util.Symbol);
@@ -82,14 +82,17 @@ namespace JEM.Testing
         }
         
         [Theory]
-        [JsonFileData("Data/compiler_data.json")]
+        [JsonFileData(@"TestFiles\compiler_data.json")]
         public void TestCompilerData(string compilerName, Dictionary<string, object> pairs)
         {
-            var compiler = (Compiler<Expr, string>) typeof(ILFile).GetField(compilerName).GetValue(null);
+            var field = typeof(ILFile).GetField(compilerName);
+            var compiler = (Compiler<Expr, string>) field.GetValue(null);
 
             foreach (var kvp in pairs)
             {
                 var parsed = SExprParser.Parse(kvp.Key);
+                compiler.Generate();
+                var name = compiler.Name;
                 var res = compiler.Compile(parsed[0]);
                 if (kvp.Value is string s)
                 {
@@ -105,7 +108,7 @@ namespace JEM.Testing
                     }
                     else
                     {
-                        Assert.False(res.HasValue, $"Result has value: {res.Value}");
+                        Assert.False(res.HasValue, $"Result has value: {res.Value} in {compilerName}");
                     }
                 } 
             }

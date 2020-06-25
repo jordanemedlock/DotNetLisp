@@ -12,32 +12,46 @@ namespace JEM.Compile
     {
         public string Name { get; set; }
 
-        public Func<TInput, CompilerResult<TInput, TOutput>> Compile { get; }
+        public Func<TInput, CompilerResult<TInput, TOutput>> InternalCompile { get; set; }
+
+        public Func<Compiler<TInput, TOutput>> CompilerGenerator { get; set; }
 
         public Compiler(Func<TInput, CompilerResult<TInput, TOutput>> compile) {
-            Compile = compile;
+            InternalCompile = compile;
         }
         
 
         public Compiler(string name, Func<TInput, CompilerResult<TInput, TOutput>> compile)
         {
             Name = name;
-            Compile = compile;
+            InternalCompile = compile;
         }
 
         public Compiler(string name, Func<Compiler<TInput, TOutput>> func)
         {
             
-            Compile = input =>
-            {
-                return func().Compile(input);
-            };
+            CompilerGenerator = func;
             Name = name;
+        }
+
+        public CompilerResult<TInput, TOutput> Compile (TInput input) {
+            if (InternalCompile == null) {
+                Generate();
+            }
+            return InternalCompile(input);
+        }
+
+        public void Generate() {
+            if (CompilerGenerator != null) {
+                var compiler = CompilerGenerator();
+                Name = "(" + Name + " = " + compiler.Name + ")";
+                InternalCompile = compiler.Compile;
+            }
         }
         
         public Compiler<TInput, V> Bind<V>(Func<TOutput, Compiler<TInput, V>> func)
         {
-            return new Compiler<TInput, V>($"{Name}.Bind()", input =>
+            return new Compiler<TInput, V>($"{Name}", input =>
             {
                 var res = this.Compile(input);
                 return res.Bind(val =>
@@ -51,7 +65,7 @@ namespace JEM.Compile
 
         public Compiler<TInput, V> Apply<V>(Compiler<TInput, V> other)
         {
-            return new Compiler<TInput, V>($"{Name}.Apply()", input =>
+            return new Compiler<TInput, V>($"{Name} {other.Name}", input =>
             {
                 var res = this.Compile(input);
                 if (!res.HasValue)
@@ -65,9 +79,9 @@ namespace JEM.Compile
             });
         }
 
-        public Compiler<TInput, V> Select<V>(Func<TOutput, V> func, string name = "")
+        public Compiler<TInput, V> Select<V>(Func<TOutput, V> func)
         {
-            return new Compiler<TInput, V>($"{Name}.Select({name})", input =>
+            return new Compiler<TInput, V>($"{Name}", input =>
             {
                 var res = this.Compile(input);
                 return res.Select(func);
@@ -76,7 +90,7 @@ namespace JEM.Compile
 
         public Compiler<TInput, V> Return<V>(V value)
         {
-            return new Compiler<TInput, V>($"{Name}.Return({value})", input =>
+            return new Compiler<TInput, V>($"{Name}=>{value}", input =>
             {
                 var res = this.Compile(input);
                 return res.Return(value);
@@ -85,7 +99,7 @@ namespace JEM.Compile
 
         public Compiler<TInput, TOutput> Where(Predicate<TOutput> pred, string name = "")
         {
-            return new Compiler<TInput, TOutput>($"{Name}.Where({name})", input =>
+            return new Compiler<TInput, TOutput>($"{(string.IsNullOrEmpty(name) ? Name : name)}", input =>
             {
                 var res = this.Compile(input);
                 return res.Where(r => pred(r.Value), name);
@@ -94,12 +108,12 @@ namespace JEM.Compile
 
         public Compiler<TInput, V> Is<V>() where V : class
         {
-            return this.Where(x => x is V, $"Is({typeof(V)})").Select(x => x as V);
+            return this.Where(x => x is V, $"{typeof(V).Name}").Select(x => x as V);
         }
 
         public Compiler<TInput, TOutput> Or(Compiler<TInput, TOutput> other)
         {
-            return new Compiler<TInput, TOutput>($"{Name}.Or({other.Name})", input =>
+            return new Compiler<TInput, TOutput>($"{Name} | {other.Name}", input =>
             {
                 var results1 = this.Compile(input);
                 if (!results1.HasValue)
@@ -116,59 +130,30 @@ namespace JEM.Compile
             });
         }
 
-        public Compiler<TInput, TOutput> Or(Compiler<TInput, TOutput> other, string name)
-        {
-            return new Compiler<TInput, TOutput>($"{Name}.Or({other.Name}, {name})", input =>
-            {
-                var results1 = this.Compile(input);
-                if (!results1.HasValue)
-                {
-                    var results2 = other.Compile(input);
-                    results2.HappyPath.Add(other.Name);
-                    return results2;
-                }
-                else
-                {
-                    results1.HappyPath.Add(this.Name);
-                    return results1;
-                }
-            });
-        }
 
         public static Compiler<TInput, TOutput> Or(params Compiler<TInput, TOutput>[] compilers)
         {
-            return new Compiler<TInput, TOutput>($"Compiler.Or({ string.Join(", ", compilers.Select(x => x.Name)) })", input =>
+            return new Compiler<TInput, TOutput>($"{string.Join(" | ", compilers.Select(x => x.Name))}", input =>
             {
-                CompilerResult<TInput, TOutput> result;
-                int i = 0;
-                do
+                List<CompilerResult<TInput, TOutput>> results = new List<CompilerResult<TInput, TOutput>>();
+                var errorMessage = $"{input} failed in Or with messages: \n";
+                for (int i=0; i < compilers.Length; i++)
                 {
-                    result = compilers[i++].Compile(input);
+                    results.Add(compilers[i].Compile(input));
+                    if (results[i].HasValue)
+                    {
+                        return results[i];
+                    }
+                    errorMessage += compilers[i].Name + ": " + results[i].Error + "\n";
                 }
-                while (!result.HasValue && i < compilers.Length);
-                return result;
-            });
-        }
 
-        public static Compiler<TInput, TOutput> Or(string name, params Compiler<TInput, TOutput>[] compilers)
-        {
-            return new Compiler<TInput, TOutput>($"Compiler.Or({name}, { string.Join(", ", compilers.Select(x => x.Name)) })", input =>
-            {
-                CompilerResult<TInput, TOutput> result;
-                int i = 0;
-                do
-                {
-                    result = compilers[i++].Compile(input);
-                }
-                while (!result.HasValue && i < compilers.Length);
-                result.HappyPath.Add($"{name}[{i - 1}]");
-                return result;
+                return new CompilerResult<TInput, TOutput>(errorMessage);
             });
         }
 
         public static Compiler<TInput, TOutput> Return(TOutput output)
         {
-            return new Compiler<TInput, TOutput>(input =>
+            return new Compiler<TInput, TOutput>($"=>{(output != null ? output.ToString() : "null")}", input =>
             {
                 return new CompilerResult<TInput, TOutput>(output, input);
             });
