@@ -9,39 +9,64 @@ namespace JEM.Compile.CIL
 {
     public static class ILFile
     {
-        public static Compiler<Expr, string> DottedName = 
-            Util.Symbol.Where(x => !x.StartsWith('.') || !x.EndsWith('.'), "DottedName");
+        public static Compiler<Expr, string> DottedName = (
+            from x in Util.Symbol
+            where !x.StartsWith('.') || !x.EndsWith('.')
+            select x);
+
+            // Util.Symbol.Where(x => !x.StartsWith('.') || !x.EndsWith('.'), "DottedName");
 
         // 138
-        public static Compiler<Expr, string> HashAlg = new Compiler<Expr, string>("HashAlg", () => 
-            Util.Next(".hash").Apply(
-            Util.Next("algorithm").Apply(
-            Util.Next(Util.IntConstant).Select(i =>
+        public static Compiler<Expr, string> HashAlg = (
+            from hash in Util.Next(".hash")
+            from algorithm in Util.Next("algorithm")
+            from i in Util.Next(Util.IntConstant)
+            select $"{hash} {algorithm} {i}"
+        );
+        // new Compiler<Expr, string>("HashAlg", () => 
+        //     Util.Next(".hash").Apply(
+        //     Util.Next("algorithm").Apply(
+        //     Util.Next(Util.IntConstant).Select(i =>
             
-            $".hash algorithm {i}"
+        //     $".hash algorithm {i}"
             
-            ))));
+        //     ))));
 
         // 138
-        public static Compiler<Expr, string> Version = new Compiler<Expr, string>("Version", () => 
-            Util.Next(".ver").Apply(
-            Util.Next(Util.IntConstant).Bind(major =>
-            Util.Next(Util.IntConstant).Bind(minor =>
-            Util.Next(Util.IntConstant).Bind(build =>
-            Util.Next(Util.IntConstant).Select(revision =>
+        public static Compiler<Expr, string> Version = (
+            from ver in Util.Next(".ver")
+            from major in Util.Next(Util.IntConstant)
+            from minor in Util.Next(Util.IntConstant)
+            from build in Util.Next(Util.IntConstant)
+            from revision in Util.Next(Util.IntConstant)
+            select $"{ver} {major} : {minor} : {build} : {revision}"
+        );
+        
+        // new Compiler<Expr, string>("Version", () => 
+        //     Util.Next(".ver").Apply(
+        //     Util.Next(Util.IntConstant).Bind(major =>
+        //     Util.Next(Util.IntConstant).Bind(minor =>
+        //     Util.Next(Util.IntConstant).Bind(build =>
+        //     Util.Next(Util.IntConstant).Select(revision =>
             
-            $".ver {major} : {minor} : {build} : {revision}"
+        //     $".ver {major} : {minor} : {build} : {revision}"
 
-            ))))));
+        //     ))))));
 
         // 138
-        public static Compiler<Expr, string> Culture = new Compiler<Expr, string>("Culture", () =>
-            Util.Next(".culture").Apply(
-            Util.Next(Util.DQStringConstant).Select(str => 
+        public static Compiler<Expr, string> Culture = (
+            from culture in Util.Next(".culture")
+            from str in Util.Next(Util.DQStringConstant)
+            select $"{culture} {str.Escaped()}"
+        );
+        
+        // new Compiler<Expr, string>("Culture", () =>
+        //     Util.Next(".culture").Apply(
+        //     Util.Next(Util.DQStringConstant).Select(str => 
             
-            $".culture {str.Escaped()}"
+        //     $".culture {str.Escaped()}"
 
-            )));
+        //     )));
 
         // 138
         public static Compiler<Expr, string> AsmDecl = new Compiler<Expr, string>("AsmDecl", () => 
@@ -52,14 +77,21 @@ namespace JEM.Compile.CIL
             ));
 
         // 137
-        public static Compiler<Expr, string> AssemblyDecl = new Compiler<Expr, string>("AssemblyDecl", () => 
-            Util.NextOptional("extern").Bind(ex =>
-            Util.Next(DottedName).Bind(dottedName => 
-            Util.Next(AsmDecl.Many()).Select(asmDecls =>
+        public static Compiler<Expr, string> AssemblyDecl = (
+            from @extern in Util.NextOptional("extern")
+            from dottedName in Util.Next(DottedName)
+            from asmDecls in Util.Next(AsmDecl.Many())
+            select $"{@extern} {dottedName} {{\n{string.Join('\n', asmDecls)}\n}}"
+        );
+        
+        // new Compiler<Expr, string>("AssemblyDecl", () => 
+        //     Util.NextOptional("extern").Bind(ex =>
+        //     Util.Next(DottedName).Bind(dottedName => 
+        //     Util.Next(AsmDecl.Many()).Select(asmDecls =>
             
-            $"{ex} {dottedName} {{\n\t{string.Join('\n', asmDecls)}\n}}"
+        //     $"{ex} {dottedName} {{\n\t{string.Join('\n', asmDecls)}\n}}"
             
-            ))));
+        //     ))));
 
         // 137
         // public static Compiler<Expr, string> NonExternAssembly = new Compiler<Expr, string>("NonExternAssembly", () => 
@@ -96,14 +128,20 @@ namespace JEM.Compile.CIL
             })
         );
 
-        public static Compiler<Expr, string> ModuleDecl = new Compiler<Expr, string>("ModuleDecl", () => 
-            Util.NextOptional("extern").Bind(ex => 
-            Util.NextOptional(Filename).Select(fn => 
-            
-            $"{ex} {fn}"
-
-            ))
+        public static Compiler<Expr, string> ModuleDecl = (
+            from @extern in Util.NextOptional("extern")
+            from fn in Util.NextOptional(Filename)
+            select $"{@extern} {fn}"
         );
+        
+        // new Compiler<Expr, string>("ModuleDecl", () => 
+        //     Util.NextOptional("extern").Bind(ex => 
+        //     Util.NextOptional(Filename).Select(fn => 
+            
+        //     $"{ex} {fn}"
+
+        //     ))
+        // );
 
         //     Compiler<Expr, string>.Or(
         //         Assembly,
@@ -129,121 +167,177 @@ namespace JEM.Compile.CIL
         );
 
         // 207
-        public static Compiler<Expr, string> VTFixupDecl = new Compiler<Expr, string>("VTFixupDecl", () => 
-            Util.NextOptional(Util.IntConstant.Select(i => (long?)i)).Bind(i =>
-            Util.SymbolIn("fromunmanaged", "int32", "int64").AtLeastOnce().Bind(attrs => 
-            Util.Next("at").Apply(
-            Util.Next(DataLabel).Select(label => 
-
-            $"{i} {string.Join(" ", attrs)} at {label}"
-
-            ))))
+        public static Compiler<Expr, string> VTFixupDecl = (
+            from i in Util.NextOptional(Util.IntConstant.Select(i => (long?)i))
+            from attrs in Util.SymbolIn("fromunmanaged", "int32", "int64").AtLeastOnce()
+            from @at in Util.Next("at")
+            from label in Util.Next(DataLabel)
+            select $"{i} {string.Join(" ", attrs)} {@at} {label}"
         );
+        
+        // new Compiler<Expr, string>("VTFixupDecl", () => 
+        //     Util.NextOptional(Util.IntConstant.Select(i => (long?)i)).Bind(i =>
+        //     Util.SymbolIn("fromunmanaged", "int32", "int64").AtLeastOnce().Bind(attrs => 
+        //     Util.Next("at").Apply(
+        //     Util.Next(DataLabel).Select(label => 
+
+        //     $"{i} {string.Join(" ", attrs)} at {label}"
+
+        //     ))))
+        // );
 
         // 140
-        public static Compiler<Expr, string> MResourceDecl = new Compiler<Expr, string>("MResourceDecl", () => 
-            Util.Next(Util.SymbolIn("public", "private")).Bind(access =>
-            Util.Next(DottedName).Bind(dottedName =>
-            ManResDecl.Many().Select(ress => 
-            
-            $"{access} {dottedName} {{\n{string.Join("\n", ress)}\n}}"
-            
-            )))
+        public static Compiler<Expr, string> MResourceDecl = (
+            from access in Util.Next(Util.SymbolIn("public", "private"))
+            from dottedName in Util.Next(DottedName)
+            from ress in ManResDecl.Many()
+            select $"{access} {dottedName} {{\n{string.Join("\n", ress)}\n}}"
         );
+        
+        // new Compiler<Expr, string>("MResourceDecl", () => 
+        //     Util.Next(Util.SymbolIn("public", "private")).Bind(access =>
+        //     Util.Next(DottedName).Bind(dottedName =>
+        //     ManResDecl.Many().Select(ress => 
+            
+        //     $"{access} {dottedName} {{\n{string.Join("\n", ress)}\n}}"
+            
+        //     )))
+        // );
 
         // 140
         public static Compiler<Expr, string> ManResDecl = new Compiler<Expr, string>("ManResDecl", () => 
             Compiler<Expr, string>.Or(
-                Util.Next(".assembly").Apply(
-                Util.Next("extern").Apply(
-                Util.Next(DottedName).Select(dottedName =>
-                
-                $".assembly extern {dottedName}"
+                from assembly in Util.Next(".assembly")
+                from @extern in Util.Next("extern")
+                from dottedName in Util.Next(DottedName)
+                select $"{assembly} {@extern} {dottedName}",
 
-                ))),
+                from custom in Util.Next(".custom")
+                from decl in CustomDecl
+                select $"{custom} {decl}",
 
-                Util.Next(".custom").Apply(CustomDecl.Select(c => $".custom {c}")),
-
-                Util.Next(".file").Apply(
-                Util.Next(DottedName).Bind(dottedName => 
-                Util.Next("at").Apply(
-                Util.Next(Util.IntConstant).Select(i => 
-                
-                $".file {dottedName} at {i}"
-
-                ))))
+                from file in Util.Next(".file")
+                from dottedName in Util.Next(DottedName)
+                from @at in Util.Next("at")
+                from i in Util.Next(Util.IntConstant)
+                select $"{file} {dottedName} {@at} {i}"
             )
 
         );
 
         // 135
-        public static Compiler<Expr, string> FileDecl = new Compiler<Expr, string>("FileDecl", () =>
-            Util.NextOptional("nometadata").Bind(nometa => 
-            Util.Next(Filename).Bind(filename => 
-            Util.Next(".hash").Apply(
-            Util.Next(Bytes).Bind(bytes => 
-            Util.NextOptional(".entrypoint").Select(entryPoint => 
+        public static Compiler<Expr, string> FileDecl = (
+            from nometa in Util.NextOptional("nometadata")
+            from filename in Util.Next(Filename)
+            from hash in Util.Next(".hash")
+            from bytes in Util.Next(Bytes)
+            from entrypoint in Util.NextOptional(".entrypoint")
+            select $"{nometa} {filename} {hash} = ({bytes}) {entrypoint}"
+        );
+        
+        // new Compiler<Expr, string>("FileDecl", () =>
+        //     Util.NextOptional("nometadata").Bind(nometa => 
+        //     Util.Next(Filename).Bind(filename => 
+        //     Util.Next(".hash").Apply(
+        //     Util.Next(Bytes).Bind(bytes => 
+        //     Util.NextOptional(".entrypoint").Select(entryPoint => 
 
-            $"{nometa} {filename} .hash = ({bytes}) {entryPoint}"
+        //     $"{nometa} {filename} .hash = ({bytes}) {entryPoint}"
 
-            ))))));
+        //     ))))));
 
-        public static Compiler<Expr, string> Filename = new Compiler<Expr, string>("Filename", () => 
-            Util.DQStringConstant.Select(x => x.Escaped()));
+        public static Compiler<Expr, string> Filename = (
+            from x in Util.DQStringConstant
+            select x.Escaped()
+        );
+        // new Compiler<Expr, string>("Filename", () => 
+        //     Util.DQStringConstant.Select(x => x.Escaped()));
 
-        public static Compiler<Expr, string> Bytes = new Compiler<Expr, string>("Bytes", () => 
-            Util.IntConstant.Many().Select(ints =>
+        public static Compiler<Expr, string> Bytes = (
+            from ints in Util.IntConstant.Many()
+            select String.Join(' ', ints)
+        );
+        
+        // new Compiler<Expr, string>("Bytes", () => 
+        //     Util.IntConstant.Many().Select(ints =>
 
-            $"{String.Join(' ', ints)}"
+        //     $"{String.Join(' ', ints)}"
 
-            ));
+        //     ));
 
         // 210
-        public static Compiler<Expr, string> Field = new Compiler<Expr, string>("Field", () => 
-            Util.Next(".field").Apply(
-            FieldDecl.Select(fieldDecl => 
+        public static Compiler<Expr, string> Field = (
+            from field in Util.Next(".field")
+            from decl in FieldDecl
+            select $"{field} {decl}"
+        );
+        
+        // new Compiler<Expr, string>("Field", () => 
+        //     Util.Next(".field").Apply(
+        //     FieldDecl.Select(fieldDecl => 
 
-            $".field {fieldDecl}"
+        //     $".field {fieldDecl}"
 
-            )));
+        //     )));
         // 212
         public static Compiler<Expr, string> FieldInit = new Compiler<Expr, string>("FieldInit", () => 
             Compiler<Expr, string>.Or(
-                Util.Next("bool").Apply(
-                Util.Next(Util.BoolConstant).Select(b => 
-                
-                $"bool ({(b ? "true" : "false")})"
-                
-                )),
+                from @bool in Util.Next("bool")
+                from b in Util.Next(Util.BoolConstant)
+                select $"{@bool} ({(b ? "true" : "false")})",
 
-                Util.Next("bytearray").Apply(
-                Util.Next(Bytes).Select(b => 
+                // Util.Next("bool").Apply(
+                // Util.Next(Util.BoolConstant).Select(b => 
                 
-                $"bytearray ({b})"
+                // $"bool ({(b ? "true" : "false")})"
                 
-                )),
+                // )),
 
-                Util.Next("char").Apply(
-                Util.Next(Util.IntConstant).Select(c => 
-                
-                $"char ({c})"
-                
-                )),
+                from @bytearray in Util.Next("bytearray")
+                from b in Util.Next(Bytes)
+                select $"{@bytearray} ({b})",
 
-                Util.Next(Util.SymbolIn("float32","float64")).Bind(fType =>
-                Util.Next(Util.FloatConstant.Select(x => x.ToString()).Or(Util.IntConstant.Select(x => x.ToString()))).Select(f => 
+                // Util.Next("bytearray").Apply(
+                // Util.Next(Bytes).Select(b => 
                 
-                $"{fType} ({f})"
+                // $"bytearray ({b})"
                 
-                )),
+                // )),
 
-                Util.NextOptional("unsigned").Bind(unsig =>
-                Util.Next(Util.SymbolIn("int8", "int16", "int32", "int64")).Bind(iType => 
-                Util.Next(Util.IntConstant).Select(iValue => 
+                from @char in Util.Next("char")
+                from c in Util.Next(Util.IntConstant)
+                select $"{@char} ({c})",
 
-                $"{unsig} {iType} ({iValue})"
+                // Util.Next("char").Apply(
+                // Util.Next(Util.IntConstant).Select(c => 
+                
+                // $"char ({c})"
+                
+                // )),
 
-                ))),
+                from fType in Util.Next(Util.SymbolIn("float32", "float64"))
+                from fValue in Util.Next(Util.FloatConstant.Select(x => x.ToString()).Or(Util.IntConstant.Select(x => x.ToString())))
+                select $"{fType} ({fValue})",
+
+                // Util.Next(Util.SymbolIn("float32","float64")).Bind(fType =>
+                // Util.Next(Util.FloatConstant.Select(x => x.ToString()).Or(Util.IntConstant.Select(x => x.ToString()))).Select(f => 
+                
+                // $"{fType} ({f})"
+                
+                // )),
+
+                from unsig in Util.NextOptional("unsigned")
+                from iType in Util.Next(Util.SymbolIn("int8", "int16", "int32", "int64"))
+                from iValue in Util.Next(Util.IntConstant)
+                select $"{unsig} {iType} ({iValue})",
+
+                // Util.NextOptional("unsigned").Bind(unsig =>
+                // Util.Next(Util.SymbolIn("int8", "int16", "int32", "int64")).Bind(iType => 
+                // Util.Next(Util.IntConstant).Select(iValue => 
+
+                // $"{unsig} {iType} ({iValue})"
+
+                // ))),
 
                 QString,
 
@@ -254,29 +348,51 @@ namespace JEM.Compile.CIL
         // 210
         public static Compiler<Expr, string> FieldInitOrDataLabel = new Compiler<Expr, string>("FieldInitOrDataLabel", () => 
             Compiler<Expr, string>.Or(
-                Util.Next(Util.OperatorIs("=")).Apply(Util.Next(FieldInit).Select(f => $"= {f}")),
-                Util.Next(Util.OperatorIs("=")).Apply(FieldInit.Select(f => $"= {f}")),
-                Util.Next("at").Apply(Util.Next(DataLabel).Select(d => $"at {d}"))
+                from eq in Util.Next(Util.OperatorIs("="))
+                from f in FieldInit.Or(Util.Next(FieldInit))
+                select $"{eq} {f}",
+
+                // Util.Next(Util.OperatorIs("=")).Apply(Util.Next(FieldInit).Select(f => $"= {f}")),
+                // Util.Next(Util.OperatorIs("=")).Apply(FieldInit.Select(f => $"= {f}")),
+
+                from @at in Util.Next("at")
+                from label in Util.Next(DataLabel)
+                select $"{@at} {label}"
+
+                // Util.Next("at").Apply(Util.Next(DataLabel).Select(d => $"at {d}"))
 
             ));
 
         // 210
-        public static Compiler<Expr, string> FieldDecl = new Compiler<Expr, string>("FieldDecl", () => 
-            Util.NextOptional(Util.IntConstant.Select(i => "[" + i + "]")).Bind(i =>
-            FieldAttr.ManyUntil().Bind(fas =>
-            Util.Next(Type).Bind(typ =>
-            Util.Next(Id).Bind(id =>
-            FieldInitOrDataLabel.Or(Util.NextOptional(FieldInitOrDataLabel)).Select(expr =>
+        public static Compiler<Expr, string> FieldDecl = (
+            from i in Util.NextOptional(Util.IntConstant.Select(i => "[" + i + "]"))
+            from fas in FieldAttr.ManyUntil()
+            from type in Util.Next(Type)
+            from id in Util.Next(Id)
+            from expr in FieldInitOrDataLabel.Or(Util.NextOptional(FieldInitOrDataLabel))
+            select $"{i} {String.Join(' ', fas ?? new List<string>())} {type} {id} {expr}"
+        );
+        
+        // new Compiler<Expr, string>("FieldDecl", () => 
+        //     Util.NextOptional(Util.IntConstant.Select(i => "[" + i + "]")).Bind(i =>
+        //     FieldAttr.ManyUntil().Bind(fas =>
+        //     Util.Next(Type).Bind(typ =>
+        //     Util.Next(Id).Bind(id =>
+        //     FieldInitOrDataLabel.Or(Util.NextOptional(FieldInitOrDataLabel)).Select(expr =>
 
-            $"{i} {String.Join(' ', fas ?? new List<string>())} {typ} {id} {expr}"
+        //     $"{i} {String.Join(' ', fas ?? new List<string>())} {typ} {id} {expr}"
 
-            ))))));
+        //     ))))));
 
         // 144
         public static Compiler<Expr, string> Type = new Compiler<Expr, string>("Type", () =>
             Compiler<Expr, string>.Or(
-                Util.Next(Util.OperatorIn("!", "!!")).Bind(exp => 
-                Util.Next(Util.IntConstant).Select(i => $"{exp}{i}")),
+                from exp in Util.Next(Util.OperatorIn("!", "!!"))
+                from i in Util.Next(Util.IntConstant)
+                select $"{exp}{i}",
+
+                // Util.Next(Util.OperatorIn("!", "!!")).Bind(exp => 
+                // Util.Next(Util.IntConstant).Select(i => $"{exp}{i}")),
 
                 Util.SymbolIn(new List<string>() {
                     "bool", "char",
@@ -288,35 +404,53 @@ namespace JEM.Compile.CIL
 
                 ClassRef, 
 
-                Util.Next("method").Apply(
-                Util.NextOptional(CallConv).Bind(callConv =>
-                Util.Next(Type).Bind(typ => 
-                Util.Next(Parameters).Select(pars => 
-            
-                $"method {callConv} {typ} * ({pars})"
+                from method in Util.Next("method")
+                from callConv in Util.NextOptional(CallConv)
+                from type in Util.Next(Type)
+                from pars in Util.Next(Parameters)
+                select $"{method} {callConv} {type} * ({pars})",
 
-                )))), 
+                // Util.Next("method").Apply(
+                // Util.NextOptional(CallConv).Bind(callConv =>
+                // Util.Next(Type).Bind(typ => 
+                // Util.Next(Parameters).Select(pars => 
+            
+                // $"method {callConv} {typ} * ({pars})"
+
+                // )))), 
 
                 TypeModifier, 
 
                 ValueType
             ));
 
-        public static Compiler<Expr, string> ValueType = new Compiler<Expr, string>("ValueType", () =>
-            Util.Next("valuetype").Apply(
-            Util.Next(TypeReference).Select(typeRef =>
+        public static Compiler<Expr, string> ValueType = (
+            from valuetype in Util.Next("valuetype")
+            from typeRef in Util.Next(TypeReference)
+            select $"{valuetype} {typeRef}"
+        );
+        
+        // new Compiler<Expr, string>("ValueType", () =>
+        //     Util.Next("valuetype").Apply(
+        //     Util.Next(TypeReference).Select(typeRef =>
 
-            $"valuetype {typeRef}"
+        //     $"valuetype {typeRef}"
 
-            )));
+        //     )));
 
-        public static Compiler<Expr, string> ClassRef = new Compiler<Expr, string>("ClassRef", () => 
-            Util.Next("class").Apply(
-            Util.Next(TypeReference).Select(typeRef =>
+        public static Compiler<Expr, string> ClassRef = (
+            from @class in Util.Next("class")
+            from typeRef in Util.Next(TypeReference)
+            select $"{@class} {typeRef}"
+        );
+        
+        // new Compiler<Expr, string>("ClassRef", () => 
+        //     Util.Next("class").Apply(
+        //     Util.Next(TypeReference).Select(typeRef =>
 
-            $"class {typeRef}"
+        //     $"class {typeRef}"
 
-            )));
+        //     )));
 
         // 185
         // TODO: this isn't the whole def. but it doesn't seem super important to implement the rest. idk
@@ -325,34 +459,52 @@ namespace JEM.Compile.CIL
 
         public static Compiler<Expr, string> TypeModifier = new Compiler<Expr, string>("TypeModifier", () => 
             Compiler<Expr, string>.Or(
-                Util.Next(Type).Bind(typ =>
-                Util.Next(Util.OperatorIn("&", "*")).Select(sym =>
+                from type in Util.Next(Type)
+                from sym in Util.Next(Util.OperatorIn("&", "*"))
+                select $"{type} {sym}",
 
-                $"{typ} {sym}"
+                // Util.Next(Type).Bind(typ =>
+                // Util.Next(Util.OperatorIn("&", "*")).Select(sym =>
 
-                )),
+                // $"{typ} {sym}"
+
+                // )),
+
                 GenericType, 
                 ArrayType, 
                 ModType, 
                 PinnedType
             ));
 
-        public static Compiler<Expr, string> PinnedType = new Compiler<Expr, string>("PinnedType", () => 
-            Util.Next(Type).Bind(typ =>
-            Util.Next("pinned").Return<string>(
+        public static Compiler<Expr, string> PinnedType = (
+            from type in Util.Next(Type)
+            from pinned in Util.Next("pinned")
+            select $"{type} {pinned}"
+        );
+        
+        // new Compiler<Expr, string>("PinnedType", () => 
+        //     Util.Next(Type).Bind(typ =>
+        //     Util.Next("pinned").Return<string>(
 
-            $"{typ} pinned"
+        //     $"{typ} pinned"
 
-            )));
+        //     )));
 
-        public static Compiler<Expr, string> ModType = new Compiler<Expr, string>("ModType", () =>
-            Util.Next(Type).Bind(typ =>
-            Util.Next(Util.SymbolIn("modopt", "modreq")).Bind(mod =>
-            Util.Next(TypeReference).Select(typeRef =>
+        public static Compiler<Expr, string> ModType = (
+            from type in Util.Next(Type)
+            from mod in Util.Next(Util.SymbolIn("modopt", "modreq"))
+            from typeRef in Util.Next(TypeReference)
+            select $"{type} {mod} ({typeRef})"
+        );
+        
+        // new Compiler<Expr, string>("ModType", () =>
+        //     Util.Next(Type).Bind(typ =>
+        //     Util.Next(Util.SymbolIn("modopt", "modreq")).Bind(mod =>
+        //     Util.Next(TypeReference).Select(typeRef =>
 
-            $"{typ} {mod} ({typeRef})"
+        //     $"{typ} {mod} ({typeRef})"
 
-            ))));
+        //     ))));
 
         public static Compiler<Expr, string> ArrayType = new Compiler<Expr, string>("ArrayType", () => 
             Util.Next(Type).Bind(typ =>

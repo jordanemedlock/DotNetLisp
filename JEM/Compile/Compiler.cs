@@ -63,6 +63,13 @@ namespace JEM.Compile
             });
         }
 
+        public Compiler<TInput, V> SelectMany<V>(Func<TOutput, Compiler<TInput, V>> func) {
+            return Bind(func);
+        } 
+        public Compiler<TInput, TResult> SelectMany<TResult, TInner>(Func<TOutput, Compiler<TInput, TInner>> collectionSelector, Func<TOutput, TInner, TResult> resultSelector) {
+            return Bind(i => collectionSelector(i).Select(o => resultSelector(i, o)));
+        } 
+
         public Compiler<TInput, V> Apply<V>(Compiler<TInput, V> other)
         {
             return new Compiler<TInput, V>($"{Name} {other.Name}", input =>
@@ -75,7 +82,7 @@ namespace JEM.Compile
                 else
                 {
                     return other.Compile(res.Remainder);
-                }
+                } 
             });
         }
 

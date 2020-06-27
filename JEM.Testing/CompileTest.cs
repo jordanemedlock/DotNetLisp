@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using JEM.Compile;
@@ -114,5 +115,26 @@ namespace JEM.Testing
             }
         }
 
+
+        [Theory]
+        [InlineData(@"TestFiles\hello_world.jem", @"TestFiles\hello_world.il", @"TestFiles\hello_world.expected.il")]
+        public void TestCompileFiles(string inputFile, string outputFile, string expectedFile) {
+            Assert.True(File.Exists(inputFile));
+
+            
+            if (File.Exists(outputFile)) {
+                File.Delete(outputFile);
+            }
+
+
+            Program.CompileFile(inputFile);
+            Assert.True(File.Exists(outputFile));
+
+            string outputContents = File.ReadAllText(outputFile);
+            string expectedContents = File.ReadAllText(expectedFile);
+
+            Assert.Equal(outputContents, expectedContents);
+
+        }
     }
 }

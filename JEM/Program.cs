@@ -11,7 +11,7 @@ using Superpower.Model;
 
 namespace JEM
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -19,6 +19,10 @@ namespace JEM
                 return;
             }
             var filePath = args[0];
+            CompileFile(filePath);
+        }
+
+        public static void CompileFile(string filePath) {
             var contents = ReadFile(filePath);
             var tokens = TokenizeString(contents);
             var exprs = ParseTokenList(tokens);
